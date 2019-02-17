@@ -65,6 +65,7 @@ class Square {
                     rangedMoves = rangedMoves.concat(oneDirection(0, 1, multiplier));
                     rangedMoves = rangedMoves.concat(oneDirection(0, -1, multiplier));
                     rangedMoves = rangedMoves.concat(oneDirection(-1, 0, multiplier));
+                    // fallsthrough
                 case "lance":
                     rangedMoves = rangedMoves.concat(oneDirection(1, 0, multiplier));
                     break;
@@ -258,9 +259,9 @@ class Board {
         arrayAdd(pawnLoc, pieces.Pawn);
 
         switch (this.handicap) {
-            // the two cases below run together
             case "rook-lance":
                 this["82"].removeOccupant();
+                //fallsthrough
             case "lance":
                 this["11"].removeOccupant();
                 break;
@@ -270,22 +271,31 @@ class Board {
             // the following cases build on each other
             case "ten-piece":
                 this["61"].removeOccupant();
+                //fallsthrough
             case "nine-piece":
                 this["41"].removeOccupant();
+                //fallsthrough
             case "eight-piece":
                 this["71"].removeOccupant();
+                //fallsthrough
             case "seven-piece":
                 this["31"].removeOccupant();
+                //fallsthrough
             case "six-piece":
                 this["81"].removeOccupant();
+                //fallsthrough
             case "five-piece":
                 this["21"].removeOccupant();
+                //fallsthrough
             case "four-piece":
                 this["11"].removeOccupant();
+                //fallsthrough
             case "three-piece":
                 this["91"].removeOccupant();
+                //fallsthrough
             case "two-piece":
                 this["22"].removeOccupant();
+                //fallsthrough
             case "rook":
                 this["82"].removeOccupant();
                 break;
@@ -394,3 +404,5 @@ class Board {
 
     }
 }
+
+export default Board;

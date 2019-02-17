@@ -1,9 +1,7 @@
-import Game from "./game/game";
-import Navbar from "../components/navbar/navbar";
-import Setup from "./setup/setup";
-import Home from "./home/home";
-import Dashboard from "./dashboard/dashboard";
-import Login from "./login/login";
-import Register from "./register/register";
-
-export default {Game, Navbar, Setup, Home, Dashboard, Login, Register};
+export {Game} from "./game/game";
+export {Navbar} from "../components/navbar/navbar";
+export {Setup} from "./setup/setup";
+export {Home} from "./home/home";
+export {Dashboard} from "./dashboard/dashboard";
+export {Login} from "./login/login";
+export {Register} from "./register/register";
