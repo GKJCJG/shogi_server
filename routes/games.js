@@ -1,5 +1,17 @@
 const router = require("express").Router();
-const searchController = require("../controllers/gameController");
+const gameController = require("../controllers/gameController");
+
+
+
+router.route("/new")
+  .post(gameController.create);
+
+router.route("/:id")
+  .get(gameController.findOne)
+  .put(gameController.updateOne);
+
+router.route("/cleanup")
+  .delete(gameController.deleteStale);
 
 // Matches with "/api/aggregate"
 // router.route("/")
