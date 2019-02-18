@@ -39,14 +39,17 @@ class Square {
         const handleRange = (piece) => {
             const oneDirection = (forward, sideways, multiplier) => {
                 let moves = [];
+                // loop terminates when the piece would go off the board.
                 for (let i = 1; this.coordinate[1] + i*multiplier*forward > 0 
                     && this.coordinate[1] + i*multiplier*forward < 10
                     && this.coordinate[0] + i*multiplier*sideways > 0
                     && this.coordinate[0] + i*multiplier*sideways < 10; i++) {
+                        //identify the target square and see who's there.
                         let xCoord = this.coordinate[0]+i*multiplier*sideways;
                         let yCoord = this.coordinate[1]+i*multiplier*forward;
                         let targetSquare = ""+xCoord+yCoord
                         let targetOccupant = this.checkSpace(targetSquare);
+                        // if you hit your own piece, stop; if opponent's, capture and stop; if none, keep moving.
                         if (targetOccupant===this.owner) {
                             break;
                         } else if (targetOccupant) {
@@ -96,17 +99,17 @@ class Square {
                 default:
                     const move = e.map(coordinate => coordinate*(this.owner === "sente" ? -1 : 1));
                     moveList.push([this.coordinate[0]+move[0], this.coordinate[1]+move[1]])
+                    // filter the moves to remove any that are off the board or that would 'capture' a piece of the same side. Not necessary for ranged pieces as their logic handes it.
+                    moveList=moveList.filter(e => (e[0] < 10
+                        && e[1] < 10 
+                        && e[0] > 0 
+                        && e[1] > 0 
+                        && !(this.checkSpace(e.join(""))===this.owner)))
             }
         });
 
-        // filter the moves to remove any that are off the board or that would 'capture' a piece of the same side, then map it into the text format for a move and return.
-        return moveList
-            .filter(e => (e[0] < 10
-                && e[1] < 10 
-                && e[0] > 0 
-                && e[1] > 0 
-                && !(this.checkSpace(e.join(""))===this.owner)))
-            .map(target => [this.coordinate.join(""), target.join("")]);
+        // then map it into the text format for a move and return.
+        return moveList.map(target => [this.coordinate.join(""), target.join("")]);
         
     }
 
@@ -196,17 +199,19 @@ class PieceStand {
         }
 
         // now we know all the possibilities. Permute over them.
-        candidatePieces.forEach(e => {
+        candidatePieces.forEach(piece => {
             let candidates = candidateSquares.slice();
-            if (e === "pawn") {
+            if (piece === "pawn") {
                 // this statement eliminates the ninth rank and obviates the specification of a limit in pawn class definition, at least as far as drops are concerned
                 candidates = candidates.filter(square => candidateFiles.includes(square[0]) && square[1] !== (this.owner === "sente" ? 1 : 9));
-            } else if (e==="knight") {
+            } else if (piece==="lance") {
+                candidates = candidates.filter(square => !(this.owner === "sente" ? [9] : [1]).includes(square[1]));
+            } else if (piece==="knight") {
                 // The last part of this is a bit elaborate but means "if it's sente, don't let it be the 8th or 9th rank; if gote, not the 1st or 2nd." 
-                candidates = candidates.filter(square => candidateFiles.includes(square[0]) && !(this.owner === "sente" ? [8, 9] : [1, 2]).includes(square[1]));
+                candidates = candidates.filter(square => !(this.owner === "sente" ? [8, 9] : [1, 2]).includes(square[1]));
             }
 
-            candidates.forEach(square => moveList.push([e, square.join("")]));
+            candidates.forEach(square => moveList.push([this.owner+"Hand", square.join(""), piece]));
         })
 
         return moveList;
@@ -327,19 +332,17 @@ class Board {
         return false;
     }
 
-    makeMove (loc1, loc2, piece, omitRecord=false) {
+    makeMove (loc1, loc2, piece, shouldRecord=true) {
 
         const recordMove = () => {
+            
 
             if (loc2.search("Hand") !== -1) {
                 this.lastMove.piece = this[loc1].occupant;
-                console.log("with capture:", this.lastMove);
             } else if (loc1.search("Hand") !== -1) {
                 this.lastMove = {origin: loc1, target: loc2, piece};
-                console.log("from hand:", this.lastMove);
             } else {
                 this.lastMove = {origin: loc1, target: loc2, piece: null};
-                console.log("without capture:", this.lastMove);
             }
         }
 
@@ -347,22 +350,23 @@ class Board {
 
             const {occupant, owner} = this[loc1].removeOccupant(piece);
             this[loc2].addOccupant(occupant, owner);
-            if (loc2.search("Hand") === -1) this.turn = this.changeTurn(this.turn);
 
         }
 
-        if(!omitRecord) recordMove();
+        if(shouldRecord) recordMove();
         enactMove();
     }
 
     // this method is mainly for testing for checks. The deleteMove() method will delete the last move and replay from the start.
-    undoMove() {
-        console.log("I'm undoing a move");
+    undoMove(turn) {
         const {origin, target, piece} = this.lastMove;
 
-        this.makeMove(target, origin, null, true);
+        this.makeMove(target, origin, null, false);
 
-        if (piece && origin.search("Hand") === -1) this.makeMove(this.changeTurn(this.turn)+"Hand", target, piece.constructor.name.toLowerCase(), true);
+        if (piece && origin.search("Hand") === -1) {
+            this.makeMove(turn+"Hand", target, piece.constructor.name.toLowerCase(), false);
+            this[target].owner = this.changeTurn(this[target].owner);
+        }
     }
 
     niFu (owner, file) {
@@ -374,6 +378,7 @@ class Board {
 
     readOneMove (string) {
         let loc1, loc2, piece;
+        
         if (string.split("-").length === 2) {
             [loc1, loc2] = string.split("-");
         } else {
@@ -383,6 +388,7 @@ class Board {
         
         this.moves.push(string);
         this.makeMove(loc1, loc2, piece);
+        this.turn = this.changeTurn(this.turn);
     }
 
     readMoves (array) {
@@ -397,29 +403,74 @@ class Board {
         }
     }
 
-    getMoveList (turn) {
+    getMoveList (turn, mustAvoidCheck=true, limitedCandidates=[]) {
         let moveList = []
-        for (let i=1; i<10; i++) {
-            for (let j=1; j<10; j++) {
-                if (this[""+i+j].owner === turn) {
-                    moveList = moveList.concat(this[""+i+j].listMoves());
+        if (limitedCandidates.length) {
+            for (let i=0; i < limitedCandidates.length; i++) {
+                if (this[limitedCandidates[i]].owner === turn) moveList = moveList.concat(this[limitedCandidates[i]].listMoves());
+            }
+        } else {
+            for (let i=1; i<10; i++) {
+                for (let j=1; j<10; j++) {
+                    if (this[""+i+j].owner === turn) moveList = moveList.concat(this[""+i+j].listMoves());
                 }
             }
-        }
-        moveList = moveList.concat(this[turn+"Hand"].listMoves());
+            moveList = moveList.concat(this[turn+"Hand"].listMoves());
 
-        moveList = moveList.filter(e => this.noAutoCheck(turn, e))
+            const kingThreats = this.findKingThreats(turn)
+            if (mustAvoidCheck && this.isInCheck(turn)) {
+                moveList = moveList
+                    .filter(move => this.noAutoCheck(turn, move, []));
+            } else if (mustAvoidCheck && kingThreats.threats.length) {
+                moveList = moveList
+                    .filter(move => this.noAutoCheck(turn, move, kingThreats.interposita))
+            }
+        }
         return moveList;
     }
 
-    noAutoCheck (turn, move) {
+    noAutoCheck (turn, move, threats) {
+        const [loc1, loc2, piece] = move;
+        if (!threats.includes(loc1) && threats.length) return true;
+
+        this.makeMove(loc1, loc2, piece);
+        let wouldBeCheck = this.isInCheck(turn);
+        if (this.senteHand.occupants.pawn.length > 1) debugger;
+        this.undoMove(turn);
+
+        return !wouldBeCheck;
+    }
+
+    findKingThreats (turn) {
+        let kingSquare = this.findKing(turn)
+        kingSquare = [parseInt(kingSquare[0]),parseInt(kingSquare[1])]
+        let potentialThreats = [];
+
+        for (let i=1; i < 9; i++) {
+            potentialThreats.push(
+                [kingSquare[0]+i, kingSquare[1]],
+                [kingSquare[0]-i, kingSquare[1]],
+                [kingSquare[0], kingSquare[1]+i],
+                [kingSquare[0], kingSquare[1]-i],
+                [kingSquare[0]+i, kingSquare[1]+i],
+                [kingSquare[0]-i, kingSquare[1]+i],
+                [kingSquare[0]-i, kingSquare[1]-i],
+                [kingSquare[0]+i, kingSquare[1]-i]
+            )
+        }
+        potentialThreats = potentialThreats.filter(e => e[0] > 0 && e[0] < 10 && e[1] > 0 && e[1] < 10).map(e => e.join(""));
+
+        let threats = potentialThreats.filter(e => this[e].owner === this.changeTurn(turn));
+        let interposita = potentialThreats.filter(e => this[e].owner === turn);
+
         
+        return {threats, interposita};
     }
 
     isInCheck (turn) {
         const kingSquare = this.findKing(turn);
 
-        const opponentMoves = this.getMoveList(this.changeTurn(turn));
+        const opponentMoves = this.getMoveList(this.changeTurn(turn), false, this.findKingThreats(turn).threats);
 
         if (opponentMoves.filter(e => e[1] === kingSquare).length) return true;
         return false;
@@ -441,6 +492,7 @@ class Board {
             }
         }
 
+        currentPosition.drops = legalMoves.filter(e => isNaN(e[0]));
         currentPosition.senteHand = this.senteHand.render();
         currentPosition.goteHand = this.goteHand.render();
 

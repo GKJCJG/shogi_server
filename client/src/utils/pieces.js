@@ -27,7 +27,6 @@ class Promoted extends Piece {
 };
 
 class Pawn extends Promotable {
-    name = "pawn";
     moves = [[0, 1]];
     symbol = "歩";
     letter = "p";

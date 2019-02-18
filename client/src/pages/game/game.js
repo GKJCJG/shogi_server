@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import {Board, Actions, Chat} from "../../components/gameIndex";
 import API from "../../utils/api";
-import gameLogic from "../../utils/game";
+import gameLogic from "../../utils/gameLogic";
 
 class Game extends Component {
     constructor () {
@@ -28,7 +28,7 @@ class Game extends Component {
         this.gameBoard = new gameLogic(handicap);
         this.gameBoard.initialize();
         this.gameBoard.readMoves(moves);
-        // this.gameBoard.undoMove();
+        console.log(this.gameBoard.getMoveList("sente"));
     }
 
     setPosition () {
