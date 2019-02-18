@@ -28,6 +28,7 @@ class Game extends Component {
         this.gameBoard = new gameLogic(handicap);
         this.gameBoard.initialize();
         this.gameBoard.readMoves(moves);
+        // this.gameBoard.undoMove();
     }
 
     setPosition () {
@@ -36,7 +37,6 @@ class Game extends Component {
     }
 
     render () {
-        console.log(this.state.position);
         return (
             <div className="container">
                 <Board position={this.state.position}/>

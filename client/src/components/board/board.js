@@ -4,8 +4,8 @@ import "./board.css";
 const PieceStand = (props) => (
     <div id={props.id}>
         {props.occupants
-            .map(piece => piece[1] > 0 ?
-            (<div>
+            .map((piece, index) => piece[1] > 0 ?
+            (<div key={props.id+"piece"+index}>
                 {piece[0]}{piece[1] > 1 ? <span className="handMult">{piece[1]}</span> : null}
             </div>)
             :
@@ -36,7 +36,6 @@ class Board extends Component {
     }
 
     render () {
-        console.log(this.props);
         return (
             this.props.position[11] ?
             (<div id="diagramContainer">

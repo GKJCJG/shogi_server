@@ -1,7 +1,7 @@
 import pieces from "./pieces";
 
 class Square {
-    constructor (i, j, checkSpace, transfer) {
+    constructor (i, j, checkSpace, makeMove) {
         Object.defineProperty(this, "coordinate", {
             configurable: true,
             writable: false,
@@ -9,14 +9,14 @@ class Square {
         });
 
         this.checkSpace = checkSpace;
-        this.transfer = transfer;
+        this.makeMove = makeMove;
         this.owner = null;
         this.occupant = null;
     }
     
 
     capture() {
-        this.transfer(this.coordinate.join(""), this.owner === "sente" ? "goteHand" : "senteHand");
+        this.makeMove(this.coordinate.join(""), this.owner === "sente" ? "goteHand" : "senteHand");
     }
 
     addOccupant(piece, owner) {
@@ -229,7 +229,7 @@ class Board {
     constructor (handicap) {
         for (let i = 1; i<10; i++) {
             for (let j=1; j<10; j++) {
-                this[""+i+j] = new Square(i, j, this.checkSpace.bind(this), this.transfer.bind(this));
+                this[""+i+j] = new Square(i, j, this.checkSpace.bind(this), this.makeMove.bind(this));
             }
         }
 
@@ -327,36 +327,42 @@ class Board {
         return false;
     }
 
-    transfer (loc1, loc2, piece, status=null) {
+    makeMove (loc1, loc2, piece, omitRecord=false) {
 
-        if (status==="test") { 
+        const recordMove = () => {
+
             if (loc2.search("Hand") !== -1) {
                 this.lastMove.piece = this[loc1].occupant;
-                console.log("with capture", this.lastMove);
+                console.log("with capture:", this.lastMove);
             } else if (loc1.search("Hand") !== -1) {
                 this.lastMove = {origin: loc1, target: loc2, piece};
-                this.moves.push()
-                console.log("from hand", this.lastMove);
+                console.log("from hand:", this.lastMove);
             } else {
                 this.lastMove = {origin: loc1, target: loc2, piece: null};
-                console.log("without capture", this.lastMove);
+                console.log("without capture:", this.lastMove);
             }
-        } else {
-            this.lastMove = {origin: null, target: null, piece: null};
         }
 
-        const {occupant, owner} = this[loc1].removeOccupant(piece);
-        this[loc2].addOccupant(occupant, owner);
-        if (loc2.search("Hand") === -1) this.turn = this.changeTurn(this.turn);
+        const enactMove = () => {
+
+            const {occupant, owner} = this[loc1].removeOccupant(piece);
+            this[loc2].addOccupant(occupant, owner);
+            if (loc2.search("Hand") === -1) this.turn = this.changeTurn(this.turn);
+
+        }
+
+        if(!omitRecord) recordMove();
+        enactMove();
     }
 
     // this method is mainly for testing for checks. The deleteMove() method will delete the last move and replay from the start.
     undoMove() {
-        const {loc1, loc2, piece} = this.lastMove;
+        console.log("I'm undoing a move");
+        const {origin, target, piece} = this.lastMove;
 
-        this.transfer(loc2, loc1);
+        this.makeMove(target, origin, null, true);
 
-        if (piece) this[loc2].addOccupant(piece, this.changeTurn(this.turn));
+        if (piece && origin.search("Hand") === -1) this.makeMove(this.changeTurn(this.turn)+"Hand", target, piece.constructor.name.toLowerCase(), true);
     }
 
     niFu (owner, file) {
@@ -366,7 +372,7 @@ class Board {
         return false;
     }
 
-    makeMove (string) {
+    readOneMove (string) {
         let loc1, loc2, piece;
         if (string.split("-").length === 2) {
             [loc1, loc2] = string.split("-");
@@ -376,11 +382,11 @@ class Board {
         }
         
         this.moves.push(string);
-        this.transfer(loc1, loc2, piece);
+        this.makeMove(loc1, loc2, piece);
     }
 
     readMoves (array) {
-        array.forEach(this.makeMove.bind(this));
+        array.forEach(this.readOneMove.bind(this));
     }
 
     findKing (turn) {
@@ -401,7 +407,13 @@ class Board {
             }
         }
         moveList = moveList.concat(this[turn+"Hand"].listMoves());
+
+        moveList = moveList.filter(e => this.noAutoCheck(turn, e))
         return moveList;
+    }
+
+    noAutoCheck (turn, move) {
+        
     }
 
     isInCheck (turn) {
