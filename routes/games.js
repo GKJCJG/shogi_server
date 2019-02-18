@@ -4,7 +4,8 @@ const gameController = require("../controllers/gameController");
 
 
 router.route("/new")
-  .post(gameController.create);
+  .post(gameController.create)
+  .get((req, res) => res.send("Hello."));
 
 router.route("/:id")
   .get(gameController.findOne)

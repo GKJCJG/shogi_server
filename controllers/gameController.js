@@ -12,11 +12,12 @@ module.exports = {
         .catch(err => res.status(422).json(err));
     },
     updateOne: (req, res) => {
+        console.log(req.body, req.body.move);
         Game.findOneAndUpdate(
                 {$or: 
                     [{senteAccess: req.params.id}, {goteAccess: req.params.id}]
                 },
-                {$push: {"moves": req.body}}
+                {$push: {"moves": req.body.move}}
             )
         .then(dbGame => res.json(dbGame))
         .catch(err => res.status(422).json(err));

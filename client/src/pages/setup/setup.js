@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import API from "../../utils/api";
 
 const EntryForm = (props) => {
     return (
@@ -97,12 +98,39 @@ class Setup extends Component {
 
     passChangeHandicap = this.changeHandicap.bind(this);
 
+    submitGame = () => {
+        const {initNick, initContact, oppNick, oppContact, handicap, initColor} = this.state;
+        let game = {};
+        
+        if (initColor === "sente") {
+            game = {
+                handicap: handicap==="even" ? null : handicap,
+                senteNick: initNick,
+                senteContact: initContact,
+                goteNick: oppNick,
+                goteContact: oppContact
+            }
+        } else {
+            game = {
+                handicap: handicap==="even" ? null : handicap,
+                senteNick: oppNick,
+                senteContact: oppContact,
+                goteNick: initNick,
+                goteContact: initContact
+            }
+        }
+        console.log(game);
+        API.createGame(game)
+        .then(response => console.log(response.data));
+    }
+
     render() {
         return (
         <div className = "container">
         <div className="row">
             <EntryForm {...this.state} onChange={this.passOnChange}/>
             <Options {...this.state} swapColors={this.passSwapColors} changeHandicap={this.passChangeHandicap}/>
+            <div className="clickSpan" onClick={this.submitGame}>Start game!</div>
         </div>
         </div>
     )}
