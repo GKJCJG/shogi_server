@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import "./board.css";
 
 const PieceStand = (props) => (
-    <div>
+    <div id={props.id}>
         {props.occupants
             .map(piece => piece[1] > 0 ?
             (<div>
@@ -41,7 +41,7 @@ class Board extends Component {
             this.props.position[11] ?
             (<div id="diagramContainer">
                 <PieceStand id="gote" occupants={this.props.position.goteHand}/>
-                <table>
+                <table className="shogiDiagram">
                     <tbody>
                         {this.renderRows()}
                     </tbody>
