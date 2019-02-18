@@ -7,7 +7,7 @@ const GameSchema = new Schema({
     moves: [{
         type: String
     }],
-    senteEmail: {
+    senteContact: {
         type: String,
         validate: {
             validator: function(email) {
@@ -17,7 +17,7 @@ const GameSchema = new Schema({
           },
           required: [true, 'Email required.']
         },
-    goteEmail: {
+    goteContact: {
         type: String,
         validate: {
             validator: function(email) {

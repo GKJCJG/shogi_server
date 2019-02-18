@@ -5,15 +5,40 @@ import gameLogic from "../../utils/game";
 
 class Game extends Component {
 
-    getGame () {
-        API.getGame(this.props.location.id)
-        .then(response => this.setState(response.data));
+    state={
+        legalMoves: [],
+        position: {}
+    };
+
+    componentDidMount () {
+        this.getGame();
     }
-    
+
+    getGame () {
+        API.getGame(this.props.match.params.id)
+        .then(response => {
+            this.readGame(response.data.handicap, response.data.moves);
+            
+            this.setInitialPosition();
+        });
+    }
+
+    readGame (handicap, moves) {
+        this.gameBoard = new gameLogic(handicap);
+        this.gameBoard.initialize();
+        this.gameBoard.readMoves(moves);
+    }
+
+    setInitialPosition () {
+        const position = this.gameBoard.render();
+        this.setState(position);
+        console.log(position);
+    }
+
     render () {
         return (
             <div className="container">
-                <Board position={this.state.position}/>
+                <Board/>
                 <Actions/>
                 <Chat/>
             </div>

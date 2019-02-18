@@ -1,6 +1,3 @@
-import Board from "./board/board";
-import Actions from "./actions/actions";
-import Chat from "./chat/chat";
-
-
-export {Board, Actions, Chat};
+export {Board} from "./board/board";
+export {Actions} from "./actions/actions";
+export {Chat} from "./chat/chat";

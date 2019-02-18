@@ -2,7 +2,10 @@ const Game = require("../models/game");
 
 module.exports = {
     findOne: (req, res) => {
-        Game.findById(req.params.id)
+        Game.findOne({$or: 
+            [{senteAccess: req.params.id}, {goteAccess: req.params.id}]
+        })
+        .select("-senteContact -goteContact")
         .then(dbGame => res.json(dbGame))
         .catch(err => res.status(422).json(err));
     },
@@ -12,13 +15,13 @@ module.exports = {
         .catch(err => res.status(422).json(err));
     },
     updateOne: (req, res) => {
-        console.log(req.body, req.body.move);
         Game.findOneAndUpdate(
-                {$or: 
-                    [{senteAccess: req.params.id}, {goteAccess: req.params.id}]
-                },
-                {$push: {"moves": req.body.move}}
-            )
+            {$or: 
+                [{senteAccess: req.params.id}, {goteAccess: req.params.id}]
+            },
+            {$push: {"moves": req.body.move}}
+        )
+        .select("-senteContact -goteContact")
         .then(dbGame => res.json(dbGame))
         .catch(err => res.status(422).json(err));
     },

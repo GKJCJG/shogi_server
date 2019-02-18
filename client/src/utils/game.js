@@ -111,7 +111,10 @@ class Square {
     }
 
     render () {
-        return this.occupant ? this.owner === "sente" ? this.occupant.letter : this.occupant.letter.toUpperCase() : " ";
+        return {
+            class: this.owner,
+            occupant: this.occupant ? this.occupant.symbol : ""
+        }
     }
 }
 
@@ -402,6 +405,19 @@ class Board {
         if (!this.isInCheck(turn)) return false;
 
 
+    }
+
+    render () {
+        let currentPosition = {};
+        let legalMoves = this.getMoveList(this.turn);
+        for(let i = 1; i < 10; i++) {
+            for (let j = 1; j < 10; j++) {
+                currentPosition[""+i+j] = this[""+i+j].render();
+                currentPosition[""+i+j].moves = legalMoves.filter(e => e[0] === ""+i+j).map(e => e[1]);
+            }
+        }
+
+        return currentPosition;
     }
 }
 
