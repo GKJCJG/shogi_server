@@ -4,11 +4,12 @@ import API from "../../utils/api";
 import gameLogic from "../../utils/game";
 
 class Game extends Component {
-
-    state={
-        legalMoves: [],
-        position: {}
-    };
+    constructor () {
+        super()
+        this.state = {
+            position: {}
+        } 
+    }
 
     componentDidMount () {
         this.getGame();
@@ -19,7 +20,7 @@ class Game extends Component {
         .then(response => {
             this.readGame(response.data.handicap, response.data.moves);
             
-            this.setInitialPosition();
+            this.setPosition();
         });
     }
 
@@ -29,16 +30,16 @@ class Game extends Component {
         this.gameBoard.readMoves(moves);
     }
 
-    setInitialPosition () {
+    setPosition () {
         const position = this.gameBoard.render();
-        this.setState(position);
-        console.log(position);
+        this.setState({position});
     }
 
     render () {
+        console.log(this.state.position);
         return (
             <div className="container">
-                <Board/>
+                <Board position={this.state.position}/>
                 <Actions/>
                 <Chat/>
             </div>

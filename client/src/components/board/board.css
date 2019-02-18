@@ -1,0 +1,18 @@
+.shogiDiagram {
+	border-collapse: collapse;
+	font-weight: bold;
+    float: left;
+    width: 80%;
+    height: 100%;
+}
+
+/* This is the div that holds the diagram */
+#diagramContainer {
+    background-color: #e9c372;
+    width: 264px;
+    height: 227px;
+    padding: 15px 3px;
+    /* box-sizing: border-box; */
+    float: left;
+    margin: 30px 15px;
+}

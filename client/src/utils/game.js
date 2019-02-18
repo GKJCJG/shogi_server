@@ -211,6 +211,18 @@ class PieceStand {
 
         return moveList;
     }
+
+    render () {
+        return [
+            ["歩", this.occupants.pawn.length],
+            ["香", this.occupants.lance.length],
+            ["桂", this.occupants.knight.length],
+            ["銀", this.occupants.silver.length],
+            ["金", this.occupants.gold.length],
+            ["角", this.occupants.bishop.length],
+            ["飛", this.occupants.rook.length]
+        ]
+    }
 }
 
 class Board {
@@ -416,6 +428,9 @@ class Board {
                 currentPosition[""+i+j].moves = legalMoves.filter(e => e[0] === ""+i+j).map(e => e[1]);
             }
         }
+
+        currentPosition.senteHand = this.senteHand.render();
+        currentPosition.goteHand = this.goteHand.render();
 
         return currentPosition;
     }
