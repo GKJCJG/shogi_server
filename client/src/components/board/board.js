@@ -102,13 +102,16 @@ class Board extends Component {
             candidates: [],
             move: {},
             stage: "touch",
+            moves: []
         };
 
         this.setGameState = props.setGameState;
+        this.restoreDefaults = props.restoreDefaults;
     }
 
     componentDidUpdate () {
         if (this.props.moveSent) this.sendMove("move");
+        if (this.props.reportRequested) this.getGame();
     }
 
     componentDidMount () {
@@ -134,16 +137,23 @@ class Board extends Component {
     }
 
     setPosition (position) {
-        this.setState({position});
+        this.setState({
+            position,
+            candidates: [],
+            move: {},
+            stage: "touch",
+            moves: []
+        });
     }
 
     reportToGame(dbGame, position) {
         const viewer = this.props.access === dbGame.senteAccess ? "sente" : "gote";
         const {drawOffer, resigned} = dbGame;
-        const {checkMate, inCheck, winner} = position;
+        const {checkMate, inCheck, winner, lastMove} = position;
         const opponentNick = viewer === "sente" ? dbGame.goteNick : dbGame.senteNick;
+        let canRespond = drawOffer && drawOffer !== viewer;
         const canPlay = viewer === this.gameBoard.turn && !(drawOffer || resigned || winner);
-        this.setGameState({viewer, drawOffer, resigned, winner, opponentNick, canPlay, checkMate, inCheck});
+        this.setGameState({viewer, drawOffer, resigned, winner, opponentNick, canPlay, checkMate, inCheck, lastMove, canRespond, reportRequested:false});
     }
 
     localSetCandidates (event) {
@@ -170,19 +180,27 @@ class Board extends Component {
 
         // use DOM properties of board elements to calculate appropriate new candidates.
         if(event.target.classList.contains("boardSquare")) {
-            markSquares(position[event.target.id].moves);
-            move.origin = event.target.id
+            if (position[event.target.id].moves.length) {
+                markSquares(position[event.target.id].moves);
+                move.origin = event.target.id
+            }
         } else if (event.target.classList.contains("handMult") || event.target.classList.contains("pieceIcon")) {
+            // retrieve piece type
             let dropPiece = event.target.classList.contains("handMult") ? event.target.parentElement.id.split("-")[1] : event.target.id.split("-")[1];
+            
+            // identify and mark target squares
             let dropSquares = position.drops
                 .filter(e => e.piece === dropPiece)
                 .map(e => e.target);
             markSquares(dropSquares);
+
+            // assign relevant properties to move.
             move.origin = event.target.parentElement.id.split("-")[0] + "Hand";
             move.piece = dropPiece;
         }
 
         let stage = candidates.length ? "choose" : "touch";
+        console.log(move);
 
         this.setState({position, candidates, move, stage});
     }
@@ -204,13 +222,13 @@ class Board extends Component {
 
     previewMove = this.localPreviewMove.bind(this);
 
-    sendMove(intent) {
-        if (intent === "move" && this.state.move.target) {
-            const move = this.state.move.piece ? this.state.move.piece + "*" + this.state.move.target : this.state.move.origin + "-" + this.state.move.target;
-            this.setState({move: {}, stage:"touch"});
-            this.setGameState({canPlay: false});
+    sendMove() {
+        if (this.state.move.target) {
+            const move = this.state.move.piece ?
+                this.state.move.piece + "*" + this.state.move.target
+                : this.state.move.origin + "-" + this.state.move.target;
             API.makeMove(this.props.access, {move})
-            .then(response => this.getGame());
+            .then(response => this.restoreDefaults());
         }
     }
 

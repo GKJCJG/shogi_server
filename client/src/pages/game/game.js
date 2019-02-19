@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import {Board, Actions, Chat} from "../../components/gameIndex";
+import "./game.css";
 
 
 
@@ -10,6 +11,7 @@ class Game extends Component {
         this.state = {
             APIready: false,
             canPlay: false,
+            canRespond: false,
             moveSent: false,
             opponentNick: "",
             checkMate: false,
@@ -17,29 +19,57 @@ class Game extends Component {
             drawOffer: false,
             resigned: false,
             viewer: "",
+            lastMove: "",
+            winner: "",
+            reportRequested: false
         }
     }
 
     passSetState = this.setState.bind(this);
 
-    passRender = this.render.bind(this);
+    localRestoreDefaults () {
+        this.setState({
+            APIready: false,
+            canPlay: false,
+            canRespond: false,
+            moveSent: false,
+            opponentNick: "",
+            checkMate: false,
+            inCheck: false,
+            drawOffer: false,
+            resigned: false,
+            viewer: "",
+            lastMove: "",
+            winner: "",
+            reportRequested: true
+        })
+    }
+
+    restoreDefaults = this.localRestoreDefaults.bind(this);
+
+    localInitiateSend() {
+        this.setState({moveSent: true});
+    }
+
+    initiateSend = this.localInitiateSend.bind(this);
 
     render () {
-        console.log(this.state);
         const boardProps = {
             access:this.props.match.params.id,
             moveSent: this.state.moveSent,
             canPlay: this.state.canPlay,
-            setGameState: this.passSetState
+            setGameState: this.passSetState,
+            restoreDefaults: this.restoreDefaults,
+            reportRequested: this.state.reportRequested
         };
         const actionProps = {
             access:this.props.match.params.id,
             initiateSend: this.initiateSend,
-            reRenderGame: this.passRender
+            restoreDefaults: this.restoreDefaults
         };
 
         return (
-            <div className="container">
+            <div className="gameContainer">
                 <Board {...boardProps}/>
                 <Actions {...actionProps} {...this.state}/>
                 <Chat/>

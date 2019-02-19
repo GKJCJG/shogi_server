@@ -1,0 +1,31 @@
+.container {
+    display: grid;
+    grid-template-columns: 5% 22% 31% 25% 15%;
+    grid-template-rows: auto auto;
+    max-width: 700px;
+}
+
+#labels {
+    grid-column-start: 2;
+    grid-column-end: 3;
+}
+
+#entryFields {
+    grid-column-start: 3;
+    grid-column-end: 4;
+}
+
+#options {
+    grid-column-start: 4;
+    grid-column-end: 6;
+}
+
+.row {
+    grid-column-start: 2;
+    grid-column-end: 3;
+    grid-row-start: 2;
+}
+
+#successMessage {
+    grid-column-end: 6;
+}

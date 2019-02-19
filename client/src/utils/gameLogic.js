@@ -497,6 +497,7 @@ class Board {
         if (this.isInCheck(this.turn)) {
             currentPosition.inCheck = true;
         }
+
         for(let i = 1; i < 10; i++) {
             for (let j = 1; j < 10; j++) {
                 currentPosition[""+i+j] = this[""+i+j].render();
@@ -507,6 +508,9 @@ class Board {
         currentPosition.drops = legalMoves.filter(e => isNaN(e[0])).map(e => {return {origin: e[0], target: e[1], piece: e[2]}});
         currentPosition.senteHand = this.senteHand.render();
         currentPosition.goteHand = this.goteHand.render();
+        let lastMove = this.moves[this.moves.length-1] || null;
+        lastMove = lastMove ? lastMove.split(lastMove.search("-") === -1 ? "*" : "-")[1] : null;
+        currentPosition.lastMove = lastMove;
 
         return currentPosition;
     }

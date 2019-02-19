@@ -26,11 +26,12 @@ module.exports = {
         .catch(err => res.status(422).json(err));
     },
     updateOne: (req, res) => {
+        console.log(req.params.id, req.body);
         Game.findOneAndUpdate(
             {$or: 
                 [{senteAccess: req.params.id}, {goteAccess: req.params.id}]
             },
-            {$set: res.body}
+            {$set: req.body}
         )
         .select("-senteContact -goteContact")
         .then(dbGame => res.json(dbGame))

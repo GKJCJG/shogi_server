@@ -11,7 +11,7 @@ const API = {
         return axios.post("/api/games/" + game + "/move", move)
     },
     OTBAction: (game, action) => {
-        return axios.put("/api/games/ + game", action)
+        return axios.put("/api/games/" + game, action)
     }
 };
 
