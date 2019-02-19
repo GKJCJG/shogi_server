@@ -94,7 +94,7 @@ td {
 }
 
 .candidate {
-    background-color: fuchsia;
+    background-color: rgba(87, 219, 87, 0.5);
 }
 
 /* This is the number of pieces of a particular type held by a player */

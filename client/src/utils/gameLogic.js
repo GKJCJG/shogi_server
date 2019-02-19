@@ -115,7 +115,7 @@ class Square {
 
     render () {
         return {
-            class: this.owner,
+            class: [this.owner],
             occupant: this.occupant ? this.occupant.symbol : ""
         }
     }
@@ -219,13 +219,13 @@ class PieceStand {
 
     render () {
         return [
-            ["歩", this.occupants.pawn.length],
-            ["香", this.occupants.lance.length],
-            ["桂", this.occupants.knight.length],
-            ["銀", this.occupants.silver.length],
-            ["金", this.occupants.gold.length],
-            ["角", this.occupants.bishop.length],
-            ["飛", this.occupants.rook.length]
+            {symbol: "歩", number: this.occupants.pawn.length, name: "pawn"},
+            {symbol: "香", number: this.occupants.lance.length, name: "lance"},
+            {symbol: "桂", number: this.occupants.knight.length, name: "knight"},
+            {symbol: "銀", number: this.occupants.silver.length, name: "silver"},
+            {symbol: "金", number: this.occupants.gold.length, name: "gold"},
+            {symbol: "角", number: this.occupants.bishop.length, name: "bishop"},
+            {symbol: "飛", number: this.occupants.rook.length, name: "rook"}
         ]
     }
 }
@@ -418,8 +418,11 @@ class Board {
             moveList = moveList.concat(this[turn+"Hand"].listMoves());
 
             const kingThreats = this.findKingThreats(turn)
+            const kingSquare = this.findKing(turn);
             if (mustAvoidCheck && this.isInCheck(turn)) {
                 moveList = moveList
+                    .filter(move => !(this[move[1]].occupant instanceof pieces.King))
+                    .filter(move => kingThreats.allRelevant.includes(move[1]) || move[0] === kingSquare)
                     .filter(move => this.noAutoCheck(turn, move, []));
             } else if (mustAvoidCheck && kingThreats.threats.length) {
                 moveList = moveList
@@ -435,7 +438,6 @@ class Board {
 
         this.makeMove(loc1, loc2, piece);
         let wouldBeCheck = this.isInCheck(turn);
-        if (this.senteHand.occupants.pawn.length > 1) debugger;
         this.undoMove(turn);
 
         return !wouldBeCheck;
@@ -464,7 +466,7 @@ class Board {
         let interposita = potentialThreats.filter(e => this[e].owner === turn);
 
         
-        return {threats, interposita};
+        return {threats, interposita, allRelevant: potentialThreats};
     }
 
     isInCheck (turn) {
@@ -492,7 +494,7 @@ class Board {
             }
         }
 
-        currentPosition.drops = legalMoves.filter(e => isNaN(e[0]));
+        currentPosition.drops = legalMoves.filter(e => isNaN(e[0])).map(e => {return {origin: e[0], target: e[1], piece: e[2]}});
         currentPosition.senteHand = this.senteHand.render();
         currentPosition.goteHand = this.goteHand.render();
 
