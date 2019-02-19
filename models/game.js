@@ -3,6 +3,18 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const GameSchema = new Schema({
+    drawOffer: {
+        type: String,
+        required: false
+    },
+    resigned: {
+        type: String,
+        required: false
+    },
+    winner: {
+        type: String,
+        required: false
+    },
     handicap: String,
     moves: [{
         type: String

@@ -3,24 +3,27 @@ import "./board.css";
 import API from "../../utils/api";
 import gameLogic from "../../utils/gameLogic";
 
-const PieceStand = (props) => (
-    <div id={props.id}>
-        {props.occupants
+const PieceStand = (props) => {
+    const {class: owner, occupants} = props.pieceStand;
+    return (
+    <div id={owner}>
+        {occupants
             .map((piece, index) => piece.number > 0 ?
-            (<div key={props.id+"piece"+index} className="pieceIcon" id={props.id+"-"+piece.name}>
+            (<div key={owner+"piece"+index} className="pieceIcon" id={owner+"-"+piece.name}>
                 {piece.symbol}{piece.number > 1 ? <span className="handMult" id={piece.name+"multiplier"}>{piece.number}</span> : null}
             </div>)
             :
             null)}
     </div>
-)
+    )
+}
 
 const PlaySpace = (props) => {
     let superPosition;
     let {origin, target, piece} = props.move;
 
     if(props.stage === "consider") {
-        const spText = piece ? props.position.senteHand.filter(e => e.name === piece)[0].symbol : props.position[origin].occupant;
+        const spText = piece ? props.position.senteHand.occupants.filter(e => e.name === piece)[0].symbol : props.position[origin].occupant;
         const spStyle = {
             position: "absolute",
             left: "3px",
@@ -28,7 +31,7 @@ const PlaySpace = (props) => {
             backgroundColor: "rgba(87, 219, 87)",
             opacity: props.position[target].class.includes("gote") ? 1 : 0.7
         };
-        superPosition = <span className = {props.position[target].class.includes("gote") ? "gote" : null} style={spStyle}>{spText}</span>;
+        superPosition = <span className = {props.position[target].class.includes("gote") || props.position[origin].class.includes("gote") ? "gote" : null} style={spStyle}>{spText}</span>;
     }
 
     const computeTd = (i, j) => <td key={tdKey(i, j)}
@@ -93,15 +96,19 @@ const PlaySpace = (props) => {
 class Board extends Component {
 
     constructor (props) {
-        super()
+        super(props);
         this.state = {
             position: {},
             candidates: [],
             move: {},
-            stage: "touch"
+            stage: "touch",
         };
 
-        this.activateAPI = props.activateAPI;
+        this.setGameState = props.setGameState;
+    }
+
+    componentDidUpdate () {
+        if (this.props.moveSent) this.sendMove("move");
     }
 
     componentDidMount () {
@@ -111,9 +118,11 @@ class Board extends Component {
     getGame () {
         API.getGame(this.props.access)
         .then(response => {
-            this.readGame(response.data.handicap, response.data.moves);
-            
-            this.setPosition();
+            const position = this.readGame(response.data.handicap, response.data.moves);
+
+            this.setPosition(position);
+            this.reportToGame(response.data, position);
+
         });
     }
 
@@ -121,11 +130,20 @@ class Board extends Component {
         this.gameBoard = new gameLogic(handicap);
         this.gameBoard.initialize();
         this.gameBoard.readMoves(moves);
+        return this.gameBoard.render();
     }
 
-    setPosition () {
-        const position = this.gameBoard.render();
+    setPosition (position) {
         this.setState({position});
+    }
+
+    reportToGame(dbGame, position) {
+        const viewer = this.props.access === dbGame.senteAccess ? "sente" : "gote";
+        const {drawOffer, resigned} = dbGame;
+        const {checkMate, inCheck, winner} = position;
+        const opponentNick = viewer === "sente" ? dbGame.goteNick : dbGame.senteNick;
+        const canPlay = viewer === this.gameBoard.turn && !(drawOffer || resigned || winner);
+        this.setGameState({viewer, drawOffer, resigned, winner, opponentNick, canPlay, checkMate, inCheck});
     }
 
     localSetCandidates (event) {
@@ -145,7 +163,7 @@ class Board extends Component {
         });
 
         // let game know that we're not ready
-        this.activateAPI(false);
+        this.setGameState({APIready: false})
         
         candidates = [];
         let move = {};
@@ -181,20 +199,30 @@ class Board extends Component {
         let stage = "consider";
         
         this.setState({move, stage});
-        this.activateAPI(true)
+        this.setGameState({APIready: true});
     }
 
     previewMove = this.localPreviewMove.bind(this);
 
+    sendMove(intent) {
+        if (intent === "move" && this.state.move.target) {
+            const move = this.state.move.piece ? this.state.move.piece + "*" + this.state.move.target : this.state.move.origin + "-" + this.state.move.target;
+            this.setState({move: {}, stage:"touch"});
+            this.setGameState({canPlay: false});
+            API.makeMove(this.props.access, {move})
+            .then(response => this.getGame());
+        }
+    }
+
     render () {
         return (
             this.state.position[11] ?
-            (<div id="diagramContainer" onClick={this.state.stage === "touch" ? this.setCandidates : this.previewMove}>
-                <PieceStand id="gote" occupants={this.state.position.goteHand}/>
+            (<div id="diagramContainer" onClick={this.props.canPlay ? this.state.stage === "touch" ? this.setCandidates : this.previewMove : null}>
+                <PieceStand pieceStand={this.state.position.goteHand}/>
                 <table className="shogiDiagram">
                     <PlaySpace {...this.state}/>
                 </table>
-                <PieceStand id="sente" occupants={this.state.position.senteHand}/>
+                <PieceStand pieceStand={this.state.position.senteHand}/>
             </div>)
             :
             null

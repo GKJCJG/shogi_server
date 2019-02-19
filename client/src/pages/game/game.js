@@ -8,21 +8,40 @@ class Game extends Component {
     constructor () {
         super()
         this.state = {
-            APIready: false
+            APIready: false,
+            canPlay: false,
+            moveSent: false,
+            opponentNick: "",
+            checkMate: false,
+            inCheck: false,
+            drawOffer: false,
+            resigned: false,
+            viewer: "",
         }
     }
 
-    localActivateAPI (APIready) {
-        this.setState({APIready});
-    }
+    passSetState = this.setState.bind(this);
 
-    activateAPI = this.localActivateAPI.bind(this);
+    passRender = this.render.bind(this);
 
     render () {
+        console.log(this.state);
+        const boardProps = {
+            access:this.props.match.params.id,
+            moveSent: this.state.moveSent,
+            canPlay: this.state.canPlay,
+            setGameState: this.passSetState
+        };
+        const actionProps = {
+            access:this.props.match.params.id,
+            initiateSend: this.initiateSend,
+            reRenderGame: this.passRender
+        };
+
         return (
             <div className="container">
-                <Board access={this.props.match.params.id} activateAPI = {this.activateAPI}/>
-                <Actions/>
+                <Board {...boardProps}/>
+                <Actions {...actionProps} {...this.state}/>
                 <Chat/>
             </div>
         );

@@ -218,15 +218,18 @@ class PieceStand {
     }
 
     render () {
-        return [
-            {symbol: "歩", number: this.occupants.pawn.length, name: "pawn"},
-            {symbol: "香", number: this.occupants.lance.length, name: "lance"},
-            {symbol: "桂", number: this.occupants.knight.length, name: "knight"},
-            {symbol: "銀", number: this.occupants.silver.length, name: "silver"},
-            {symbol: "金", number: this.occupants.gold.length, name: "gold"},
-            {symbol: "角", number: this.occupants.bishop.length, name: "bishop"},
-            {symbol: "飛", number: this.occupants.rook.length, name: "rook"}
-        ]
+        return {
+                class: this.owner,
+                occupants: [
+                {symbol: "歩", number: this.occupants.pawn.length, name: "pawn"},
+                {symbol: "香", number: this.occupants.lance.length, name: "lance"},
+                {symbol: "桂", number: this.occupants.knight.length, name: "knight"},
+                {symbol: "銀", number: this.occupants.silver.length, name: "silver"},
+                {symbol: "金", number: this.occupants.gold.length, name: "gold"},
+                {symbol: "角", number: this.occupants.bishop.length, name: "bishop"},
+                {symbol: "飛", number: this.occupants.rook.length, name: "rook"}
+            ],
+        }
     }
 }
 
@@ -487,6 +490,13 @@ class Board {
     render () {
         let currentPosition = {};
         let legalMoves = this.getMoveList(this.turn);
+        if (!legalMoves.length) {
+            currentPosition.checkMate = true;
+            currentPosition.winner = this.changeTurn(this.turn);
+        }
+        if (this.isInCheck(this.turn)) {
+            currentPosition.inCheck = true;
+        }
         for(let i = 1; i < 10; i++) {
             for (let j = 1; j < 10; j++) {
                 currentPosition[""+i+j] = this[""+i+j].render();

@@ -14,12 +14,23 @@ module.exports = {
         .then(dbGame => res.json(dbGame))
         .catch(err => res.status(422).json(err));
     },
-    updateOne: (req, res) => {
+    addMove: (req, res) => {
         Game.findOneAndUpdate(
             {$or: 
                 [{senteAccess: req.params.id}, {goteAccess: req.params.id}]
             },
             {$push: {"moves": req.body.move}}
+        )
+        .select("-senteContact -goteContact")
+        .then(dbGame => res.json(dbGame))
+        .catch(err => res.status(422).json(err));
+    },
+    updateOne: (req, res) => {
+        Game.findOneAndUpdate(
+            {$or: 
+                [{senteAccess: req.params.id}, {goteAccess: req.params.id}]
+            },
+            {$set: res.body}
         )
         .select("-senteContact -goteContact")
         .then(dbGame => res.json(dbGame))
