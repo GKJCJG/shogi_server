@@ -22,19 +22,11 @@ const Headline = (props) => {
 }
 
 const MakeMove = (props) => {
-    const {target, origin, motum} = props.move;
+    const {target, isPromotable} = props.move;
     const divClass = target ? "clickSpan" : "idleSpan";
     const divClick = target ? props.sendMoveNP : null;
 
-    function isEnemyCamp (a) {
-        return props.viewer === "gote" ? a % 10 > 6 : a % 10 < 4;
-    }
-    // true if a target is specified, the move is not a drop, and the origin or target are inside the enemy camp, and the piece is not already promoted.
-    function isPromotable () {
-        return props.move.target && !isNaN(props.move.origin) && (isEnemyCamp(origin) || isEnemyCamp(target)) && !["と","杏","圭","全","金","馬","竜","玉","王"].includes(motum);
-    }
-
-    if (isPromotable()) return (
+    if (isPromotable) return (
         <div>
             <div className={divClass} onClick={props.sendMoveWP}>Make this move with promotion »</div>
             <div className={divClass} onClick={props.sendMoveNP}>Make this move without promotion »</div>

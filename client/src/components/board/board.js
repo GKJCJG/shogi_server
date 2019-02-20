@@ -12,7 +12,6 @@ class Board extends Component {
         this.state = {
             position: {},
             candidates: [],
-            stage: "touch",
         };
 
         this.setGameState = props.setGameState;
@@ -49,7 +48,6 @@ class Board extends Component {
         this.setState({
             position,
             candidates: [],
-            stage: "touch",
         });
     }
 
@@ -107,10 +105,8 @@ class Board extends Component {
             move.piece = dropPiece;
         }
 
-        let stage = candidates.length ? "choose" : "touch";
-        console.log(move);
 
-        this.setState({position, candidates, stage});
+        this.setState({position, candidates});
         this.setGameState({move})
     }
 
@@ -120,12 +116,16 @@ class Board extends Component {
         
         if (!event.target.classList.contains("candidate")) return this.setCandidates(event);
 
-        let move = this.props.move;
-        move.target = event.target.id;
+        const isEnemyCamp = (coordinate) => this.gameBoard.turn === "gote" ? coordinate % 10 > 6 : coordinate % 10 < 4;
 
-        let stage = "consider";
-        
-        this.setState({stage});
+        // true if a target is specified, the move is not a drop, and the origin or target are inside the enemy camp, and the piece is not already promoted.
+        const isPromotable = (move) => !isNaN(move.origin) && (isEnemyCamp(move.origin) || isEnemyCamp(move.target)) && !["と","杏","圭","全","金","馬","竜","玉","王"].includes(move.motum);
+
+        let move = this.props.move;
+        let target = event.target.id;
+        move.target = target;
+        move.isPromotable = isPromotable(move);
+
         this.setGameState({move});
     }
 
@@ -134,10 +134,9 @@ class Board extends Component {
 
 
     render () {
-        console.log(this.state.position);
         return (
             this.state.position[11] ?
-            (<div id="diagramContainer" onClick={this.props.canPlay ? this.state.stage === "touch" ? this.setCandidates : this.previewMove : null}>
+            (<div id="diagramContainer" onClick={this.props.canPlay ? (this.state.candidates.length ? this.previewMove : this.setCandidates) : null}>
                 <PieceStand pieceStand={this.state.position.goteHand}/>
                 <table className="shogiDiagram">
                     <PlaySpace {...this.state} move={this.props.move}/>

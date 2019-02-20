@@ -13,7 +13,9 @@ const PlaySpace = (props) => {
             backgroundColor: "rgba(87, 219, 87)",
             opacity: props.position[target].class.includes("gote") ? 1 : 0.7
         };
-        superPosition = <span className = {props.position[target].class.includes("gote") || props.position[origin].class.includes("gote") ? "gote" : null} style={spStyle}>{spText}</span>;
+        const spanClass = props.position[target].class.includes("gote") || props.position[origin].class.includes("gote") ? "gote" : null;
+
+        superPosition = <span className = {spanClass} style={spStyle}>{spText}</span>;
     }
 
     const computeTd = (i, j) => <td key={tdKey(i, j)}
@@ -28,7 +30,7 @@ const PlaySpace = (props) => {
     const tdKey = (i, j) => "square"+(10-j)+i;
     const tdId = (i, j) => ""+(10-j)+i;
     const tdStyle = (i, j) => {
-        if (props.stage === "consider") {
+        if (target) {
             if ("" + (10-j) + i === origin) {
                 return {opacity: 0.3};
             } else if ("" + (10-j) + i === target) {
@@ -38,7 +40,7 @@ const PlaySpace = (props) => {
         return null;
     }
     const tdSuperPosition = (i, j) => {
-        if (props.stage==="consider" && "" + (10-j) + i === target) return superPosition;
+        if (target && "" + (10-j) + i === target) return superPosition;
         return null;
     }
 
