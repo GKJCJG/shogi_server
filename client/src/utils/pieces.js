@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 class Piece {
     moves;
     symbol;
@@ -126,3 +127,4 @@ class GKing extends King {
 };
 
 export default {Pawn, Tokin, Lance, PLance, Knight, PKnight, Silver, PSilver, Gold, Bishop, Horse, Rook, Dragon, King, GKing, Promotable, Promoted};
+/* eslint-enable no-use-before-define */
