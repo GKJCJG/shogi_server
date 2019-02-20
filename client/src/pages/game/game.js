@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import {Board, Actions, Chat} from "../../components/gameIndex";
-import "./game.css";
 
 
 
@@ -21,7 +20,8 @@ class Game extends Component {
             viewer: "",
             lastMove: "",
             winner: "",
-            reportRequested: false
+            reportRequested: false,
+            move: {}
         }
     }
 
@@ -41,7 +41,8 @@ class Game extends Component {
             viewer: "",
             lastMove: "",
             winner: "",
-            reportRequested: true
+            reportRequested: true,
+            move: {}
         })
     }
 
@@ -60,12 +61,14 @@ class Game extends Component {
             canPlay: this.state.canPlay,
             setGameState: this.passSetState,
             restoreDefaults: this.restoreDefaults,
-            reportRequested: this.state.reportRequested
+            reportRequested: this.state.reportRequested,
+            move: this.state.move
         };
         const actionProps = {
             access:this.props.match.params.id,
             initiateSend: this.initiateSend,
-            restoreDefaults: this.restoreDefaults
+            restoreDefaults: this.restoreDefaults,
+            move: this.state.move
         };
 
         return (

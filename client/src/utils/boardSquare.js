@@ -20,7 +20,7 @@ class Square {
         this.makeMove({origin, target}, {shouldRecord: false});
     }
 
-    addOccupant(piece, owner, mayPromote, confirmPromote=false) {
+    addOccupant(piece, owner, doesPromote) {
         if (this.occupant) {
             this.capture();
         }
@@ -28,22 +28,14 @@ class Square {
         this.occupant = piece;
         this.owner = owner;
 
-        if (this.isEnemyCamp() && this.isPromotable() && mayPromote) {
-            this.queryPromote(confirmPromote);
+        if (doesPromote && this.occupant instanceof pieces.Promotable) {
+            this.occupant = new this.occupant.promotion()
         }
     }
 
-    isEnemyCamp () {
-        return (this.owner === "gote" && this.coordinate[1] > 6) || (this.owner === "sent" && this.coordinate[1] < 4);
-    }
-
-    isPromotable () {
-        return this.occupant instanceof pieces.Promotable;
-    }
-
-    removeOccupant(mayPromote=true, confirmPromote=false) {
-        if (this.isEnemyCamp() && this.isPromotable() && mayPromote) {
-            this.queryPromote(confirmPromote)
+    removeOccupant(doesPromote) {
+        if (doesPromote) {
+            this.occupant = new this.occupant.promotion()
         }
 
         const previousTenant = {occupant: this.occupant, owner: this.owner};
@@ -51,12 +43,6 @@ class Square {
         this.occupant = null;
         this.owner = null;
         return previousTenant;
-    }
-
-    queryPromote(confirmPromote) {
-        if (confirmPromote) {
-            this.occupant = new this.occupant.promotion()
-        }
     }
 
     listMoves() {

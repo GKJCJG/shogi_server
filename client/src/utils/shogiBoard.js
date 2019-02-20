@@ -107,9 +107,8 @@ class Board {
     // Options include: whether the piece certainly promoted, and whether the game should record this move as a move.
     makeMove (moveInfo, options) {
         const {origin, target, piece} = moveInfo;
-        const confirmPromote = options.confirmPromote || false;
+        const doesPromote = options.doesPromote || false;
         const shouldRecord = options.hasOwnProperty("shouldRecord") ? options.shouldRecord : true;
-        const mayPromote = !(origin.search("Hand") !== -1 || target.search("Hand") !== -1);
 
         const recordMove = () => {
             this.lastMove = {};
@@ -118,20 +117,21 @@ class Board {
             } else if (this[target].occupant) {
                 const originOccupant = this[origin].occupant;
                 const targetOccupant = this[target].occupant;
-                const capturedPiece = targetOccupant instanceof pieces.Promoted ? targetOccupant.stand.constructor.name.toLowerCase() : targetOccupant.constructor.name.toLowerCase();
+                const capturedPiece = targetOccupant instanceof pieces.Promoted ? targetOccupant.stand.name.toLowerCase() : targetOccupant.constructor.name.toLowerCase();
 
                 this.lastMove = {type: "capture", origin, originOccupant, target, targetOccupant, piece: capturedPiece};
             } else {
                 const originOccupant = this[origin].occupant;
                 const targetOccupant = this[target].occupant;
+                
                 this.lastMove = {type: "move", origin, originOccupant, target, targetOccupant};
             }
         }
 
         const enactMove = () => {
 
-            const {occupant, owner} = this[origin].removeOccupant(piece || mayPromote, confirmPromote);
-            this[target].addOccupant(occupant, owner, mayPromote, confirmPromote);
+            const {occupant, owner} = this[origin].removeOccupant(piece || doesPromote);
+            this[target].addOccupant(occupant, owner, doesPromote);
 
         }
 
@@ -147,12 +147,12 @@ class Board {
             const revertedPiece = this[target].removeOccupant().occupant;
             this[origin].addOccupant(revertedPiece);
         } else if (type === "move") {
-            this[target].removeOccupant(false);
+            this[target].removeOccupant();
             this[origin].addOccupant(originOccupant, turn);
         } else if (type === "capture") {
-            this[target].removeOccupant(false);
+            this[target].removeOccupant();
             this[origin].addOccupant(originOccupant, turn);
-            this[target].addOccupant(targetOccupant, this.changeTurn(turn), false);
+            this[target].addOccupant(targetOccupant, this.changeTurn(turn));
             this[turn+"Hand"].removeOccupant(piece);
         }
     }
@@ -166,12 +166,12 @@ class Board {
 
     readOneMove (string) {
         let origin, target, piece;
-        let confirmPromote = false;
+        let doesPromote = false;
 
-        function processString () {
+        const processString = () => {
             if (string.split("-").length === 2) {
                 if (string[string.length-1] === "+") {
-                    confirmPromote = true;
+                    doesPromote = true;
                     string = string.substring(0, string.length-1);
                 }
                 [origin, target] = string.split("-");
@@ -184,7 +184,7 @@ class Board {
         processString();
 
         this.moves.push(string);
-        this.makeMove({origin, target, piece}, {confirmPromote});
+        this.makeMove({origin, target, piece}, {doesPromote});
         this.turn = this.changeTurn(this.turn);
     }
 

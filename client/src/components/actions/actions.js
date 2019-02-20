@@ -11,7 +11,7 @@ const Headline = (props) => {
     } else if (props.resigned) {
         return <div>This game has ended by resignation. {props.resigned === props.viewer ? props.opponentNick + " has" : "You have"} won.</div>
     } else if (props.winner) {
-        return <div>This game has ended by checkmate. {props.resigned === props.viewer ? props.opponentNick + " has" : "You have"} won.</div>
+        return <div>This game has ended by checkmate. {props.winner === props.viewer ? "You have" : props.opponentNick + " has"} won.</div>
     } else if (!props.canPlay) {
         return <div>You are waiting for your opponent to move.</div>
     } else if (props.APIready) {
@@ -22,9 +22,25 @@ const Headline = (props) => {
 }
 
 const MakeMove = (props) => {
-    let divClass = props.APIready ? "clickSpan" : "idleSpan";
-    let divClick = props.APIready ? props.initiateSend : null;
+    const {target, origin, motum} = props.move;
+    const divClass = target ? "clickSpan" : "idleSpan";
+    const divClick = target ? props.sendMoveNP : null;
 
+    function isEnemyCamp (a) {
+        return props.viewer === "gote" ? a % 10 > 6 : a % 10 < 4;
+    }
+    // true if a target is specified, the move is not a drop, and the origin or target are inside the enemy camp, and the piece is not already promoted.
+    function isPromotable () {
+        return props.move.target && !isNaN(props.move.origin) && (isEnemyCamp(origin) || isEnemyCamp(target)) && !["と","杏","圭","全","金","馬","竜","玉","王"].includes(motum);
+    }
+
+    if (isPromotable()) return (
+        <div>
+            <div className={divClass} onClick={props.sendMoveWP}>Make this move with promotion »</div>
+            <div className={divClass} onClick={props.sendMoveNP}>Make this move without promotion »</div>
+        </div>
+    )
+    
     return <div className={divClass} onClick={divClick}>Make this move »</div>
 }
 
@@ -33,9 +49,9 @@ const OTBActions = (props) => {
         if (props.canRespond || props.canPlay) return cb;
         return null;
     }
-    const isActive = () => props.canPlay || props.canRespond ? "clickSpan" : "idleSpan"
+    const isActive = () => props.canPlay || props.canRespond ? "clickSpan" : "idleSpan";
     
-    return <div><span className={isActive()} onClick={allowClick(props.resignGame)}>resign »</span> or <DrawOptions {...props} isActive={isActive}/></div>
+    return <div><span className={isActive()} onClick={allowClick(props.resignGame)}>resign »</span> or <DrawOptions {...props} isActive={isActive} allowClick={allowClick}/></div>
 }
 
 const DrawOptions = (props) => {
@@ -43,7 +59,7 @@ const DrawOptions = (props) => {
     if (props.drawOffer === opponent) {
         return <span><span className={props.isActive()} onClick={props.acceptDraw}>accept draw »</span> or <span className={props.isActive()} onClick={props.refuseDraw}>refuse draw »</span></span>
     }
-    return <span onClick={props.offerDraw} className={props.isActive()}>offer draw »</span>
+    return <span onClick={props.allowClick(props.offerDraw)} className={props.isActive()}>offer draw »</span>
 }
 
 const PreviousMove = () => {
@@ -59,7 +75,6 @@ class Actions extends Component {
     }
 
     localOfferDraw () {
-        console.log("offering draw!", this);
         API.OTBAction(this.props.access, {drawOffer: this.props.viewer})
         .then(response => this.restoreDefaults());
     }
@@ -67,7 +82,6 @@ class Actions extends Component {
     offerDraw = this.localOfferDraw.bind(this);
 
     localAcceptDraw () {
-        console.log("accepting draw!", this);
         API.OTBAction(this.props.access, {drawOffer: "accepted"})
         .then(response => this.restoreDefaults());
     }
@@ -75,7 +89,6 @@ class Actions extends Component {
     acceptDraw = this.localAcceptDraw.bind(this);
 
     localRefuseDraw () {
-        console.log("refusing draw!", this);
         API.OTBAction(this.props.access, {drawOffer: ""})
         .then(response => this.restoreDefaults());
     }
@@ -83,7 +96,6 @@ class Actions extends Component {
     refuseDraw = this.localRefuseDraw.bind(this);
 
     localResignGame () {
-        console.log("resigning game!", this);
         let winner = this.props.viewer === "sente" ? "gote" : "sente"
         API.OTBAction(this.props.access, {resigned: this.props.viewer, winner})
         .then (response => this.restoreDefaults());
@@ -91,7 +103,19 @@ class Actions extends Component {
 
     resignGame = this.localResignGame.bind(this);
 
-    passSetState = this.setState.bind(this);
+    sendMove(doesPromote) {
+        const { origin, target, piece } = this.props.move;
+        const move = piece ?
+            piece + "*" + target
+            : (origin + "-" + target) + (doesPromote ? "+" : "");
+
+        API.makeMove(this.props.access, { move })
+            .then(response => this.restoreDefaults());
+    }
+
+    sendMoveNoPromote = this.sendMove.bind(this, false);
+    sendMoveWithPromote = this.sendMove.bind(this, true);
+
 
     render () {
         const OTBProps = {
@@ -101,10 +125,15 @@ class Actions extends Component {
             resignGame: this.resignGame,
         }
 
+        const makeMoveProps = {
+            sendMoveNP: this.sendMoveNoPromote,
+            sendMoveWP: this.sendMoveWithPromote
+        }
+
         return (
         <div>
-            <Headline {...this.props} setState={this.passSetState}/>
-            <MakeMove {...this.props}/>
+            <Headline {...this.props}/>
+            <MakeMove {...this.props} {...makeMoveProps}/>
             <OTBActions {...this.props} {...OTBProps}/>
             <PreviousMove/>
         </div>
