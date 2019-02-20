@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import "./board.css";
 import API from "../../utils/api";
-import gameLogic from "../../utils/gameLogic";
+import gameLogic from "../../utils/shogiBoard";
 
 const PieceStand = (props) => {
     const {class: owner, occupants} = props.pieceStand;

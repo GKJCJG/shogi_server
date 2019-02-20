@@ -125,4 +125,4 @@ class GKing extends King {
     symbol = "王";
 };
 
-export default {Pawn, Tokin, Lance, PLance, Knight, PKnight, Silver, PSilver, Gold, Bishop, Horse, Rook, Dragon, King, GKing};
+export default {Pawn, Tokin, Lance, PLance, Knight, PKnight, Silver, PSilver, Gold, Bishop, Horse, Rook, Dragon, King, GKing, Promotable, Promoted};
