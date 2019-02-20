@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import './App.css';
-// import API from './utils/api';
 import {Navbar, Game, Setup, Home, Dashboard, Login, Register} from "./pages/appIndex";
 
 class App extends Component {
@@ -12,7 +11,7 @@ class App extends Component {
       <div>
         <Navbar/>
           <Route exact path="/new" component={Setup} />
-          <Route path="/game/:id" component={Game} />
+          <Route exact path="/game/:id" component={Game} />
           <Route exact path="/" component={Home} />
           <Route exact path="/home" component={Home} />
           <Route path="/dashboard" component={Dashboard} />
