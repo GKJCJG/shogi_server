@@ -74,8 +74,10 @@ class Game extends Component {
         return (
             <div className="gameContainer">
                 <Board {...boardProps}/>
-                <Actions {...actionProps} {...this.state}/>
-                <Chat/>
+                <div className = "nonBoard">
+                    <Actions {...actionProps} {...this.state}/>
+                    <Chat/>
+                </div>
             </div>
         );
     }
