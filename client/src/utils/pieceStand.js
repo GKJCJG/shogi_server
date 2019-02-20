@@ -21,6 +21,9 @@ class PieceStand {
     };
 
     addOccupant(piece) {
+        console.log("do you minify?")
+        console.log(piece);
+        console.log(piece.capture().constructor.name.toLowerCase());
         this.occupants[piece.capture().constructor.name.toLowerCase()].push(piece.capture());
     };
 
