@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import {Board, Actions, Chat} from "../../components/gameIndex";
-
+import "./game.css";
 
 
 class Game extends Component {
