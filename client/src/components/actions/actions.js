@@ -47,7 +47,7 @@ const OTBActions = (props) => {
 }
 
 const DrawOptions = (props) => {
-    const opponent = this.otherPlayer();
+    const opponent = props.viewer === "sente" ? "gote" : "sente";
     if (props.drawOffer === opponent) {
         return <span><span className={props.isActive()} onClick={props.acceptDraw}>accept draw »</span> or <span className={props.isActive()} onClick={props.refuseDraw}>refuse draw »</span></span>
     }
