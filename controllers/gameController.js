@@ -26,7 +26,6 @@ module.exports = {
             },
             {$push: {"moves": req.body.move}}
         )
-        .select("-senteContact -goteContact")
         .then(dbGame => {
             mailer.alertMover(dbGame, req.body.alert);
             res.json(dbGame);
@@ -40,7 +39,6 @@ module.exports = {
             },
             {$set: req.body.action}
         )
-        .select("-senteContact -goteContact")
         .then(dbGame => {
             mailer.alertMover(dbGame, req.body.alert);
             res.json(dbGame);

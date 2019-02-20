@@ -1,4 +1,5 @@
-const router = require("express").Router(),
+const path = require("path"),
+    router = require("express").Router(),
     authRoutes = require("./auth"),
     gameRoutes = require("./games");
 
