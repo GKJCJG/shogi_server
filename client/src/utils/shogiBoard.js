@@ -117,7 +117,7 @@ class Board {
             } else if (this[target].occupant) {
                 const originOccupant = this[origin].occupant;
                 const targetOccupant = this[target].occupant;
-                const capturedPiece = targetOccupant instanceof pieces.Promoted ? targetOccupant.stand.name.toLowerCase() : targetOccupant.constructor.name.toLowerCase();
+                const capturedPiece = targetOccupant instanceof pieces.Promoted ? new targetOccupant.stand().name : targetOccupant.name;
 
                 this.lastMove = {type: "capture", origin, originOccupant, target, targetOccupant, piece: capturedPiece};
             } else {
