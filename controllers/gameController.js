@@ -1,4 +1,5 @@
 const Game = require("../models/game");
+const mailer = require("../config/nodemailer");
 
 module.exports = {
     findOne: (req, res) => {
@@ -11,7 +12,11 @@ module.exports = {
     },
     create: (req, res) => {
         Game.create(req.body)
-        .then(dbGame => res.json(dbGame))
+        .then(dbGame => {
+            mailer.alertCreated(dbGame, "sente");
+            mailer.alertCreated(dbGame, "gote");
+            res.json(dbGame)
+        })
         .catch(err => res.status(422).json(err));
     },
     addMove: (req, res) => {
@@ -22,19 +27,24 @@ module.exports = {
             {$push: {"moves": req.body.move}}
         )
         .select("-senteContact -goteContact")
-        .then(dbGame => res.json(dbGame))
+        .then(dbGame => {
+            mailer.alertMover(dbGame, req.body.alert);
+            res.json(dbGame);
+        })
         .catch(err => res.status(422).json(err));
     },
     updateOne: (req, res) => {
-        console.log(req.params.id, req.body);
         Game.findOneAndUpdate(
             {$or: 
                 [{senteAccess: req.params.id}, {goteAccess: req.params.id}]
             },
-            {$set: req.body}
+            {$set: req.body.action}
         )
         .select("-senteContact -goteContact")
-        .then(dbGame => res.json(dbGame))
+        .then(dbGame => {
+            mailer.alertMover(dbGame, req.body.alert);
+            res.json(dbGame);
+        })
         .catch(err => res.status(422).json(err));
     },
     // delete games that haven't been modified in more than 30 days.

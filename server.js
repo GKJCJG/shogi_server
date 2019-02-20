@@ -1,8 +1,15 @@
+// TODO struggling with .env, so having to put it here...
+const envKey = require("dotenv").config();
+module.exports = {
+  user: process.env.EMAIL_USERNAME,
+  pass: process.env.EMAIL_PASSWORD
+};
+
 const express = require("express");
 const mongoose = require("mongoose");
 const routes = require("./routes/routeIndex");
 const passport = require("passport");
-const expressSession = require("express-session")
+const expressSession = require("express-session");
 
 const app = express();
 const PORT = process.env.PORT || 3001;

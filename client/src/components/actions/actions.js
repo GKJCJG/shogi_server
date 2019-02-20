@@ -47,7 +47,7 @@ const OTBActions = (props) => {
 }
 
 const DrawOptions = (props) => {
-    const opponent = props.viewer === "sente" ? "gote" : "sente";
+    const opponent = this.otherPlayer();
     if (props.drawOffer === opponent) {
         return <span><span className={props.isActive()} onClick={props.acceptDraw}>accept draw »</span> or <span className={props.isActive()} onClick={props.refuseDraw}>refuse draw »</span></span>
     }
@@ -66,42 +66,50 @@ class Actions extends Component {
         this.restoreDefaults = props.restoreDefaults;
     }
 
+    otherPlayer () {
+        return this.props.viewer === "sente" ? "gote" : "sente";
+    }
+
     localOfferDraw () {
-        API.OTBAction(this.props.access, {drawOffer: this.props.viewer})
+        let alert = this.otherPlayer();
+        API.OTBAction(this.props.access, {alert, action: {drawOffer: this.props.viewer}})
         .then(response => this.restoreDefaults());
     }
 
     offerDraw = this.localOfferDraw.bind(this);
 
     localAcceptDraw () {
-        API.OTBAction(this.props.access, {drawOffer: "accepted"})
+        let alert = this.otherPlayer();
+        API.OTBAction(this.props.access, {alert, action: {drawOffer: "accepted"}})
         .then(response => this.restoreDefaults());
     }
 
     acceptDraw = this.localAcceptDraw.bind(this);
 
     localRefuseDraw () {
-        API.OTBAction(this.props.access, {drawOffer: ""})
+        let alert = this.otherPlayer();
+        API.OTBAction(this.props.access, {alert, action: {drawOffer: ""}})
         .then(response => this.restoreDefaults());
     }
 
     refuseDraw = this.localRefuseDraw.bind(this);
 
     localResignGame () {
-        let winner = this.props.viewer === "sente" ? "gote" : "sente"
-        API.OTBAction(this.props.access, {resigned: this.props.viewer, winner})
+        let winner = this.otherPlayer();
+        API.OTBAction(this.props.access, {alert: winner, action: {resigned: this.props.viewer, winner}})
         .then (response => this.restoreDefaults());
     }
 
     resignGame = this.localResignGame.bind(this);
 
     sendMove(doesPromote) {
+        const alert = this.otherPlayer();
         const { origin, target, piece } = this.props.move;
         const move = piece ?
             piece + "*" + target
             : (origin + "-" + target) + (doesPromote ? "+" : "");
 
-        API.makeMove(this.props.access, { move })
+        API.makeMove(this.props.access, {alert, move})
             .then(response => this.restoreDefaults());
     }
 

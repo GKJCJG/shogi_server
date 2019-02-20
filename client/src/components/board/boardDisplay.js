@@ -1,6 +1,6 @@
 import React from "react";
 
-const PlaySpace = (props) => {
+const BoardDisplay = (props) => {
     let superPosition;
     let {origin, target, piece} = props.move;
 
@@ -77,4 +77,4 @@ const PlaySpace = (props) => {
     )
 };
 
-export default PlaySpace;
+export default BoardDisplay;

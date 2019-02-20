@@ -3,7 +3,7 @@ import "./board.css";
 import API from "../../utils/api";
 import gameLogic from "../../utils/shogiBoard";
 import PieceStand from "./pieceStand";
-import PlaySpace from "./playSpace"
+import BoardDisplay from "./boardDisplay"
 
 class Board extends Component {
 
@@ -139,7 +139,7 @@ class Board extends Component {
             (<div id="diagramContainer" onClick={this.props.canPlay ? (this.state.candidates.length ? this.previewMove : this.setCandidates) : null}>
                 <PieceStand pieceStand={this.state.position.goteHand}/>
                 <table className="shogiDiagram">
-                    <PlaySpace {...this.state} move={this.props.move}/>
+                    <BoardDisplay {...this.state} move={this.props.move}/>
                 </table>
                 <PieceStand pieceStand={this.state.position.senteHand}/>
             </div>)
