@@ -10,7 +10,8 @@
     "client": "cd client && npm run start",
     "install": "cd client && npm install",
     "build": "cd client && npm run build",
-    "heroku-postbuild": "npm run build"
+    "heroku-postbuild": "npm run build",
+    "seeGames": "node ./scripts/seeGames.js"
   },
   "author": "Colin Grant",
   "license": "ISC",
