@@ -1,10 +1,12 @@
 #diagramContainer {
     display: grid;
     grid-template-columns: 2fr 5fr 42fr 5fr 2fr;
-    grid-template-rows: 1fr 25fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 21fr 1fr 1fr 1fr;
     background-color: #e9c372;
     width: 60vw;
     height: 54vw;
+    min-width: 342px;
+    min-height: 306px;
     /* padding: 15px 3px; */
     /* box-sizing: border-box; */
     margin: 30px 15px;
@@ -17,7 +19,7 @@
     grid-column-start: 3;
     grid-column-end: 4;
     grid-row-start: 2;
-    grid-row-end: 3;
+    grid-row-end: 7;
 }
 
 /* This is the div that holds the diagram */
@@ -52,6 +54,7 @@ td {
     text-align: center;
     /* width: 17px;
     height: 9px; */
+    padding-top: 0;
     width: 10.4%;
     height: 6.4%;
     font-size: 8px;
@@ -65,14 +68,15 @@ td {
 
 /* These are the zones for the hand pieces */
 #sente, #gote {
-    display: inline-flex;
     padding: 0 2px;
-    font-size: 14px;
+    font-size: 2.7vw;
+    display: flex;
     flex-direction: column;
     justify-content: flex-end;
     box-sizing: border-box;
-    grid-row-start: 2;
-    grid-row-end: 3;
+    align-items: center;
+    grid-row-start: 4;
+    grid-row-end: 5;
 }
 
 #gote {
@@ -99,6 +103,8 @@ td {
 }
 
 /* This is the number of pieces of a particular type held by a player */
-.handmult {
-    font-size: 12px;
+.handMult {
+    display:inline-block;
+    font-size: 2.1vw;
+    padding: 0 2px;
 }
