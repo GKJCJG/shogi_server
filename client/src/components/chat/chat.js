@@ -21,7 +21,6 @@ class Chat extends Component {
     }
 
     localAddMessage (message) {
-        console.log("adding a new chat message", message);
         const previousMessages = this.state.previousMessages;
         previousMessages.push(message);
         this.setState({previousMessages});

@@ -25,14 +25,18 @@ const BoardDisplay = (props) => {
     const tdKey = (i, j) => "square"+(10-j)+i;
     const tdId = (i, j) => ""+(10-j)+i;
     const tdStyle = (i, j) => {
+        let style = {}
+        if (props.showPrevious && "" + (10-j) + i === props.position.lastMove) {
+            style.backgroundColor = "rgba(87, 166, 219, 0.5)";
+        }
         if (target) {
             if ("" + (10-j) + i === origin) {
-                return {opacity: 0.3};
+                style.opacity= 0.3;
             } else if ("" + (10-j) + i === target) {
-                return {position: "relative"};
+                style.position = "relative";
             }
         }    
-        return null;
+        return style;
     }
     const tdSuperPosition = (i, j) => {
         if (target && "" + (10-j) + i === target) return superPosition;

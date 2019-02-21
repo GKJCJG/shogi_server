@@ -1,61 +1,13 @@
 import React, {Component} from "react";
 import API from "../../utils/api";
+import Headline from "./headline";
+import MakeMove from "./makeMove";
+import OTBActions from "./OTBActions";
 
-const Headline = (props) => {
-    if (props.drawOffer === "accepted") {
-        return <div>This game has ended in a draw.</div>
-    } else if (props.drawOffer && props.drawOffer !== props.viewer) {
-        return <div>Your opponent has offered a draw. Please accept or decline.</div>
-    } else if (props.drawOffer) {
-        return <div>You have made a draw offer and are awaiting a response.</div>
-    } else if (props.resigned) {
-        return <div>This game has ended by resignation. {props.resigned === props.viewer ? props.opponentNick + " has" : "You have"} won.</div>
-    } else if (props.winner) {
-        return <div>This game has ended by checkmate. {props.winner === props.viewer ? "You have" : props.opponentNick + " has"} won.</div>
-    } else if (!props.canPlay) {
-        return <div>You are waiting for your opponent to move.</div>
-    } else if (props.APIready) {
-        return <div>You may click elsewhere to make a different move.</div>
-    } else {
-        return <div>It is your turn to move. {props.inCheck ? "You are in check." : null}</div>
-    }
-}
 
-const MakeMove = (props) => {
-    const {target, isPromotable} = props.move;
-    const divClass = target ? "clickSpan" : "idleSpan";
-    const divClick = target ? props.sendMoveNP : null;
 
-    if (isPromotable) return (
-        <div>
-            <div className={divClass} onClick={props.sendMoveWP}>Make this move with promotion »</div>
-            <div className={divClass} onClick={props.sendMoveNP}>Make this move without promotion »</div>
-        </div>
-    )
-    
-    return <div className={divClass} onClick={divClick}>Make this move »</div>
-}
-
-const OTBActions = (props) => {
-    const allowClick = (cb) => {
-        if (props.canRespond || props.canPlay) return cb;
-        return null;
-    }
-    const isActive = () => props.canPlay || props.canRespond ? "clickSpan" : "idleSpan";
-    
-    return <div><span className={isActive()} onClick={allowClick(props.resignGame)}>resign »</span> or <DrawOptions {...props} isActive={isActive} allowClick={allowClick}/></div>
-}
-
-const DrawOptions = (props) => {
-    const opponent = props.viewer === "sente" ? "gote" : "sente";
-    if (props.drawOffer === opponent) {
-        return <span><span className={props.isActive()} onClick={props.acceptDraw}>accept draw »</span> or <span className={props.isActive()} onClick={props.refuseDraw}>refuse draw »</span></span>
-    }
-    return <span onClick={props.allowClick(props.offerDraw)} className={props.isActive()}>offer draw »</span>
-}
-
-const PreviousMove = () => {
-    return <div>Previous Move</div>;
+const PreviousMove = (props) => {
+    return <div onClick={props.showPrevious} className="clickSpan">Previous move »</div>;
 }
 
 class Actions extends Component { 
@@ -116,6 +68,12 @@ class Actions extends Component {
     sendMoveNoPromote = this.sendMove.bind(this, false);
     sendMoveWithPromote = this.sendMove.bind(this, true);
 
+    localShowPrevious() {
+        if (this.props.showPrevious) return this.props.setGameState({showPrevious: false});
+        this.props.setGameState({showPrevious: true});
+    }
+
+    showPrevious = this.localShowPrevious.bind(this);
 
     render () {
         const OTBProps = {
@@ -135,7 +93,7 @@ class Actions extends Component {
             <Headline {...this.props}/>
             <MakeMove {...this.props} {...makeMoveProps}/>
             <OTBActions {...this.props} {...OTBProps}/>
-            <PreviousMove/>
+            <PreviousMove showPrevious={this.showPrevious}/>
         </div>
         )
     }

@@ -54,7 +54,7 @@ class Board extends Component {
     reportToGame(dbGame, position) {
         const viewer = this.props.access === dbGame.senteAccess ? "sente" : "gote";
         const {drawOffer, resigned} = dbGame;
-        const {checkMate, inCheck, winner, lastMove} = position;
+        const {checkMate, inCheck, winner} = position;
         const opponentNick = viewer === "sente" ? dbGame.goteNick : dbGame.senteNick;
         const playerNick = dbGame[viewer+"Nick"];
         let canRespond = drawOffer && drawOffer !== viewer;
@@ -63,7 +63,7 @@ class Board extends Component {
         const moveNumber = dbGame.moves.length;
         
 
-        this.setGameState({viewer, drawOffer, resigned, winner, opponentNick, canPlay, checkMate, inCheck, lastMove, canRespond, reportRequested:false, previousMessages, moveNumber, playerNick});
+        this.setGameState({viewer, drawOffer, resigned, winner, opponentNick, canPlay, checkMate, inCheck, canRespond, reportRequested:false, previousMessages, moveNumber, playerNick});
     }
 
     localSetCandidates (event) {
