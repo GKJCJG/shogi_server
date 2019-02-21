@@ -6,16 +6,11 @@ const BoardDisplay = (props) => {
 
     if(target) {
         const spText = piece ? props.position.senteHand.occupants.filter(e => e.name === piece)[0].symbol : props.position[origin].occupant;
-        const spStyle = {
-            position: "absolute",
-            left: "3px",
-            top: 0,
-            backgroundColor: "rgba(87, 219, 87)",
-            opacity: props.position[target].class.includes("gote") ? 1 : 0.7
-        };
         const spanClass = props.position[target].class.includes("gote") || props.position[origin].class.includes("gote") ? "gote" : null;
 
-        superPosition = <span className = {spanClass} style={spStyle}>{spText}</span>;
+        superPosition = (
+            <div className = {spanClass+" superPose"}>{spText}</div>
+        );
     }
 
     const computeTd = (i, j) => <td key={tdKey(i, j)}
@@ -48,7 +43,6 @@ const BoardDisplay = (props) => {
     const fnKey = (i) => "rank" + i;
     const fnText = (i) => ["一", "二", "三", "四", "五", "六", "七", "八", "九"][i-1];
     const fnClass = (base) => {
-        console.log(props.viewer);
         return (base + (props.viewer === "gote" ? " gote" : ""))
     };
     
