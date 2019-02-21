@@ -62,13 +62,13 @@ class Game extends Component {
             setGameState: this.passSetState,
             restoreDefaults: this.restoreDefaults,
             reportRequested: this.state.reportRequested,
-            move: this.state.move
+            move: this.state.move,
+            viewer: this.state.viewer,
         };
         const actionProps = {
             access:this.props.match.params.id,
             initiateSend: this.initiateSend,
             restoreDefaults: this.restoreDefaults,
-            move: this.state.move
         };
 
         return (

@@ -44,10 +44,13 @@ const BoardDisplay = (props) => {
         return null;
     }
 
-    const computeFileNumber = (i) => <td key={fnKey(i)} id={fnKey(i)} className="right">{fnText(i)}</td>;
+    const computeFileNumber = (i) => <td key={fnKey(i)} id={fnKey(i)} className={fnClass("right")}>{fnText(i)}</td>;
     const fnKey = (i) => "rank" + i;
     const fnText = (i) => ["一", "二", "三", "四", "五", "六", "七", "八", "九"][i-1];
-        
+    const fnClass = (base) => {
+        console.log(props.viewer);
+        return (base + (props.viewer === "gote" ? " gote" : ""))
+    };
     
 
     const renderRows = () => {
@@ -56,7 +59,7 @@ const BoardDisplay = (props) => {
             const cells = []
             if (i===0) {
                 for(let j = 1; j < 10; j++) {
-                    cells.push(<td key={"file"+j} id={"file"+j} className="top">{10-j}</td>)
+                    cells.push(<td key={"file"+j} id={"file"+j} className={fnClass("top")}>{10-j}</td>)
                 }
             } else {
                 for(let j = 1; j < 11; j++) {

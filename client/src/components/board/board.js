@@ -136,10 +136,10 @@ class Board extends Component {
     render () {
         return (
             this.state.position[11] ?
-            (<div id="diagramContainer" onClick={this.props.canPlay ? (this.state.candidates.length ? this.previewMove : this.setCandidates) : null}>
+            (<div id="diagramContainer" className={this.props.viewer === "gote" ? "gote" : null} onClick={this.props.canPlay ? (this.state.candidates.length ? this.previewMove : this.setCandidates) : null}>
                 <PieceStand pieceStand={this.state.position.goteHand}/>
                 <table className="shogiDiagram">
-                    <BoardDisplay {...this.state} move={this.props.move}/>
+                    <BoardDisplay {...this.state} {...this.props}/>
                 </table>
                 <PieceStand pieceStand={this.state.position.senteHand}/>
             </div>)
