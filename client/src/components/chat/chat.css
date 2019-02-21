@@ -1,0 +1,29 @@
+#chatBox p {
+    margin: 0;
+}
+
+#chatArea {
+    margin-top: 10px;
+}
+
+#chatBox {
+    margin-top: 15px;
+    border: 1px solid gray;
+    width: 354px;
+    font-size: 14px;
+    padding: 5px 0px 5px 5px;
+}
+
+#textEntry {
+    border: 1px solid gray;
+    font-size: 1.0em;
+    font-weight: normal;
+    line-height: 1.2em;
+    height: 3.4em;
+    font-family: HelveticaNeue, Helvetica, Arial, sans-serif;
+    resize: none;
+    outline: none;
+    margin: 0;
+    padding: 5px 0px 5px 5px;
+    width: 354px;
+}
