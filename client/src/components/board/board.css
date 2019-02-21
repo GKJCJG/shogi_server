@@ -26,7 +26,7 @@
 
 td {
     border: 1px solid black;
-    position: relative;
+    /* position: relative; */
     /* height: 21px;
     width: 18px; */
     height: 10.4%;
@@ -89,11 +89,15 @@ td {
     grid-column-end: 5;
 }
 
-.superPose {
+.superPoseEnvelope {
     position: absolute;
-    top: 10%;
-    left: 17%;
-    font-size: 3vw;
+    left: 50%;
+    top: 0.2em;
+}
+
+.superPose {
+    position: relative;
+    left: -50%;
     background-color: rgba(87, 219, 87);
     opacity: 0.8;
 }
@@ -107,4 +111,24 @@ td {
     display:inline-block;
     font-size: 2.1vw;
     padding: 0 2px;
+}
+
+@media screen and (max-width: 570px) {
+
+    .nonBoard {
+        display: block;
+    }
+
+    td {
+        font-size: 17px;
+    }
+
+    #sente, #gote {
+        font-size: 15px;
+    }
+
+    .handMult {
+        font-size: 12px;
+    }
+
 }

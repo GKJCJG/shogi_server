@@ -8,7 +8,7 @@ const BoardDisplay = (props) => {
         const spText = piece ? props.position.senteHand.occupants.filter(e => e.name === piece)[0].symbol : props.position[origin].occupant;
         const spanClass = props.position[target].class.includes("gote") || props.position[origin].class.includes("gote") ? "gote" : null;
 
-        superPosition = <span className = {spanClass+" superPose"}>{spText}</span>;
+        superPosition = <div className = "superPoseEnvelope"><div className = {spanClass+" superPose"}>{spText}</div></div>;
     }
 
     const computeTd = (i, j) => <td key={tdKey(i, j)}
