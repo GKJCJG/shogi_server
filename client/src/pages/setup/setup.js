@@ -140,18 +140,18 @@ class Setup extends Component {
     render() {
 
         return (
-        <div className = "container">
+        <div className = "setupContainer">
             <Labels/>
             <InputFields {...this.state} onChange={this.passOnChange}/>
             <Options {...this.state} swapColors={this.passSwapColors} changeHandicap={this.passChangeHandicap}/>
             
             {this.state.success ? 
-            (   <div id="successMessage" className="row">
+            (   <div id="bottomRow">
                     <div>Success! Your game has been created.</div>
                     <Link to={this.state.linkDest}>Go to game!</Link>
                 </div>
             ) 
-            : <div className="clickSpan row" onClick={this.submitGame}>Start game!</div>}
+            : <div className="clickSpan" id="bottomRow" onClick={this.submitGame}>Start game!</div>}
         </div>
     )}
 }
