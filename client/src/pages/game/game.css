@@ -1,7 +1,11 @@
+.nonBoard {
+    display: inline-block;
+}
+
 @media screen and (max-width: 550px) {
 
     .nonBoard {
-        clear: both;
+        display: block;
     }
 
 }

@@ -1,51 +1,48 @@
 #diagramContainer {
-    position: relative;
+    display: grid;
+    grid-template-columns: 2fr 5fr 42fr 5fr 2fr;
+    grid-template-rows: 1fr 25fr 1fr;
     background-color: #e9c372;
-    width: 280px;
-    height: 250px;
-    padding: 15px 3px;
+    width: 60vw;
+    height: 54vw;
+    /* padding: 15px 3px; */
     /* box-sizing: border-box; */
-    float: left;
     margin: 30px 15px;
 }
 
 .shogiDiagram {
 	border-collapse: collapse;
-	font-weight: bold;
-    /* width: 80%;
-    height: 100%; */
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -52%);
+    font-weight: bold;
+    height: 100%;
+    grid-column-start: 3;
+    grid-column-end: 4;
+    grid-row-start: 2;
+    grid-row-end: 3;
 }
 
 /* This is the div that holds the diagram */
 
-
 td {
+    border: 1px solid black;
+    position: relative;
+    /* height: 21px;
+    width: 18px; */
+    height: 10.4%;
+    width: 10.4%;
+    font-size: 3vw;
     padding: 2px;
     vertical-align: middle;
     text-align: center;
-}
-
-
-td {
-    border: 1px solid black;
-    height: 21px;
-    width: 18px;
-    /* height: 10.4%;
-    width: 10.4%; */
 }
 
 /* Behavior of the coordinate-holding divs */
 .right {
     vertical-align: middle;
     text-align: left;
-    /* height: 10.4%;
-    width: 6.4%; */
-    width: 9px;
-    height: 21px;
+    height: 10.4%;
+    width: 6.4%;
+    /* width: 9px;
+    height: 21px; */
     font-size: 8px;
     border: none;
 }
@@ -53,15 +50,13 @@ td {
 .top {
     vertical-align: bottom;
     text-align: center;
-    width: 17px;
-    height: 9px;
-    /* width: 10.4%;
-    height: 6.4%; */
+    /* width: 17px;
+    height: 9px; */
+    width: 10.4%;
+    height: 6.4%;
     font-size: 8px;
     border: none;
 }
-
-
 
 /* These classes apply to elements representing gote's pieces. They are flipped. */
 .gote, #gote {
@@ -70,27 +65,33 @@ td {
 
 /* These are the zones for the hand pieces */
 #sente, #gote {
-    height: 97%;
-    width: 9.5%;
     display: inline-flex;
-    /* height: 220.33px; */
     padding: 0 2px;
     font-size: 14px;
     flex-direction: column;
     justify-content: flex-end;
-    /* width: 24px; */
     box-sizing: border-box;
-    position: absolute;
+    grid-row-start: 2;
+    grid-row-end: 3;
 }
 
 #gote {
-    top: 9%;
-    left: 0;
+    grid-column-start: 2;
+    grid-column-end: 3;
 }
 
 #sente {
-    right: 2%;
-    bottom: 9%;
+    grid-column-start: 4;
+    grid-column-end: 5;
+}
+
+.superPose {
+    position: absolute;
+    top: 10%;
+    left: 17%;
+    font-size: 3vw;
+    background-color: rgba(87, 219, 87);
+    opacity: 0.8;
 }
 
 .candidate {
