@@ -45,7 +45,6 @@ const BoardDisplay = (props) => {
     const fnClass = (base) => {
         return (base + (props.viewer === "gote" ? " gote" : ""))
     };
-    const trClass = (i) => i === 0 ? "topRow" : null;
     
 
     const renderRows = () => {
@@ -62,7 +61,7 @@ const BoardDisplay = (props) => {
                     if (j === 10) cells.push(computeFileNumber(i));
                 }
             }
-            output.push(<tr className={trClass(i)} key={"row" + i}>{cells}</tr>);
+            output.push(<tr key={"row" + i}>{cells}</tr>);
         }
 
         return output;
