@@ -36,19 +36,15 @@ module.exports = {
         }
 
         let {field, addition, id} = parseNewItem(req);
-        console.log(field,addition,id);
 
         Game.findOne({$or: [{senteAccess: id}, {goteAccess: id}]})
             .then(dbGame => {
-                console.log("upon retrieval", dbGame[field]);
 
                 if(isDuplicate(dbGame, field, addition)) return res.status(422).json({err: "You've already done that once!"});
 
                 dbGame[field].push(addition);
-                console.log("before save", dbGame);
                 dbGame.save()
                 .then(dbGame => {
-                    console.log("after save", dbGame);
                     if (field === "moves") mailer.alertMover(dbGame, req.body.alert);
                     res.json(dbGame);
 

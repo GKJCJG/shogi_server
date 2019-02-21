@@ -23,6 +23,7 @@ class Game extends Component {
             move: {},
             previousMessages: [],
             moveNumber: 0,
+            showPrevious: false,
             reportRequested: false
         }
     }
@@ -41,11 +42,12 @@ class Game extends Component {
             drawOffer: false,
             resigned: false,
             viewer: "",
-            lastMove: "",
             winner: "",
             move: {},
             previousMessages: [],
             moveNumber: 0,
+            showPrevious: false,
+            // must be true because when defaults are reset, we must get new info from the board's API call.
             reportRequested: true,
         })
     }
@@ -62,11 +64,13 @@ class Game extends Component {
             reportRequested: this.state.reportRequested,
             move: this.state.move,
             viewer: this.state.viewer,
+            showPrevious: this.state.showPrevious
         };
         const actionProps = {
             access: this.props.match.params.id,
-            initiateSend: this.initiateSend,
+            setGameState: this.passSetState,
             restoreDefaults: this.restoreDefaults,
+            showPrevious: this.state.showPrevious
         };
         const chatProps = {
             previousMessages: this.state.previousMessages,
