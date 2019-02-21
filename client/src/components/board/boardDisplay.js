@@ -8,7 +8,9 @@ const BoardDisplay = (props) => {
         const spText = piece ? props.position.senteHand.occupants.filter(e => e.name === piece)[0].symbol : props.position[origin].occupant;
         const spanClass = props.position[target].class.includes("gote") || props.position[origin].class.includes("gote") ? "gote" : null;
 
-        superPosition = <div className = "superPoseEnvelope"><div className = {spanClass+" superPose"}>{spText}</div></div>;
+        superPosition = (
+            <div className = {spanClass+" superPose"}>{spText}</div>
+        );
     }
 
     const computeTd = (i, j) => <td key={tdKey(i, j)}
@@ -43,6 +45,7 @@ const BoardDisplay = (props) => {
     const fnClass = (base) => {
         return (base + (props.viewer === "gote" ? " gote" : ""))
     };
+    const trClass = (i) => i === 0 ? "topRow" : null;
     
 
     const renderRows = () => {
@@ -59,7 +62,7 @@ const BoardDisplay = (props) => {
                     if (j === 10) cells.push(computeFileNumber(i));
                 }
             }
-            output.push(<tr key={"row" + i}>{cells}</tr>);
+            output.push(<tr className={trClass(i)} key={"row" + i}>{cells}</tr>);
         }
 
         return output;

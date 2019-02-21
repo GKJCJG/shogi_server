@@ -1,11 +1,35 @@
-.nonBoard {
-    display: inline-block;
+.gameContainer {
+    width: 100vw;
+    display: grid;
+    grid-template-columns: 1fr 12fr 1fr 6fr 1fr;
+    margin: 0;
+    padding: 0;
 }
 
-@media screen and (max-width: 550px) {
+#diagramContainer {
+    grid-column-start: 2;
+    grid-column-end: 3;
+}
 
-    .nonBoard {
-        display: block;
+.nonBoard {
+    grid-column-start: 4;
+    grid-column-end: 6;
+}
+
+@media screen and (max-width: 570px) {
+
+    .gameContainer {
+        grid-template-columns: 5vw auto;
+        grid-template-rows: auto auto;
     }
 
+    #diagramContainer {
+        grid-row-start: 1;
+        grid-row-end: 2;
+    }
+
+    .nonBoard {
+        grid-column-start: 2;
+        grid-row-start: 2;
+    }
 }

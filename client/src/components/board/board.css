@@ -5,12 +5,14 @@
     background-color: #e9c372;
     width: 60vw;
     height: 54vw;
+    max-height: 90vh;
+    max-width: 99vh;
     min-width: 342px;
     min-height: 306px;
-    /* padding: 15px 3px; */
-    /* box-sizing: border-box; */
-    margin: 30px 15px;
+    margin: 0;
 }
+
+
 
 .shogiDiagram {
 	border-collapse: collapse;
@@ -26,9 +28,6 @@
 
 td {
     border: 1px solid black;
-    /* position: relative; */
-    /* height: 21px;
-    width: 18px; */
     height: 10.4%;
     width: 10.4%;
     font-size: 3vw;
@@ -42,21 +41,22 @@ td {
     vertical-align: middle;
     text-align: left;
     height: 10.4%;
-    width: 6.4%;
-    /* width: 9px;
-    height: 21px; */
+    width: 1em;
     font-size: 8px;
     border: none;
+}
+
+.topRow {
+    height: 10px;
+    padding: 0;
 }
 
 .top {
     vertical-align: bottom;
     text-align: center;
-    /* width: 17px;
-    height: 9px; */
     padding-top: 0;
     width: 10.4%;
-    height: 6.4%;
+    height: 2em;
     font-size: 8px;
     border: none;
 }
@@ -64,6 +64,7 @@ td {
 /* These classes apply to elements representing gote's pieces. They are flipped. */
 .gote, #gote {
     -webkit-transform: rotate(180deg);
+    transform: rotate(180deg);
 }
 
 /* These are the zones for the hand pieces */
@@ -89,15 +90,10 @@ td {
     grid-column-end: 5;
 }
 
-.superPoseEnvelope {
-    position: absolute;
-    left: 50%;
-    top: 0.2em;
-}
-
 .superPose {
-    position: relative;
-    left: -50%;
+    position: absolute;
+    left: 17%;
+    top: 15%;
     background-color: rgba(87, 219, 87);
     opacity: 0.8;
 }
