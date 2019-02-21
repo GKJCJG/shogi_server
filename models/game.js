@@ -17,7 +17,7 @@ const GameSchema = new Schema({
     },
     handicap: String,
     moves: [{
-        type: String
+        type: String,
     }],
     senteContact: {
         type: String,

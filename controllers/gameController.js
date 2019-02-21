@@ -20,17 +20,26 @@ module.exports = {
         .catch(err => res.status(422).json(err));
     },
     addMove: (req, res) => {
-        Game.findOneAndUpdate(
+        Game.findOne(
             {$or: 
                 [{senteAccess: req.params.id}, {goteAccess: req.params.id}]
-            },
-            {$push: {"moves": req.body.move}}
-        )
-        .then(dbGame => {
-            mailer.alertMover(dbGame, req.body.alert);
-            res.json(dbGame);
-        })
-        .catch(err => res.status(422).json(err));
+            })
+            .then(dbGame => {
+                const lastMove = dbGame.moves[dbGame.moves.length - 1];
+                const newMove = req.body.move;
+                
+                if (lastMove === newMove) return res.status(422).json({err: "You've tried to make the same move twice!"})
+
+                dbGame.moves.push(newMove);
+
+                dbGame.save()
+                .then(dbGame => {
+                    mailer.alertMover(dbGame, req.body.alert);
+                    res.json(dbGame);
+                })
+                .catch(err => res.status(422).json(err));
+            })
+            .catch(err => res.status(422).json(err));
     },
     updateOne: (req, res) => {
         Game.findOneAndUpdate(
