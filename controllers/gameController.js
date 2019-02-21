@@ -19,23 +19,39 @@ module.exports = {
         })
         .catch(err => res.status(422).json(err));
     },
-    addMove: (req, res) => {
-        Game.findOne(
-            {$or: 
-                [{senteAccess: req.params.id}, {goteAccess: req.params.id}]
-            })
+    addArrayItem: (req, res) => {
+        const parseNewItem = (req) => {
+            const field = req.params.field;
+            const singular = field.substring(0, field.length-1);
+            const addition = req.body[singular];
+            const id = req.params.id
+            return {field, addition, id};
+        }
+        const isDuplicate = (document, field, addition) => {
+            const previousItem = document[field][document[field].length - 1];
+            const newItem = addition;
+            
+            if (previousItem === newItem) return true;
+            return false;
+        }
+
+        let {field, addition, id} = parseNewItem(req);
+        console.log(field,addition,id);
+
+        Game.findOne({$or: [{senteAccess: id}, {goteAccess: id}]})
             .then(dbGame => {
-                const lastMove = dbGame.moves[dbGame.moves.length - 1];
-                const newMove = req.body.move;
-                
-                if (lastMove === newMove) return res.status(422).json({err: "You've tried to make the same move twice!"})
+                console.log("upon retrieval", dbGame[field]);
 
-                dbGame.moves.push(newMove);
+                if(isDuplicate(dbGame, field, addition)) return res.status(422).json({err: "You've already done that once!"});
 
+                dbGame[field].push(addition);
+                console.log("before save", dbGame);
                 dbGame.save()
                 .then(dbGame => {
-                    mailer.alertMover(dbGame, req.body.alert);
+                    console.log("after save", dbGame);
+                    if (field === "moves") mailer.alertMover(dbGame, req.body.alert);
                     res.json(dbGame);
+
                 })
                 .catch(err => res.status(422).json(err));
             })

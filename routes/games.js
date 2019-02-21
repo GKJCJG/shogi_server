@@ -11,8 +11,8 @@ router.route("/:id")
   .get(gameController.findOne)
   .put(gameController.updateOne);
 
-router.route("/:id/move")
-  .post(gameController.addMove);
+router.route("/:id/:field")
+  .post(gameController.addArrayItem);
 
 router.route("/cleanup")
   .delete(gameController.deleteStale);

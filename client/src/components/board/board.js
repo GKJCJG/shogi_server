@@ -56,9 +56,14 @@ class Board extends Component {
         const {drawOffer, resigned} = dbGame;
         const {checkMate, inCheck, winner, lastMove} = position;
         const opponentNick = viewer === "sente" ? dbGame.goteNick : dbGame.senteNick;
+        const playerNick = dbGame[viewer+"Nick"];
         let canRespond = drawOffer && drawOffer !== viewer;
         const canPlay = viewer === this.gameBoard.turn && !(drawOffer || resigned || winner);
-        this.setGameState({viewer, drawOffer, resigned, winner, opponentNick, canPlay, checkMate, inCheck, lastMove, canRespond, reportRequested:false});
+        const previousMessages = dbGame.messages || [];
+        const moveNumber = dbGame.moves.length;
+        
+
+        this.setGameState({viewer, drawOffer, resigned, winner, opponentNick, canPlay, checkMate, inCheck, lastMove, canRespond, reportRequested:false, previousMessages, moveNumber, playerNick});
     }
 
     localSetCandidates (event) {

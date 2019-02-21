@@ -8,11 +8,11 @@ class Game extends Component {
     constructor () {
         super()
         this.state = {
-            APIready: false,
             canPlay: false,
             canRespond: false,
             moveSent: false,
             opponentNick: "",
+            playerNick: "",
             checkMate: false,
             inCheck: false,
             drawOffer: false,
@@ -20,8 +20,10 @@ class Game extends Component {
             viewer: "",
             lastMove: "",
             winner: "",
-            reportRequested: false,
-            move: {}
+            move: {},
+            previousMessages: [],
+            moveNumber: 0,
+            reportRequested: false
         }
     }
 
@@ -29,11 +31,11 @@ class Game extends Component {
 
     localRestoreDefaults () {
         this.setState({
-            APIready: false,
             canPlay: false,
             canRespond: false,
             moveSent: false,
             opponentNick: "",
+            playerNick: "",
             checkMate: false,
             inCheck: false,
             drawOffer: false,
@@ -41,18 +43,14 @@ class Game extends Component {
             viewer: "",
             lastMove: "",
             winner: "",
+            move: {},
+            previousMessages: [],
+            moveNumber: 0,
             reportRequested: true,
-            move: {}
         })
     }
 
     restoreDefaults = this.localRestoreDefaults.bind(this);
-
-    localInitiateSend() {
-        this.setState({moveSent: true});
-    }
-
-    initiateSend = this.localInitiateSend.bind(this);
 
     render () {
         const boardProps = {
@@ -66,17 +64,22 @@ class Game extends Component {
             viewer: this.state.viewer,
         };
         const actionProps = {
-            access:this.props.match.params.id,
+            access: this.props.match.params.id,
             initiateSend: this.initiateSend,
             restoreDefaults: this.restoreDefaults,
         };
-
+        const chatProps = {
+            previousMessages: this.state.previousMessages,
+            access: this.props.match.params.id,
+            playerNick: this.state.playerNick,
+            moveNumber: this.state.moveNumber
+        }
         return (
             <div className="gameContainer">
                 <Board {...boardProps}/>
                 <div className = "nonBoard">
                     <Actions {...actionProps} {...this.state}/>
-                    <Chat/>
+                    <Chat {...chatProps}/>
                 </div>
             </div>
         );

@@ -1,7 +1,7 @@
 .gameContainer {
     width: 100vw;
     display: grid;
-    grid-template-columns: 1fr 12fr 1fr 6fr 1fr;
+    grid-template-columns: 1fr 12fr 15px 6fr 1fr;
     margin: 0;
     padding: 0;
 }
@@ -29,6 +29,7 @@
     }
 
     .nonBoard {
+        margin-top: 10px;
         grid-column-start: 2;
         grid-row-start: 2;
     }

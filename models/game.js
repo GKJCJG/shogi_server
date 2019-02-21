@@ -19,6 +19,11 @@ const GameSchema = new Schema({
     moves: [{
         type: String,
     }],
+    messages: [{
+        moveNumber: Number,
+        author: String,
+        message: String
+    }],
     senteContact: {
         type: String,
         validate: {
