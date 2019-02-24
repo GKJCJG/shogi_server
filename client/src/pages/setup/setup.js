@@ -3,21 +3,13 @@ import {Link} from "react-router-dom";
 import API from "../../utils/api";
 import "./setup.css";
 
-const Labels = () => (
-    <div id="labels">
-        <p>Your name:</p>
-        <p>Your email:</p>
-        <p>Opponent's name:</p>
-        <p>Opponent's email:</p>
-    </div>
-)
 const InputFields = (props) => {
     return (
             <div id="inputFields">
-                <p><input className="form-control" name="initNick" value={props.initNick} onChange={props.onChange} required/></p>
-                <p><input type="email" className="form-control" name="initContact" value={props.initContact} onChange={props.onChange} required/></p>
-                <p><input className="form-control" name="oppNick" value={props.oppNick} onChange={props.onChange} required/></p>
-                <p><input type="email" className="form-control" name="oppContact" value={props.oppContact} onChange={props.onChange} required/></p>
+                <p><span className="label">Your name:</span><input className="form-control" name="initNick" value={props.initNick} onChange={props.onChange} required/></p>
+                <p><span className="label">Your email:</span><input type="email" className="form-control" name="initContact" value={props.initContact} onChange={props.onChange} required/></p>
+                <p><span className="label">Opponent's name:</span><input className="form-control" name="oppNick" value={props.oppNick} onChange={props.onChange} required/></p>
+                <p><span className="label">Opponent's email:</span><input type="email" className="form-control" name="oppContact" value={props.oppContact} onChange={props.onChange} required/></p>
             </div>
     )
 };
@@ -141,7 +133,6 @@ class Setup extends Component {
 
         return (
         <div className = "setupContainer">
-            <Labels/>
             <InputFields {...this.state} onChange={this.passOnChange}/>
             <Options {...this.state} swapColors={this.passSwapColors} changeHandicap={this.passChangeHandicap}/>
             

@@ -1,24 +1,32 @@
 .setupContainer {
     display: grid;
-    grid-template-columns: 10px 1fr 1fr 1fr;
+    grid-template-columns: 10px 335px 1fr;
     grid-template-rows: auto auto;
-    min-width: 453px;
     max-width: 700px;
 }
 
-#labels {
-    grid-column-start: 2;
-    grid-column-end: 3;
+.label {
+    display: inline-block;
+    width: 135px;
 }
 
-#entryFields {
-    grid-column-start: 3;
-    grid-column-end: 4;
+p {
+    width: 100%;
+}
+
+.form-control {
+    display: inline-block;
+}
+
+#inputFields {
+    grid-column-start: 2;
+    grid-column-end: 3;
+    min-width: 305px;
 }
 
 #options {
-    grid-column-start: 4;
-    grid-column-end: 5;
+    grid-column-start: 3;
+    grid-column-end: 4;
 }
 
 #bottomRow {
@@ -27,9 +35,9 @@
     grid-row-start: 2;
 }
 
-@media screen and (max-width: 570px) {
-    .container {
-        grid-template-columns: 5px 1fr 1fr;
+@media screen and (max-width: 530px) {
+    .setupContainer {
+        grid-template-columns: 5px 1fr;
         grid-template-rows: auto auto auto;
         min-width: initial;
     }
