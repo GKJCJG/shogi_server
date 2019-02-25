@@ -9,7 +9,7 @@ class App extends Component {
     return (
       <Router>
       <div>
-        <Navbar/>
+        {/* <Navbar/> */}
           <Route exact path="/new" component={Setup} />
           <Route exact path="/game/:id" component={Game} />
           <Route exact path="/" component={Home} />

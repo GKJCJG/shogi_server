@@ -9,6 +9,8 @@
 #diagramContainer {
     grid-column-start: 2;
     grid-column-end: 3;
+    cursor: pointer;
+    user-select: none;
 }
 
 .nonBoard {
