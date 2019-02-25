@@ -12,6 +12,8 @@
     width: 354px;
     font-size: 14px;
     padding: 5px 0px 5px 5px;
+    min-height: 35px;
+    max-height: 50vh;
 }
 
 #textEntry {

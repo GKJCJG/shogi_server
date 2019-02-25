@@ -12,8 +12,6 @@
     margin: 0;
 }
 
-
-
 .shogiDiagram {
 	border-collapse: collapse;
     font-weight: bold;
@@ -88,8 +86,12 @@ td {
 
 .superPose {
     position: absolute;
-    left: 17%;
-    top: 15%;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    line-height: 4.5vw;
+    text-align: center;
     background-color: rgba(87, 219, 87);
     opacity: 0.8;
 }
@@ -117,6 +119,10 @@ td {
 
     #sente, #gote {
         font-size: 15px;
+    }
+
+    .superPose {
+        line-height: 24px;
     }
 
     .handMult {

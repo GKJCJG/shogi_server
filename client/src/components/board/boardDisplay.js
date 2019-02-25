@@ -1,18 +1,10 @@
 import React from "react";
 
 const BoardDisplay = (props) => {
-    let superPosition;
-    let {origin, target, piece} = props.move;
+    let {origin, target, piece, motum} = props.move;
+    console.log(props.move);
 
-    if(target) {
-        const spText = piece ? props.position.senteHand.occupants.filter(e => e.name === piece)[0].symbol : props.position[origin].occupant;
-        const spanClass = props.position[target].class.includes("gote") || props.position[origin].class.includes("gote") ? "gote" : null;
-
-        superPosition = (
-            <div className = {spanClass+" superPose"}>{spText}</div>
-        );
-    }
-
+    const isPromoted = (symbol) => ["と", "杏", "圭", "全", "馬", "竜"].includes(symbol);
     const computeTd = (i, j) => <td key={tdKey(i, j)}
         id={tdId(i, j)}
         className={tdClass(i, j)}
@@ -35,11 +27,23 @@ const BoardDisplay = (props) => {
             } else if ("" + (10-j) + i === target) {
                 style.position = "relative";
             }
-        }    
+        }
+        if (isPromoted(props.position[""+(10-j)+i].occupant)) style.color = "red";
         return style;
     }
     const tdSuperPosition = (i, j) => {
-        if (target && "" + (10-j) + i === target) return superPosition;
+        if (target && "" + (10-j) + i === target) {
+            let superPosition
+            const spText = piece ? props.position.senteHand.occupants.filter(e => e.name === piece)[0].symbol : props.position[origin].occupant;
+            const spanClass = props.position[target].class.includes("gote") || props.position[origin].class.includes("gote") ? "gote" : null;
+            const spStyle = isPromoted(motum) ? {color: "red"} : { color: "#444"};
+    
+            superPosition = (
+                <div style = {spStyle} className = {spanClass+" superPose"}>{spText}</div>
+            );
+            return superPosition;
+        }
+        
         return null;
     }
 
