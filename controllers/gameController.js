@@ -11,6 +11,7 @@ module.exports = {
         .catch(err => res.status(422).json(err));
     },
     create: (req, res) => {
+        console.log("creating!");
         Game.create(req.body)
         .then(dbGame => {
             mailer.alertCreated(dbGame, "sente");
@@ -67,7 +68,15 @@ module.exports = {
         .catch(err => res.status(422).json(err));
     },
     // delete games that haven't been modified in more than 30 days.
-    deleteStale: () => {
-        Game.find({})
+    deleteStale: (req, res, next) => {
+        console.log(next);
+        console.log("deleting...");
+        const today = new Date(Date.now());
+        const aMonthAgo = new Date(today.getFullYear(), today.getMonth()-1, today.getDate());
+        Game.deleteMany({updatedAt: {$lt: aMonthAgo}})
+        .then(dbDeletions => console.log(dbDeletions))
+        .catch(err => console.log(err));
+
+        next();
     }
 }

@@ -3,6 +3,7 @@ import API from "../../utils/api";
 import Headline from "./headline";
 import MakeMove from "./makeMove";
 import OTBActions from "./OTBActions";
+import "./actions.css";
 
 
 

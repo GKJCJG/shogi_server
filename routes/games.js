@@ -2,8 +2,7 @@ const router = require("express").Router();
 const gameController = require("../controllers/gameController");
 
 router.route("/new")
-  .post(gameController.create)
-  .get((req, res) => res.send("Hello."));
+  .post(gameController.deleteStale, gameController.create)
 
 router.route("/:id")
   .get(gameController.findOne)
