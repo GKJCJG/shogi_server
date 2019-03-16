@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import "./board.css";
 import API from "../../utils/api";
 import gameLogic from "../../utils/shogiBoard";
-import DiagramBoard from "./diagramBoard";
 import PieceStand from "./pieceStand";
 import BoardDisplay from "./boardDisplay";
 
@@ -31,7 +30,7 @@ class Board extends Component {
         API.getGame(this.props.access)
         .then(response => {
             const position = this.readGame(response.data.handicap, response.data.moves);
-            console.log(position);
+
             this.setPosition(position);
             this.reportToGame(response.data, position);
 
