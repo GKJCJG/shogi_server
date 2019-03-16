@@ -16,4 +16,4 @@ const DiagramBoard = (props) => {
 }
 
 
-export { DiagramBoard };
+export default DiagramBoard;

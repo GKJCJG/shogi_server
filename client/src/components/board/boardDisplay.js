@@ -1,7 +1,7 @@
 import React from "react";
 
 const BoardDisplay = (props) => {
-    let {origin, target, piece, motum} = props.move;
+    let {origin, target, piece, motum} = props.move ? props.move : {origin: null, target: null, piece: null, motum: null};
 
     const isPromoted = (symbol) => ["と", "杏", "圭", "全", "馬", "竜"].includes(symbol);
     const computeTd = (i, j) => <td key={tdKey(i, j)}

@@ -152,10 +152,6 @@ class ShogiPosition {
     }
 }
 
-let plainPosition = new FenString("LNSGKGSNL/1R5B1/PPPPPPPPP/9/9/9/ppppppppp/1b5r1/lnsgkgsnl/0000000/0000000").translateToObject();
-let myPosition = new ShogiPosition(plainPosition);
-console.log(myPosition.translateToString());
-
-
+export {FenString, ShogiPosition};
 
 /* eslint-enable no-use-before-define */
