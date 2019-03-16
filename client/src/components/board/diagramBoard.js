@@ -2,11 +2,10 @@ import React, {Component} from "react";
 import "./board.css";
 import API from "../../utils/api";
 import gameLogic from "../../utils/shogiBoard";
-import DiagramBoard from "./diagramBoard";
 import PieceStand from "./pieceStand";
 import BoardDisplay from "./boardDisplay";
 
-class Board extends Component {
+class DiagramBoard extends Component {
 
     constructor (props) {
         super(props);
@@ -155,4 +154,4 @@ class Board extends Component {
     }
 }
 
-export {Board};
+export {DiagramBoard};
