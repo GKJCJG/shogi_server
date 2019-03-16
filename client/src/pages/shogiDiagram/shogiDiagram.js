@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import Board from "./../../components/board/diagramBoard";
 import {FenString, ShogiPosition} from "./../../utils/diagramClasses";
+import Palette from "./../../components/diagramSidebar/palette";
 
 
 class ShogiDiagram extends Component {
@@ -18,13 +19,17 @@ class ShogiDiagram extends Component {
 
     passHandleBoardClick = this.handleBoardClick.bind(this);
 
+    setActive (event) {
+        console.log(event.target);
+    }
+
     render () {
         return (
             <div className="gameContainer">
                 <Board position={this.state.position} handleBoardClick={this.passHandleBoardClick}/>
                 <div className = "nonBoard">
                     {/* <FenEntry {...actionProps} {...this.state}/> */}
-                    {/* <Palette setActive={this.passSetActive}/> */}
+                    <Palette setActive={this.passSetActive}/>
                 </div>
             </div>
         );

@@ -1,0 +1,31 @@
+.fenholder {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+    height: 102px;
+    width: 51px;
+}
+
+.fenholder:hover {
+    background-color: lightgrey;
+}
+
+.fenholder:active {
+
+    background-color: black;
+    color: white;
+
+}
+
+/* This holds the correspondence tokens */
+.fen {
+    box-sizing: border-box;
+    height: 51px;
+    width: 51px;
+    border: 1px solid black;
+    font-size: 35px;
+    text-align: center;
+    vertical-align: middle;
+    padding: 8px 0;
+}
