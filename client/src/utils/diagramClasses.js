@@ -57,14 +57,14 @@ class FenString extends String {
             let squareClass = /[A-Z]/.test(symbol) ? ["gote"] : ["sente"];
             let occupant = symbolDictionary[symbol.toLowerCase()];
 
-            output["" + currentFile + rowNumber] = {class: squareClass, occupant};
+            output["" + currentFile + rowNumber] = {class: squareClass, occupant, symbol};
                         
         }
     
         function handleNumber(emptySquareCount) {
             for (let i=0; i<emptySquareCount; i++) {
                 let currentSquare = "" + (currentFile-i) + rowNumber;
-                output[currentSquare] = {class: [null], occupant: null};
+                output[currentSquare] = {class: [null], occupant: null, symbol: null};
             }
         }
     }

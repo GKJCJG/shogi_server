@@ -19,9 +19,9 @@ class ShogiDiagram extends Component {
     }
 
     handleBoardClick (event) {
-        if (isNaN(event.target.id)) {
+        if (event.target.id === "sente" || event.target.id === "gote") {
             this.handleHandClick(event);
-        } else {
+        } else if (!isNaN(event.target.id)) {
             this.handleSquareClick(event);
         }
     }
@@ -42,8 +42,6 @@ class ShogiDiagram extends Component {
     }
 
     handleHandClick (event) {
-        if (event.target.id !== "diagramContainer" && event.target.id.slice(0, -1) !== "rank" && event.target.id.slice(0, -1) !== "file") {
-            console.log(event.target.id);
             const pieceOrder = ["歩", "香", "桂", "銀", "金", "角", "飛"];
             let position = this.state.position;
             let targetArray = position[event.target.id + "Hand"].occupants;
@@ -56,12 +54,9 @@ class ShogiDiagram extends Component {
             }
 
             this.setState({position, string: new ShogiPosition(position).translateToString()});
-        }
     }
 
     handleType (event) {
-        console.log(event.target.value);
-
         this.setState({string: event.target.value, position: new FenString(event.target.value).translateToObject()});
     }
 
