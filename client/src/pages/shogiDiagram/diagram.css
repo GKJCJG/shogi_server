@@ -1,3 +1,8 @@
 #sente, #gote {
     background-color: rgb(201, 143, 59);
 }
+
+textarea {
+    width: 400px;
+    height: 75px;
+}

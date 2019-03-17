@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import Board from "./../../components/board/diagramBoard";
 import {FenString, ShogiPosition} from "./../../utils/diagramClasses";
 import Palette from "./../../components/diagramSidebar/palette";
+import FenEntry from "./../../components/diagramSidebar/fenEntry";
 import "./diagram.css";
 
 
@@ -28,19 +29,16 @@ class ShogiDiagram extends Component {
     passHandleBoardClick = this.handleBoardClick.bind(this);
 
     handleSquareClick (event) {
-        let eventObject = {};
         let position = this.state.position;
         if (event.altKey) {
-            eventObject[event.target.id] = {occupant: null, class: [null], symbol: null};
+            position[event.target.id] = {occupant: null, class: [null], symbol: null};
         } else if (event.ctrlKey) {
-            eventObject[event.target.id] = {occupant: this.state.onPalette.occupant, class: ["gote"], symbol: this.state.onPalette.symbol};
+            position[event.target.id] = {occupant: this.state.onPalette.occupant, class: ["gote"], symbol: this.state.onPalette.symbol};
         } else {
-            eventObject[event.target.id] = {occupant: this.state.onPalette.occupant, class: ["sente"], symbol: this.state.onPalette.symbol};
+            position[event.target.id] = {occupant: this.state.onPalette.occupant, class: ["sente"], symbol: this.state.onPalette.symbol};
         }
 
-        Object.assign(position, eventObject);
-
-        this.setState({position});
+        this.setState({position, string: new ShogiPosition(position).translateToString()});
     }
 
     handleHandClick (event) {
@@ -57,9 +55,17 @@ class ShogiDiagram extends Component {
                 targetArray[index].number++;
             }
 
-            this.setState({position});
+            this.setState({position, string: new ShogiPosition(position).translateToString()});
         }
     }
+
+    handleType (event) {
+        console.log(event.target.value);
+
+        this.setState({string: event.target.value, position: new FenString(event.target.value).translateToObject()});
+    }
+
+    passHandleType = this.handleType.bind(this);
 
     setActive (event) {
         let newPalette = {
@@ -77,7 +83,7 @@ class ShogiDiagram extends Component {
             <div className="gameContainer">
                 <Board position={this.state.position} handleBoardClick={this.passHandleBoardClick}/>
                 <div className = "nonBoard">
-                    {/* <FenEntry {...actionProps} {...this.state}/> */}
+                    <FenEntry onChange = {this.passHandleType} value = {this.state.string}/>
                     <Palette setActive={this.passSetActive}/>
                 </div>
             </div>

@@ -12,17 +12,12 @@ const symbolDictionary = {
     m: "馬",
     r: "飛",
     d: "竜",
-    k: ["玉", "王"]
+    k: "玉"
 };
 
 /* eslint-disable no-use-before-define */
 
 class FenString extends String {
-    constructor (string) {
-        super(string);
-        this.FEN = string;
-        this.FENArray = string.split("/");
-    }
 
     translateToObject() {
         const rowPartial = this.translateRows();
@@ -41,9 +36,10 @@ class FenString extends String {
     }
 
     translateRow(rowNumber) {
-        let output = {}, currentFile = 9, rowString = this.FENArray[9-rowNumber];
+        let output = {}, currentFile = 9, rowString = this.split("/")[9-rowNumber];
         rowNumber = 9 - rowNumber + 1;
         for (let i = 0; i < rowString.length; i++) {
+            if (currentFile < 1) break;
             if (isNaN(rowString[i])) {
                 handleSymbol(rowString[i]);
                 currentFile--;
@@ -52,28 +48,30 @@ class FenString extends String {
                 currentFile -= rowString[i];
             }
         }
+
+        if (currentFile > 0) handleNumber(currentFile);
         return output;
         
         function handleSymbol(symbol) {
 
             let squareClass = /[A-Z]/.test(symbol) ? ["gote"] : ["sente"];
-            let occupant = symbolDictionary[symbol.toLowerCase()]
+            let occupant = symbolDictionary[symbol.toLowerCase()];
 
-            output["" + currentFile + rowNumber] = {class: squareClass, occupant, symbol: symbol.toLowerCase()};
+            output["" + currentFile + rowNumber] = {class: squareClass, occupant};
                         
         }
     
         function handleNumber(emptySquareCount) {
             for (let i=0; i<emptySquareCount; i++) {
                 let currentSquare = "" + (currentFile-i) + rowNumber;
-                output[currentSquare] = {class: [null], occupant: null, symbol: null};
+                output[currentSquare] = {class: [null], occupant: null};
             }
         }
     }
 
     translateHands() {
-        const senteHand = Object.assign(this.translateHand(this.FENArray[9]), {class: "sente"});
-        const goteHand = Object.assign(this.translateHand(this.FENArray[10]), {class: "gote"});
+        const senteHand = Object.assign(this.translateHand(this.split("/")[9] || "0000000"), {class: "sente"});
+        const goteHand = Object.assign(this.translateHand(this.split("/")[10] || "0000000"), {class: "gote"});
         return {senteHand, goteHand};
     }
 
@@ -81,7 +79,7 @@ class FenString extends String {
         let handOccupants = [];
         const pieceOrder = ["歩", "香", "桂", "銀", "金", "角", "飛"];
         for (let i = 0; i < pieceOrder.length; i++) {
-            handOccupants.push({symbol: pieceOrder[i], number: handString[i]});
+            handOccupants.push({symbol: pieceOrder[i], number: parseInt(handString[i]) || 0});
         }
         return {occupants: handOccupants};
     }
