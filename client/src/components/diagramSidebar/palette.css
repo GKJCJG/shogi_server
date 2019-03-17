@@ -1,3 +1,15 @@
+#directions {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    clear: both;
+    width: 714px;
+    height: auto;
+    margin: 30px 15px;
+    border: 1px solid black;
+    user-select: none;
+}
+
 .fenholder {
     display: flex;
     flex-direction: column;
@@ -19,7 +31,7 @@
 }
 
 /* This holds the correspondence tokens */
-.fen {
+.fenLetter, .fenSymbol {
     box-sizing: border-box;
     height: 51px;
     width: 51px;
@@ -28,4 +40,17 @@
     text-align: center;
     vertical-align: middle;
     padding: 8px 0;
+}
+
+#directions {
+    flex-direction: column;
+    height: 714px;
+    width: 102px;
+    clear: none;
+}
+
+.fenholder {
+    flex-direction: row;
+    height: 51px;
+    width: 102px;
 }

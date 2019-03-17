@@ -4,62 +4,62 @@ import "./palette.css";
 
 const Palette = (props) => {
     return (
-    <div id="directions" class="hideme" style="display: none">
-    <div class="fenholder">
-        <div class="fenLetter">p</div>
-        <div class="fenSymbol">歩</div>
+    <div id="directions" onClick={props.setActive}>
+    <div className="fenholder">
+        <div className="fenLetter">p</div>
+        <div className="fenSymbol">歩</div>
     </div>
-    <div class="fenholder">
-        <div class="fenLetter">t</div>
-        <div class="fenSymbol">と</div>
+    <div className="fenholder">
+        <div className="fenLetter">t</div>
+        <div className="fenSymbol">と</div>
     </div>
-    <div class="fenholder">
-        <div class="fenLetter">l</div>
-        <div class="fenSymbol">香</div>
+    <div className="fenholder">
+        <div className="fenLetter">l</div>
+        <div className="fenSymbol">香</div>
     </div>
-    <div class="fenholder">
-        <div class="fenLetter">x</div>
-        <div class="fenSymbol">杏</div>
+    <div className="fenholder">
+        <div className="fenLetter">x</div>
+        <div className="fenSymbol">杏</div>
     </div>
-    <div class="fenholder">
-        <div class="fenLetter">n</div>
-        <div class="fenSymbol">桂</div>
+    <div className="fenholder">
+        <div className="fenLetter">n</div>
+        <div className="fenSymbol">桂</div>
     </div>
-    <div class="fenholder">
-        <div class="fenLetter">h</div>
-        <div class="fenSymbol">圭</div>
+    <div className="fenholder">
+        <div className="fenLetter">h</div>
+        <div className="fenSymbol">圭</div>
     </div>
-    <div class="fenholder">
-        <div class="fenLetter">s</div>
-        <div class="fenSymbol">銀</div>
+    <div className="fenholder">
+        <div className="fenLetter">s</div>
+        <div className="fenSymbol">銀</div>
     </div>
-    <div class="fenholder">
-        <div class="fenLetter">q</div>
-        <div class="fenSymbol">全</div>
+    <div className="fenholder">
+        <div className="fenLetter">q</div>
+        <div className="fenSymbol">全</div>
     </div>
-    <div class="fenholder">
-        <div class="fenLetter">g</div>
-        <div class="fenSymbol">金</div>
+    <div className="fenholder">
+        <div className="fenLetter">g</div>
+        <div className="fenSymbol">金</div>
     </div>
-    <div class="fenholder">
-        <div class="fenLetter">b</div>
-        <div class="fenSymbol">角</div>
+    <div className="fenholder">
+        <div className="fenLetter">b</div>
+        <div className="fenSymbol">角</div>
     </div>
-    <div class="fenholder">
-        <div class="fenLetter">m</div>
-        <div class="fenSymbol">馬</div>
+    <div className="fenholder">
+        <div className="fenLetter">m</div>
+        <div className="fenSymbol">馬</div>
     </div>
-    <div class="fenholder">
-        <div class="fenLetter">r</div>
-        <div class="fenSymbol">飛</div>
+    <div className="fenholder">
+        <div className="fenLetter">r</div>
+        <div className="fenSymbol">飛</div>
     </div>
-    <div class="fenholder">
-        <div class="fenLetter">d</div>
-        <div class="fenSymbol">竜</div>
+    <div className="fenholder">
+        <div className="fenLetter">d</div>
+        <div className="fenSymbol">竜</div>
     </div>
-    <div class="fenholder">
-        <div class="fenLetter">k</div>
-        <div class="fenSymbol">玉</div>
+    <div className="fenholder">
+        <div className="fenLetter">k</div>
+        <div className="fenSymbol">玉</div>
     </div>
 </div>
     );
