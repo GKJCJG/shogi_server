@@ -293,7 +293,6 @@ class Board {
         const kingSquare = this.findKing(turn);
 
         const opponentMoves = this.getMoveList(this.changeTurn(turn), {mustAvoidCheck: false, limitedCandidates: this.findKingThreats(turn).threats});
-        console.log(opponentMoves);
 
         if (opponentMoves.moves.filter(e => e[1] === kingSquare).length) return true;
         return false;
