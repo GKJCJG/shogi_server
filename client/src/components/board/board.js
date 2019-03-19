@@ -67,9 +67,10 @@ class Board extends Component {
     }
 
     localSetCandidates (event) {
-        function markSquares (coordinates) {
+        const markSquares = (coordinates) => {
+            const status = this.playerOwnsThis(event.target) ? "friendly" : "hostile";
             coordinates.forEach(e => {
-                position[e].class.push("candidate");
+                position[e].class.push("candidate", status);
                 candidates.push(e);
             })
         }
@@ -79,14 +80,13 @@ class Board extends Component {
         
         //Clear existing candidates.
         candidates.forEach(e => {
-            position[e].class.splice(position[e].class.indexOf("candidate"), 1);
+            // two items spliced here to remove both "candidate" and "friendly" or "hostile";
+            position[e].class.splice(position[e].class.indexOf("candidate"), 2);
         });
 
-        // let game know that we're not ready
-        this.setGameState({APIready: false})
-        
         candidates = [];
         let move = {};
+
 
         // use DOM properties of board elements to calculate appropriate new candidates.
         if(event.target.classList.contains("boardSquare")) {
@@ -96,11 +96,13 @@ class Board extends Component {
                 move.motum = event.target.textContent;
             }
         } else if (event.target.classList.contains("handMult") || event.target.classList.contains("pieceIcon")) {
+            const searchLocale = this.playerOwnsThis(event.target) ? "drops" : "opponentDrops";
+
             // retrieve piece type
-            let dropPiece = event.target.classList.contains("handMult") ? event.target.parentElement.id.split("-")[1] : event.target.id.split("-")[1];
+            const dropPiece = event.target.classList.contains("handMult") ? event.target.parentElement.id.split("-")[1] : event.target.id.split("-")[1];
             
             // identify and mark target squares
-            let dropSquares = position.drops
+            let dropSquares = position[searchLocale]
                 .filter(e => e.piece === dropPiece)
                 .map(e => e.target);
             markSquares(dropSquares);
@@ -117,31 +119,37 @@ class Board extends Component {
 
     setCandidates = this.localSetCandidates.bind(this);
 
+    playerOwnsThis(DOMElement) {
+        return DOMElement.classList.contains(this.props.viewer) || DOMElement.parentElement.classList.contains(this.props.viewer) || DOMElement.parentElement.parentElement.classList.contains(this.props.viewer);
+    }
+
     localPreviewMove (event) {
-        
-        if (!event.target.classList.contains("candidate")) return this.setCandidates(event);
-
-        const isEnemyCamp = (coordinate) => this.gameBoard.turn === "gote" ? coordinate % 10 > 6 : coordinate % 10 < 4;
-
-        // true if a target is specified, the move is not a drop, and the origin or target are inside the enemy camp, and the piece is not already promoted.
-        const isPromotable = (move) => !isNaN(move.origin) && (isEnemyCamp(move.origin) || isEnemyCamp(move.target)) && !["と","杏","圭","全","金","馬","竜","玉","王"].includes(move.motum);
+        if (!event.target.classList.contains("candidate") || event.target.classList.contains(this.props.viewer)) return this.setCandidates(event);
+        if (event.target.classList.contains("hostile")) return;
 
         let move = this.props.move;
         let target = event.target.id;
         move.target = target;
-        move.isPromotable = isPromotable(move);
+        move.isPromotable = this.isPromotable(move);
 
         this.setGameState({move});
     }
 
     previewMove = this.localPreviewMove.bind(this);
 
+    // true if a target is specified, the move is not a drop, and the origin or target are inside the enemy camp, and the piece is not already promoted.
+    isPromotable (move) {
+        return !isNaN(move.origin) && (this.isEnemyCamp(move.origin) || this.isEnemyCamp(move.target)) && !["と","杏","圭","全","金","馬","竜","玉","王"].includes(move.motum);
+    }
 
+    isEnemyCamp (coordinate) {
+        return this.gameBoard.turn === "gote" ? coordinate % 10 > 6 : coordinate % 10 < 4;
+    }
 
     render () {
         return (
             this.state.position[11] ?
-            (<div id="diagramContainer" className={this.props.viewer === "gote" ? "gote" : null} onClick={this.props.canPlay ? (this.state.candidates.length ? this.previewMove : this.setCandidates) : null}>
+            (<div id="diagramContainer" className={this.props.viewer === "gote" ? "flipped" : null} onClick={this.state.candidates.length ? (this.props.canPlay ? this.previewMove : this.setCandidates) : this.setCandidates}>
                 <PieceStand pieceStand={this.state.position.goteHand}/>
                 <table className="shogiDiagram">
                     <BoardDisplay {...this.state} {...this.props}/>
