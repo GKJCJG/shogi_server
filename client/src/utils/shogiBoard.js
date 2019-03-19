@@ -204,33 +204,53 @@ class Board {
         let options = {mustAvoidCheck: true, limitedCandidates: [], calculateDrops: true};
         if (userOptions) Object.assign(options, userOptions);
 
-        let moveList = []
+        let moves = [], drops = [], moveList={};
         if (options.limitedCandidates.length) {
             for (let i=0; i < options.limitedCandidates.length; i++) {
-                if (this[options.limitedCandidates[i]].owner === turn) moveList = moveList.concat(this[options.limitedCandidates[i]].listMoves());
+                if (this[options.limitedCandidates[i]].owner === turn) moves = moves.concat(this[options.limitedCandidates[i]].listMoves());
             }
         } else {
             for (let i=1; i<10; i++) {
                 for (let j=1; j<10; j++) {
-                    if (this[""+i+j].owner === turn) moveList = moveList.concat(this[""+i+j].listMoves());
+                    if (this[""+i+j].owner === turn) moves = moves.concat(this[""+i+j].listMoves());
                 }
             }
-            if (options.calculateDrops) moveList = moveList.concat(this[turn+"Hand"].listMoves());
-
-            const kingThreats = this.findKingThreats(turn)
-            const kingSquare = this.findKing(turn);
-            if (options.mustAvoidCheck && this.isInCheck(turn)) {
-                moveList = moveList
-                    .filter(move => !(this[move[1]].occupant instanceof pieces.King))
-                    .filter(move => kingThreats.allRelevant.includes(move[1]) || move[0] === kingSquare)
-                    .filter(move => this.noAutoCheck(turn, move, []));
-            } else if (options.mustAvoidCheck && kingThreats.threats.length) {
-                moveList = moveList
-                    .filter(move => this.noAutoCheck(turn, move, kingThreats.interposita))
-            }
+            if (options.calculateDrops) drops = this[turn+"Hand"].listMoves();
         }
+        moveList = !options.mustAvoidCheck ? {moves, drops} : this.filterIllegalMoves(moves, drops, turn);
         return moveList;
     }
+
+    filterIllegalMoves(moves, drops, turn) {
+        const kingThreats = this.findKingThreats(turn)
+        const kingSquare = this.findKing(turn);
+        if (this.isInCheck(turn)) {
+            moves = moves.filter(move => isLegalMoveWhileChecked.apply(this, move));
+            drops = drops.filter(drop => isLegalMoveWhileChecked.apply(this, drop))
+        } else if (kingThreats.threats.length) {
+            moves = moves.filter(move => isLegalMoveWhileNotChecked.apply(this, move));
+        }
+
+        return {moves, drops};
+
+        function isLegalMoveWhileChecked(move) {
+            const noKingCapture = this[move[1]].occupant instanceof pieces.King;
+            const blocksCheck = kingThreats.allRelevant.includes(move[1]);
+            const movesKing = move[0] === kingSquare;
+            // check here and break if fails, since these checks are easy to run. noAutoCheck is more costly.
+            if (!(noKingCapture && (blocksCheck || movesKing))) return false;
+
+            const removesCheck = this.noAutoCheck(turn, move, []);
+            return removesCheck;
+        }
+
+        function isLegalMoveWhileNotChecked (move) {
+            const doesNotMoveIntoCheck = this.noAutoCheck(turn, move, kingThreats.interposita);
+            return doesNotMoveIntoCheck;
+        }
+    }
+
+    
 
     noAutoCheck (turn, move, threats) {
         const [origin, target, piece] = move;
@@ -273,8 +293,9 @@ class Board {
         const kingSquare = this.findKing(turn);
 
         const opponentMoves = this.getMoveList(this.changeTurn(turn), {mustAvoidCheck: false, limitedCandidates: this.findKingThreats(turn).threats});
+        console.log(opponentMoves);
 
-        if (opponentMoves.filter(e => e[1] === kingSquare).length) return true;
+        if (opponentMoves.moves.filter(e => e[1] === kingSquare).length) return true;
         return false;
     }
 
@@ -284,10 +305,14 @@ class Board {
 
     }
 
+    parseDrop (trinomialNotation) {
+        return {origin: trinomialNotation[0], target: trinomialNotation[1], piece: trinomialNotation[2]}
+    }
+
     render () {
         let currentPosition = {};
         let legalMoves = this.getMoveList(this.turn);
-        if (!legalMoves.length) {
+        if (!(legalMoves.moves.length || legalMoves.drops.length)) {
             currentPosition.checkMate = true;
             currentPosition.winner = this.changeTurn(this.turn);
         }
@@ -295,16 +320,21 @@ class Board {
             currentPosition.inCheck = true;
         }
 
-        if (!currentPosition.checkMate) legalMoves = legalMoves.concat(this.getMoveList(this.changeTurn(this.turn), {calculateDrops: false}));
+        if (!currentPosition.checkMate) {
+            const opponentMoves = this.getMoveList(this.changeTurn(this.turn));
+            legalMoves.moves = legalMoves.moves.concat(opponentMoves.moves);
+            legalMoves.opponentDrops = opponentMoves.drops;
+        }
 
         for(let i = 1; i < 10; i++) {
             for (let j = 1; j < 10; j++) {
                 currentPosition[""+i+j] = this[""+i+j].render();
-                currentPosition[""+i+j].moves = legalMoves.filter(e => e[0] === ""+i+j).map(e => e[1]);
+                currentPosition[""+i+j].moves = legalMoves.moves.filter(e => e[0] === ""+i+j).map(e => e[1]);
             }
         }
 
-        currentPosition.drops = legalMoves.filter(e => isNaN(e[0])).map(e => {return {origin: e[0], target: e[1], piece: e[2]}});
+        currentPosition.drops = legalMoves.drops.map(this.parseDrop);
+        currentPosition.opponentDrops = legalMoves.opponentDrops.map(this.parseDrop);
         currentPosition.senteHand = this.senteHand.render();
         currentPosition.goteHand = this.goteHand.render();
         let lastMove = this.moves[this.moves.length-1] || null;

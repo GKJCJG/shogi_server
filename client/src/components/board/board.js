@@ -95,12 +95,14 @@ class Board extends Component {
                 move.origin = event.target.id
                 move.motum = event.target.textContent;
             }
-        } else if ((event.target.classList.contains("handMult") || event.target.classList.contains("pieceIcon")) && this.playerOwnsThis(event.target)) {
+        } else if (event.target.classList.contains("handMult") || event.target.classList.contains("pieceIcon")) {
+            const searchLocale = this.playerOwnsThis(event.target) ? "drops" : "opponentDrops";
+
             // retrieve piece type
-            let dropPiece = event.target.classList.contains("handMult") ? event.target.parentElement.id.split("-")[1] : event.target.id.split("-")[1];
+            const dropPiece = event.target.classList.contains("handMult") ? event.target.parentElement.id.split("-")[1] : event.target.id.split("-")[1];
             
             // identify and mark target squares
-            let dropSquares = position.drops
+            let dropSquares = position[searchLocale]
                 .filter(e => e.piece === dropPiece)
                 .map(e => e.target);
             markSquares(dropSquares);
