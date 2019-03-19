@@ -56,7 +56,7 @@ td {
 }
 
 /* These classes apply to elements representing gote's pieces. They are flipped. */
-.gote, #gote {
+.gote, #gote, .flipped {
     -webkit-transform: rotate(180deg);
     transform: rotate(180deg);
 }
@@ -96,8 +96,12 @@ td {
     opacity: 0.8;
 }
 
-.candidate {
+.candidate.friendly {
     background-color: rgba(87, 219, 87, 0.5);
+}
+
+.candidate.hostile {
+    background-color: rgba(219, 87, 87, 0.5);
 }
 
 /* This is the number of pieces of a particular type held by a player */

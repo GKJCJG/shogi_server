@@ -2,7 +2,6 @@ import React from "react";
 
 const BoardDisplay = (props) => {
     let {origin, target, piece, motum} = props.move;
-    console.log(props.move);
 
     const isPromoted = (symbol) => ["と", "杏", "圭", "全", "馬", "竜"].includes(symbol);
     const computeTd = (i, j) => <td key={tdKey(i, j)}

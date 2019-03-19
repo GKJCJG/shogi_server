@@ -200,11 +200,14 @@ class Board {
         }
     }
 
-    getMoveList (turn, mustAvoidCheck=true, limitedCandidates=[]) {
+    getMoveList (turn, userOptions) {
+        let options = {mustAvoidCheck: true, limitedCandidates: [], calculateDrops: true};
+        if (userOptions) Object.assign(options, userOptions);
+
         let moveList = []
-        if (limitedCandidates.length) {
-            for (let i=0; i < limitedCandidates.length; i++) {
-                if (this[limitedCandidates[i]].owner === turn) moveList = moveList.concat(this[limitedCandidates[i]].listMoves());
+        if (options.limitedCandidates.length) {
+            for (let i=0; i < options.limitedCandidates.length; i++) {
+                if (this[options.limitedCandidates[i]].owner === turn) moveList = moveList.concat(this[options.limitedCandidates[i]].listMoves());
             }
         } else {
             for (let i=1; i<10; i++) {
@@ -212,16 +215,16 @@ class Board {
                     if (this[""+i+j].owner === turn) moveList = moveList.concat(this[""+i+j].listMoves());
                 }
             }
-            moveList = moveList.concat(this[turn+"Hand"].listMoves());
+            if (options.calculateDrops) moveList = moveList.concat(this[turn+"Hand"].listMoves());
 
             const kingThreats = this.findKingThreats(turn)
             const kingSquare = this.findKing(turn);
-            if (mustAvoidCheck && this.isInCheck(turn)) {
+            if (options.mustAvoidCheck && this.isInCheck(turn)) {
                 moveList = moveList
                     .filter(move => !(this[move[1]].occupant instanceof pieces.King))
                     .filter(move => kingThreats.allRelevant.includes(move[1]) || move[0] === kingSquare)
                     .filter(move => this.noAutoCheck(turn, move, []));
-            } else if (mustAvoidCheck && kingThreats.threats.length) {
+            } else if (options.mustAvoidCheck && kingThreats.threats.length) {
                 moveList = moveList
                     .filter(move => this.noAutoCheck(turn, move, kingThreats.interposita))
             }
@@ -269,7 +272,7 @@ class Board {
     isInCheck (turn) {
         const kingSquare = this.findKing(turn);
 
-        const opponentMoves = this.getMoveList(this.changeTurn(turn), false, this.findKingThreats(turn).threats);
+        const opponentMoves = this.getMoveList(this.changeTurn(turn), {mustAvoidCheck: false, limitedCandidates: this.findKingThreats(turn).threats});
 
         if (opponentMoves.filter(e => e[1] === kingSquare).length) return true;
         return false;
@@ -291,6 +294,8 @@ class Board {
         if (this.isInCheck(this.turn)) {
             currentPosition.inCheck = true;
         }
+
+        if (!currentPosition.checkMate) legalMoves = legalMoves.concat(this.getMoveList(this.changeTurn(this.turn), {calculateDrops: false}));
 
         for(let i = 1; i < 10; i++) {
             for (let j = 1; j < 10; j++) {
