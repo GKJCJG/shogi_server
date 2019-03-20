@@ -5,6 +5,10 @@ import gameLogic from "../../utils/shogiBoard";
 import PieceStand from "./pieceStand";
 import BoardDisplay from "./boardDisplay"
 
+function pThenQ (p, q) {
+    return ((p && q) || (!p && !q));
+}
+
 class Board extends Component {
 
     constructor (props) {
@@ -96,7 +100,7 @@ class Board extends Component {
                 move.motum = event.target.textContent;
             }
         } else if (event.target.classList.contains("handMult") || event.target.classList.contains("pieceIcon")) {
-            const searchLocale = this.playerOwnsThis(event.target) ? "drops" : "opponentDrops";
+            const searchLocale = pThenQ(this.props.canPlay, this.playerOwnsThis(event.target)) ?  "drops" : "opponentDrops";
 
             // retrieve piece type
             const dropPiece = event.target.classList.contains("handMult") ? event.target.parentElement.id.split("-")[1] : event.target.id.split("-")[1];
