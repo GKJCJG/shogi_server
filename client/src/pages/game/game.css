@@ -6,13 +6,11 @@
     padding: 0;
 }
 
-#diagramContainer {
+#diagramContainer, #boardContainer {
     margin-top: 10px;
     grid-column-start: 2;
     grid-column-end: 3;
-    cursor: pointer;
-    user-select: none;
-    color: #444;
+
 }
 
 .nonBoard {

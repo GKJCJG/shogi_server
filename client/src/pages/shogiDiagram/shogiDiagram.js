@@ -5,6 +5,11 @@ import Palette from "./../../components/diagramSidebar/palette";
 import FenEntry from "./../../components/diagramSidebar/fenEntry";
 import "./diagram.css";
 
+const Directions = () => (
+    <div id="directions">
+        Using this diagram generator, you can create both images and SFEN-like strings that represent board positions. You may create your diagram by clicking on the icons below and then placing each piece on the board, or you can edit the SFEN string below. Or do a bit of both - both the board and the string will update with each change.
+    </div>
+)
 
 class ShogiDiagram extends Component {
 
@@ -74,12 +79,14 @@ class ShogiDiagram extends Component {
     passSetActive = this.setActive.bind(this);
 
     render () {
+        console.log(this.state.onPalette);
         return (
             <div className="gameContainer">
                 <Board position={this.state.position} handleBoardClick={this.passHandleBoardClick}/>
                 <div className = "nonBoard">
+                    <Directions />
                     <FenEntry onChange = {this.passHandleType} value = {this.state.string}/>
-                    <Palette setActive={this.passSetActive}/>
+                    <Palette setActive={this.passSetActive} onPalette = {this.state.onPalette}/>
                 </div>
             </div>
         );

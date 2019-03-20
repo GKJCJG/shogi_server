@@ -7,11 +7,11 @@ const symbolDictionary = {
     h: "圭",
     s: "銀",
     q: "全",
-    g: "金",
     b: "角",
     m: "馬",
     r: "飛",
     d: "竜",
+    g: "金",
     k: "玉"
 };
 
@@ -150,6 +150,6 @@ class ShogiPosition {
     }
 }
 
-export {FenString, ShogiPosition};
+export {FenString, ShogiPosition, symbolDictionary};
 
 /* eslint-enable no-use-before-define */

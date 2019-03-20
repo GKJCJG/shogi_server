@@ -1,4 +1,4 @@
-#diagramContainer {
+#boardContainer, #diagramContainer {
     display: grid;
     grid-template-columns: 2fr 5fr 42fr 5fr 2fr;
     grid-template-rows: 1fr 1fr 1fr 21fr 1fr 1fr 1fr;
@@ -10,6 +10,9 @@
     min-width: 342px;
     min-height: 306px;
     margin: 0;
+    cursor: pointer;
+    user-select: none;
+    color: #444;
 }
 
 .shogiDiagram {

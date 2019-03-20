@@ -1,67 +1,23 @@
 import React from "react";
+import {symbolDictionary} from "./../../utils/diagramClasses";
 import "./palette.css";
 
+const symbolPairList = [];
+for (let key in symbolDictionary) {
+    if (symbolDictionary.hasOwnProperty(key)) symbolPairList.push({letter: key, symbol:symbolDictionary[key]});
+}
 
 const Palette = (props) => {
+    
     return (
-    <div id="directions" onClick={props.setActive}>
-    <div className="fenholder">
-        <div className="fenLetter">p</div>
-        <div className="fenSymbol">歩</div>
+    <div id="palette" onClick={props.setActive}>
+    {symbolPairList.map((e, i) => (
+        <div className={"fenholder" + (props.onPalette.symbol === e.letter ? " active" : "")} key={"fenHolder_" + i}>
+            <div className="fenLetter">{e.letter}</div>
+            <div className="fenSymbol">{e.symbol}</div>
+        </div>
+    ))}
     </div>
-    <div className="fenholder">
-        <div className="fenLetter">t</div>
-        <div className="fenSymbol">と</div>
-    </div>
-    <div className="fenholder">
-        <div className="fenLetter">l</div>
-        <div className="fenSymbol">香</div>
-    </div>
-    <div className="fenholder">
-        <div className="fenLetter">x</div>
-        <div className="fenSymbol">杏</div>
-    </div>
-    <div className="fenholder">
-        <div className="fenLetter">n</div>
-        <div className="fenSymbol">桂</div>
-    </div>
-    <div className="fenholder">
-        <div className="fenLetter">h</div>
-        <div className="fenSymbol">圭</div>
-    </div>
-    <div className="fenholder">
-        <div className="fenLetter">s</div>
-        <div className="fenSymbol">銀</div>
-    </div>
-    <div className="fenholder">
-        <div className="fenLetter">q</div>
-        <div className="fenSymbol">全</div>
-    </div>
-    <div className="fenholder">
-        <div className="fenLetter">g</div>
-        <div className="fenSymbol">金</div>
-    </div>
-    <div className="fenholder">
-        <div className="fenLetter">b</div>
-        <div className="fenSymbol">角</div>
-    </div>
-    <div className="fenholder">
-        <div className="fenLetter">m</div>
-        <div className="fenSymbol">馬</div>
-    </div>
-    <div className="fenholder">
-        <div className="fenLetter">r</div>
-        <div className="fenSymbol">飛</div>
-    </div>
-    <div className="fenholder">
-        <div className="fenLetter">d</div>
-        <div className="fenSymbol">竜</div>
-    </div>
-    <div className="fenholder">
-        <div className="fenLetter">k</div>
-        <div className="fenSymbol">玉</div>
-    </div>
-</div>
     );
 }
 
