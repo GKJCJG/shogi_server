@@ -1,0 +1,170 @@
+.diagramContainer {
+    display: grid;
+    grid-template-columns: 2fr 5fr 42fr 5fr 2fr;
+    grid-template-rows: 1fr 1fr 1fr 21fr 1fr 1fr 1fr;
+    background-color: #e9c372;
+    width: 60vw;
+    height: 54vw;
+    max-height: 90vh;
+    max-width: 99vh;
+    min-width: 342px;
+    min-height: 306px;
+    margin: 0;
+}
+
+.board {
+    font-weight: bold;
+    height: 100%;
+    width: 100%;
+    grid-column-start: 3;
+    grid-column-end: 4;
+    grid-row-start: 2;
+    grid-row-end: 7;
+    display: grid;
+    grid-template-rows: 10px repeat(9, 1fr);
+}
+
+/* This is the div that holds the diagram */
+.rank {
+    height: 100%;
+    font-size: 0px;
+    width: 100%;
+    grid-column-end: span 1;
+}
+
+.rank, .top {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr) 10px;
+}
+
+.top {
+    width: 100%;
+}
+
+.rank div, .top div {
+    display: inline-block;
+    width: 100%;
+}
+
+.square {
+    box-sizing: border-box;
+    margin: 0;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+    height: 100%;
+    /* width: 10.4%; */
+    font-size: 3vw;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.top div {
+    /* width: 10.4%; */
+}
+
+.square:first-child {
+    border-left: 1px solid black;
+}
+
+.rank:nth-child(2) .square {
+    border-top: 1px solid black;
+}
+
+.label {
+    line-height: 100%;
+}
+
+/* Behavior of the coordinate-holding divs */
+.right {
+    display: inline-flex !important;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    font-size: 8px;
+    border: none;
+}
+
+.top {
+    vertical-align: bottom;
+    text-align: center;
+    padding-top: 0;
+    height: 1em;
+    font-size: 8px;
+    border: none;
+}
+
+/* These classes apply to elements representing gote's pieces. They are flipped. */
+.gote, #goteHand {
+    -webkit-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+
+/* These are the zones for the hand pieces */
+.hand {
+    padding: 0 2px;
+    font-size: 2.7vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    box-sizing: border-box;
+    align-items: center;
+    grid-row-start: 4;
+    grid-row-end: 5;
+}
+
+#goteHand {
+    grid-column-start: 2;
+    grid-column-end: 3;
+}
+
+#senteHand {
+    grid-column-start: 4;
+    grid-column-end: 5;
+}
+
+.superPose {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    line-height: 4.5vw;
+    text-align: center;
+    background-color: rgba(87, 219, 87);
+    opacity: 0.8;
+}
+
+.candidate {
+    background-color: rgba(87, 219, 87, 0.5);
+}
+
+/* This is the number of pieces of a particular type held by a player */
+.handMult {
+    display:inline-block;
+    font-size: 2.1vw;
+    padding: 0 2px;
+}
+
+@media screen and (max-width: 570px) {
+
+    .nonBoard {
+        display: block;
+    }
+
+    td {
+        font-size: 17px;
+    }
+
+    #sente, #gote {
+        font-size: 15px;
+    }
+
+    .superPose {
+        line-height: 24px;
+    }
+
+    .handMult {
+        font-size: 12px;
+    }
+
+}
