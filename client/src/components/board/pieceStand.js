@@ -3,7 +3,7 @@ import React from "react";
 const PieceStand = (props) => {
     const {class: owner, occupants} = props.pieceStand;
     return (
-    <div id={owner} className={owner}>
+    <div id={owner} className={owner + " hand"}>
         {occupants
             .map((piece, index) => piece.number > 0 ?
             (<div key={owner+"piece"+index} className="pieceIcon" id={owner+"-"+piece.name}>

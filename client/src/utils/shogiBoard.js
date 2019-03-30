@@ -332,8 +332,8 @@ class Board {
             }
         }
 
-        currentPosition.drops = legalMoves.drops.map(this.parseDrop);
-        currentPosition.opponentDrops = legalMoves.opponentDrops.map(this.parseDrop);
+        currentPosition[this.turn + "Drops"] = legalMoves.drops.map(this.parseDrop);
+        currentPosition[this.changeTurn(this.turn) + "Drops"] = legalMoves.opponentDrops.map(this.parseDrop);
         currentPosition.senteHand = this.senteHand.render();
         currentPosition.goteHand = this.goteHand.render();
         let lastMove = this.moves[this.moves.length-1] || null;

@@ -2,11 +2,54 @@ import React, {Component} from "react";
 import "./board.css";
 import API from "../../utils/api";
 import gameLogic from "../../utils/shogiBoard";
+import {symbolDictionary} from "../../utils/dictionaries";
 import PieceStand from "./pieceStand";
-import BoardDisplay from "./boardDisplay"
+import BoardDisplay from "./boardDisplay";
 
-function pThenQ (p, q) {
-    return ((p && q) || (!p && !q));
+class SelectionEvent {
+    constructor (event, position, candidates) {
+        this.event = event;
+        this.position = position;
+        this.candidates = candidates;
+    }
+
+    clearOldCandidates() {
+        this.candidates.forEach(e => {
+            // two items spliced here to remove both "candidate" and "friendly" or "hostile";
+            this.position[e].class.splice(this.position[e].class.indexOf("candidate"), 2);
+        });
+        this.candidates = [];
+        return {position: this.position, candidates: this.candidates};
+    }
+
+    determineMoveOrigin () {
+        const classList = this.event.target.classList;
+        if (classList.contains("handMult")) {
+            return {origin: this.event.target.parentElement.parentElement.id, piece: symbolDictionary[this.event.target.parentElement.textContent[0]].name};
+        } else if (classList.contains("pieceIcon")) {
+            return {origin: this.event.target.parentElement.id, piece: symbolDictionary[this.event.target.textContent[0]].name};
+        } else if (classList.contains("piece")) {
+            return {origin: this.event.target.parentElement.id, motum: this.event.target.textContent};
+        } else {
+            return false;
+        }
+    }
+
+    getNewSquares (move, status) {
+        const candidates = this.identifyCandidates(move);
+        candidates.forEach(e => {
+            this.position[e].class.push("candidate", status);
+        })
+        return {position: this.position, candidates};
+    }
+
+    identifyCandidates (move) {
+        if (!isNaN(move.origin)) return this.position[move.origin].moves;
+        const dropSquares = this.position[move.origin+"Drops"]
+            .filter(e => e.piece === move.piece)
+            .map(e => e.target);
+        return dropSquares;
+    }
 }
 
 class Board extends Component {
@@ -71,54 +114,21 @@ class Board extends Component {
     }
 
     localSetCandidates (event) {
-        const markSquares = (coordinates) => {
-            const status = this.playerOwnsThis(event.target) ? "friendly" : "hostile";
-            coordinates.forEach(e => {
-                position[e].class.push("candidate", status);
-                candidates.push(e);
-            })
-        }
+        const candidateSelection = new SelectionEvent(event, this.state.position, this.state.candidates);
+        let clearedPosition = candidateSelection.clearOldCandidates();
+        const move = candidateSelection.determineMoveOrigin(event);
+        if (!move) return this.reportCandidates(clearedPosition);
+        const status = this.playerOwnsThis(event.target) ? "friendly" : "hostile";
+        const newPosition = candidateSelection.getNewSquares(move, status);
+        if (isNaN(move.origin)) move.origin += "Hand";
+        newPosition.move = move;
+        this.reportCandidates(newPosition);
+    }
 
-        // retrieve position and candidates.
-        let {position, candidates} = this.state;
-        
-        //Clear existing candidates.
-        candidates.forEach(e => {
-            // two items spliced here to remove both "candidate" and "friendly" or "hostile";
-            position[e].class.splice(position[e].class.indexOf("candidate"), 2);
-        });
-
-        candidates = [];
-        let move = {};
-
-
-        // use DOM properties of board elements to calculate appropriate new candidates.
-        if(event.target.classList.contains("boardSquare")) {
-            if (position[event.target.id].moves.length) {
-                markSquares(position[event.target.id].moves);
-                move.origin = event.target.id
-                move.motum = event.target.textContent;
-            }
-        } else if (event.target.classList.contains("handMult") || event.target.classList.contains("pieceIcon")) {
-            const searchLocale = pThenQ(this.props.canPlay, this.playerOwnsThis(event.target)) ?  "drops" : "opponentDrops";
-
-            // retrieve piece type
-            const dropPiece = event.target.classList.contains("handMult") ? event.target.parentElement.id.split("-")[1] : event.target.id.split("-")[1];
-            
-            // identify and mark target squares
-            let dropSquares = position[searchLocale]
-                .filter(e => e.piece === dropPiece)
-                .map(e => e.target);
-            markSquares(dropSquares);
-
-            // assign relevant properties to move.
-            move.origin = event.target.parentElement.id.split("-")[0] + "Hand";
-            move.piece = dropPiece;
-        }
-
-
+    reportCandidates (moveOptions) {
+        const {position, candidates, move} = moveOptions;
         this.setState({position, candidates});
-        this.setGameState({move})
+        this.setGameState({move: move || {}});
     }
 
     setCandidates = this.localSetCandidates.bind(this);
@@ -139,6 +149,10 @@ class Board extends Component {
         this.setGameState({move});
     }
 
+    isCandidate (square) {
+        return square.classList.contains("friendly");
+    }
+
     previewMove = this.localPreviewMove.bind(this);
 
     // true if a target is specified, the move is not a drop, and the origin or target are inside the enemy camp, and the piece is not already promoted.
@@ -155,9 +169,7 @@ class Board extends Component {
             this.state.position[11] ?
             (<div id="diagramContainer" className={this.props.viewer === "gote" ? "flipped" : null} onClick={this.state.candidates.length ? (this.props.canPlay ? this.previewMove : this.setCandidates) : this.setCandidates}>
                 <PieceStand pieceStand={this.state.position.goteHand}/>
-                <table className="shogiDiagram">
-                    <BoardDisplay {...this.state} {...this.props}/>
-                </table>
+                <BoardDisplay {...this.state} {...this.props}/>
                 <PieceStand pieceStand={this.state.position.senteHand}/>
             </div>)
             :

@@ -102,12 +102,24 @@
     opacity: 0.8;
 }
 
+.previous {
+    background-color: rgba(87, 166, 219, 0.5);
+}
+
 .friendly {
     background-color: rgba(87, 219, 87, 0.5);
 }
 
 .hostile {
     background-color: rgba(219, 87, 87, 0.5);
+}
+
+.promoted {
+    color: red;
+}
+
+.origin {
+    opacity: 0.3;
 }
 
 /* This is the number of pieces of a particular type held by a player */

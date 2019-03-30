@@ -1,46 +1,39 @@
-import React, {Component} from "react";
+import React from "react";
+import {nameDictionary} from "../../utils/dictionaries"
 
-class Square extends Component {
+const Square = (props) => {
+    const {position, vertCoord, horCoord, move, showPrevious} = props;
+    const thisSquare = position[horCoord+vertCoord];
+    let className, occupant, id, superPosition;
 
-    constructor (props) {
-        super (props);
-        const {position, vertCoord, horCoord, move, lastMove, showPrevious} = props.position;
-        const thisSquare = position[horCoord+vertCoord];
+    let classes = ["square"], occupantClass;
+    classes = classes.concat(thisSquare.class);
+    if (showPrevious && (horCoord + vertCoord) === position.lastMove) classes.push("previous");
+    if (["と", "杏", "圭", "全", "馬", "竜"].includes(thisSquare.occupant)) classes.push("promoted");
+    if ((horCoord + vertCoord) === move.origin) classes.push("origin");
+    if (classes.includes("gote")) occupantClass = "gote";
+    className = classes.filter(e => e !== "gote").join(" ");
 
-        let classes = ["square"], occupantClass;
-        classes = classes.concat(thisSquare.class);
-        if (showPrevious && (horCoord + vertCoord) === lastMove) classes.push("previous");
-        if (["と", "杏", "圭", "全", "馬", "竜"].includes(thisSquare.occupant)) classes.push("promoted");
-        if ((horCoord + vertCoord) === move.origin) classes.push("origin");
-        if (classes.includes("gote")) occupantClass = "gote";
-        this.className = classes.filter(e => e !== "gote").join(" ");
-
-        if (thisSquare.occupant) {
-            occupantClass = occupantClass || "sente";
-            this.occupant = (<div className = {"piece " + occupantClass}>{thisSquare.occupant}</div>);
-        } else {
-            this.occupant = null;
-        }
-
-        this.key = "square" + horCoord + vertCoord;
-
-        this.id = horCoord + vertCoord;
-
-        if ((horCoord + vertCoord) === move.target) {
-            
-        }
+    if (thisSquare.occupant) {
+        occupantClass = occupantClass || "sente";
+        occupant = (<div className = {"piece " + occupantClass}>{thisSquare.occupant}</div>);
+    } else {
+        occupant = null;
     }
 
-    isPromoted (symbol) {
-        return ["と", "杏", "圭", "全", "馬", "竜"].includes(symbol);
+    id = horCoord + vertCoord;
+
+    if ((horCoord + vertCoord) === move.target) {
+        const spText = move.piece ? nameDictionary[move.piece].symbol : position[move.origin].occupant;
+        const spClass = position[move.origin].class.includes("gote") ? "gote" : "sente";
+        superPosition = (<div className = {"superPose " + spClass}>{spText}</div>);
+    } else {
+        superPosition = null;
     }
 
-    computeClass () {
-        const {position, vertCoord, horCoord} = this.props;
-        return "square " + position[horCoord+vertCoord].class.join(" ");
-    }
+    return (
+        <div className = {className} id = {id}>{occupant}{superPosition}</div>
+    );
+};
 
-    computeOccupant () {
-        const {position, vertCoord, horCoord} = this.props;
-    }
-}
+export default Square;
