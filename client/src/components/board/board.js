@@ -120,8 +120,10 @@ class Board extends Component {
         if (!move) return this.reportCandidates(clearedPosition);
         const status = this.playerOwnsThis(event.target) ? "friendly" : "hostile";
         const newPosition = candidateSelection.getNewSquares(move, status);
+
         if (isNaN(move.origin)) move.origin += "Hand";
         newPosition.move = move;
+
         this.reportCandidates(newPosition);
     }
 
@@ -138,8 +140,7 @@ class Board extends Component {
     }
 
     localPreviewMove (event) {
-        if (!event.target.classList.contains("candidate") || event.target.classList.contains(this.props.viewer)) return this.setCandidates(event);
-        if (event.target.classList.contains("hostile")) return;
+        if (!this.isCandidate(event.target)) return this.setCandidates(event);
 
         let move = this.props.move;
         let target = event.target.id;
