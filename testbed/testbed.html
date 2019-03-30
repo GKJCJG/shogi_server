@@ -9,18 +9,20 @@
 </head>
 <body>
     <div class="diagramContainer">
-        <div id="goteHand" class="hand gote"></div>
+        <div id="goteHand" class="hand gote">
+            <div class="pieceIcon" id="sente-pawn">歩<span class="handMult" id="pawnmultiplier">3</span></div>
+        </div>
         <div class="board">
             <div class="top">
-                <div class="label">9</div>
-                <div class="label">8</div>
-                <div class="label">7</div>
-                <div class="label">6</div>
-                <div class="label">5</div>
-                <div class="label">4</div>
-                <div class="label">3</div>
-                <div class="label">2</div>
-                <div class="label">1</div>
+                <div class="coordinate">9</div>
+                <div class="coordinate">8</div>
+                <div class="coordinate">7</div>
+                <div class="coordinate">6</div>
+                <div class="coordinate">5</div>
+                <div class="coordinate">4</div>
+                <div class="coordinate">3</div>
+                <div class="coordinate">2</div>
+                <div class="coordinate">1</div>
             </div>
             <div class="rank">
                 <div class="square"></div>
@@ -32,7 +34,7 @@
                 <div class="square"></div>
                 <div class="square"></div>
                 <div class="square"></div>
-                <div class="label right"><div class="innerLabel">一</div></div>
+                <div class="coordinate right">一</div>
             </div>
             <div class="rank">
                 <div class="square"></div>
@@ -44,7 +46,7 @@
                 <div class="square"></div>
                 <div class="square"></div>
                 <div class="square"></div>
-                <div class="label right"><div class="innerLabel">二</div></div>
+                <div class="coordinate right">二</div>
             </div>
             <div class="rank">
                 <div class="square"></div>
@@ -56,7 +58,7 @@
                 <div class="square"></div>
                 <div class="square"></div>
                 <div class="square"></div>
-                <div class="label right"><div class="innerLabel">三</div></div>
+                <div class="coordinate right">三</div>
             </div>
             <div class="rank">
                 <div class="square"></div>
@@ -68,7 +70,7 @@
                 <div class="square"></div>
                 <div class="square"></div>
                 <div class="square"></div>
-                <div class="label right"><div class="innerLabel">四</div></div>
+                <div class="coordinate right">四</div>
             </div>
             <div class="rank">
                 <div class="square"></div>
@@ -80,7 +82,7 @@
                 <div class="square"></div>
                 <div class="square"></div>
                 <div class="square"></div>
-                <div class="label right"><div class="innerLabel">五</div></div>
+                <div class="coordinate right">五</div>
             </div>
             <div class="rank">
                 <div class="square"></div>
@@ -92,7 +94,7 @@
                 <div class="square"></div>
                 <div class="square"></div>
                 <div class="square"></div>
-                <div class="label right"><div class="innerLabel">六</div></div>
+                <div class="coordinate right">六</div>
             </div>
             <div class="rank">
                 <div class="square"></div>
@@ -104,7 +106,7 @@
                 <div class="square"></div>
                 <div class="square"></div>
                 <div class="square"></div>
-                <div class="label right"><div class="innerLabel">七</div></div>
+                <div class="coordinate right">七</div>
             </div>
             <div class="rank">
                 <div class="square"></div>
@@ -116,22 +118,26 @@
                 <div class="square"></div>
                 <div class="square"></div>
                 <div class="square"></div>
-                <div class="label right"><div class="innerLabel">八</div></div>
+                <div class="coordinate right">八</div>
             </div>
             <div class="rank">
-                <div class="square">金</div>
+                <div class="square"><div class="piece gote">金</div><div class="superPose sente">金</div></div>
+                <div class="square"></div>
+                <div class="square">
+                    
+                </div>
                 <div class="square"></div>
                 <div class="square"></div>
                 <div class="square"></div>
                 <div class="square"></div>
                 <div class="square"></div>
                 <div class="square"></div>
-                <div class="square"></div>
-                <div class="square"></div>
-                <div class="label right"><div class="innerLabel">九</div></div>
+                <div class="coordinate right">九</div>
             </div>
         </div>
-        <div id="senteHand" class="hand sente"></div>
+        <div id="senteHand" class="hand sente">
+            <div class="pieceIcon" id="sente-pawn">歩<span class="handMult" id="pawnmultiplier">3</span></div>
+        </div>
     </div>
 </body>
 </html>
