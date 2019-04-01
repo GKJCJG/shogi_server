@@ -233,19 +233,19 @@ class Board {
 
         return {moves, drops};
 
-        function isLegalMoveWhileChecked(move) {
-            const noKingCapture = this[move[1]].occupant instanceof pieces.King;
-            const blocksCheck = kingThreats.allRelevant.includes(move[1]);
-            const movesKing = move[0] === kingSquare;
+        function isLegalMoveWhileChecked(origin, target, piece) {
+            const noKingCapture = this[target].occupant instanceof pieces.King;
+            const blocksCheck = kingThreats.allRelevant.includes(target);
+            const movesKing = origin === kingSquare;
             // check here and break if fails, since these checks are easy to run. noAutoCheck is more costly.
             if (!(noKingCapture && (blocksCheck || movesKing))) return false;
 
-            const removesCheck = this.noAutoCheck(turn, move, []);
+            const removesCheck = this.noAutoCheck(turn, [origin, target, piece], []);
             return removesCheck;
         }
 
-        function isLegalMoveWhileNotChecked (move) {
-            const doesNotMoveIntoCheck = this.noAutoCheck(turn, move, kingThreats.interposita);
+        function isLegalMoveWhileNotChecked (origin, target, piece) {
+            const doesNotMoveIntoCheck = this.noAutoCheck(turn, [origin, target, piece], kingThreats.interposita);
             return doesNotMoveIntoCheck;
         }
     }
@@ -332,10 +332,12 @@ class Board {
             }
         }
 
-        currentPosition[this.turn + "Drops"] = legalMoves.drops.map(this.parseDrop);
-        currentPosition[this.changeTurn(this.turn) + "Drops"] = legalMoves.opponentDrops.map(this.parseDrop);
         currentPosition.senteHand = this.senteHand.render();
         currentPosition.goteHand = this.goteHand.render();
+
+        console.log(legalMoves, currentPosition);
+        currentPosition[this.turn + "Drops"] = legalMoves.drops.map(this.parseDrop);
+        currentPosition[this.changeTurn(this.turn) + "Drops"] = legalMoves.opponentDrops.map(this.parseDrop);
         let lastMove = this.moves[this.moves.length-1] || null;
         lastMove = lastMove ? lastMove.split(lastMove.search("-") === -1 ? "*" : "-")[1] : null;
         currentPosition.lastMove = lastMove;
