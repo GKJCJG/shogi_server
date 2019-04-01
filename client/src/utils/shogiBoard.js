@@ -233,19 +233,20 @@ class Board {
         return {moves, drops};
 
         function isLegalMoveWhileChecked(move) {
-            const capturesKing = this[move.target].occupant instanceof pieces.King;
+            const doesNotCaptureKing = !this[move.target].occupant instanceof pieces.King;
             const blocksCheck = kingThreats.allRelevant.includes(move.target);
             const movesKing = (move.origin === kingSquare);
             // check here and break if fails, since these checks are easy to run. noAutoCheck is more costly.
-            if (!(!capturesKing && (blocksCheck || movesKing))) return false;
+            if (!(doesNotCaptureKing && (blocksCheck || movesKing))) return false;
 
             const removesCheck = this.noAutoCheck(turn, move, []);
             return removesCheck;
         }
 
         function isLegalMoveWhileNotChecked(move) {
+            const doesNotCaptureKing = !this[move.target].occupant instanceof pieces.King;
             const doesNotMoveIntoCheck = this.noAutoCheck(turn, move, kingThreats.interposita);
-            return doesNotMoveIntoCheck;
+            return (doesNotCaptureKing && doesNotMoveIntoCheck);
         }
     }
 
