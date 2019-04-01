@@ -225,37 +225,34 @@ class Board {
         const kingThreats = this.findKingThreats(turn)
         const kingSquare = this.findKing(turn);
         if (this.isInCheck(turn)) {
-            moves = moves.filter(move => isLegalMoveWhileChecked.apply(this, move));
-            drops = drops.filter(drop => isLegalMoveWhileChecked.apply(this, drop))
+            moves = moves.filter(move => isLegalMoveWhileChecked.call(this, move));
+            drops = drops.filter(drop => isLegalMoveWhileChecked.call(this, drop))
         } else if (kingThreats.threats.length) {
-            moves = moves.filter(move => isLegalMoveWhileNotChecked.apply(this, move));
+            moves = moves.filter(move => isLegalMoveWhileNotChecked.call(this, move));
         }
-
         return {moves, drops};
 
-        function isLegalMoveWhileChecked(origin, target, piece) {
-            const capturesKing = this[target].occupant instanceof pieces.King;
-            const blocksCheck = kingThreats.allRelevant.includes(target);
-            const movesKing = origin === kingSquare;
+        function isLegalMoveWhileChecked(move) {
+            const capturesKing = this[move.target].occupant instanceof pieces.King;
+            const blocksCheck = kingThreats.allRelevant.includes(move.target);
+            const movesKing = (move.origin === kingSquare);
             // check here and break if fails, since these checks are easy to run. noAutoCheck is more costly.
             if (!(!capturesKing && (blocksCheck || movesKing))) return false;
-            const removesCheck = this.noAutoCheck(turn, [origin, target, piece], []);
+
+            const removesCheck = this.noAutoCheck(turn, move, []);
             return removesCheck;
         }
 
-        function isLegalMoveWhileNotChecked (origin, target, piece) {
-            const doesNotMoveIntoCheck = this.noAutoCheck(turn, [origin, target, piece], kingThreats.interposita);
+        function isLegalMoveWhileNotChecked(move) {
+            const doesNotMoveIntoCheck = this.noAutoCheck(turn, move, kingThreats.interposita);
             return doesNotMoveIntoCheck;
         }
     }
 
-    
-
     noAutoCheck (turn, move, threats) {
-        const [origin, target, piece] = move;
-        if (!threats.includes(origin) && threats.length) return true;
+        if (!threats.includes(move.origin) && threats.length) return true;
 
-        this.makeMove({origin, target, piece}, {shouldRecord: true});
+        this.makeMove(move, {shouldRecord: true});
         let wouldBeCheck = this.isInCheck(turn);
         this.undoMove(turn);
 
@@ -293,24 +290,13 @@ class Board {
 
         const opponentMoves = this.getMoveList(this.changeTurn(turn), {mustAvoidCheck: false, limitedCandidates: this.findKingThreats(turn).threats});
 
-        if (opponentMoves.moves.filter(e => e[1] === kingSquare).length) return true;
+        if (opponentMoves.moves.filter(e => e.target === kingSquare).length) return true;
         return false;
-    }
-
-    isInCheckMate (turn) {
-        if (!this.isInCheck(turn)) return false;
-
-
-    }
-
-    parseDrop (trinomialNotation) {
-        return {origin: trinomialNotation[0], target: trinomialNotation[1], piece: trinomialNotation[2]}
     }
 
     render () {
         let currentPosition = {};
         let legalMoves = this.getMoveList(this.turn);
-        console.log(legalMoves);
         if (!(legalMoves.moves.length || legalMoves.drops.length)) {
             currentPosition.checkMate = true;
             currentPosition.winner = this.changeTurn(this.turn);
@@ -328,15 +314,15 @@ class Board {
         for(let i = 1; i < 10; i++) {
             for (let j = 1; j < 10; j++) {
                 currentPosition[""+i+j] = this[""+i+j].render();
-                currentPosition[""+i+j].moves = legalMoves.moves.filter(e => e[0] === ""+i+j).map(e => e[1]);
+                currentPosition[""+i+j].moves = legalMoves.moves.filter(e => e.origin === ""+i+j).map(e => e.target);
             }
         }
 
         currentPosition.senteHand = this.senteHand.render();
         currentPosition.goteHand = this.goteHand.render();
 
-        currentPosition[this.turn + "Drops"] = legalMoves.drops ? legalMoves.drops.map(this.parseDrop) : [];
-        currentPosition[this.changeTurn(this.turn) + "Drops"] = legalMoves.opponentDrops ? legalMoves.opponentDrops.map(this.parseDrop) : [];
+        currentPosition[this.turn + "Drops"] = legalMoves.drops ? legalMoves.drops : [];
+        currentPosition[this.changeTurn(this.turn) + "Drops"] = legalMoves.opponentDrops ? legalMoves.opponentDrops : [];
         let lastMove = this.moves[this.moves.length-1] || null;
         lastMove = lastMove ? lastMove.split(lastMove.search("-") === -1 ? "*" : "-")[1] : null;
         currentPosition.lastMove = lastMove;
