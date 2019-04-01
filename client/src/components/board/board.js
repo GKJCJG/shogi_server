@@ -114,7 +114,6 @@ class Board extends Component {
     }
 
     localSetCandidates (event) {
-        console.log("Set");
         const candidateSelection = new SelectionEvent(event, this.state.position, this.state.candidates);
         let clearedPosition = candidateSelection.clearOldCandidates();
         const move = candidateSelection.determineMoveOrigin(event);
@@ -141,7 +140,6 @@ class Board extends Component {
     }
 
     localPreviewMove (event) {
-        console.log("Preview");
         if (!this.isCandidate(event.target)) return this.setCandidates(event);
 
         let move = this.props.move;

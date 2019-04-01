@@ -234,12 +234,11 @@ class Board {
         return {moves, drops};
 
         function isLegalMoveWhileChecked(origin, target, piece) {
-            const noKingCapture = this[target].occupant instanceof pieces.King;
+            const capturesKing = this[target].occupant instanceof pieces.King;
             const blocksCheck = kingThreats.allRelevant.includes(target);
             const movesKing = origin === kingSquare;
             // check here and break if fails, since these checks are easy to run. noAutoCheck is more costly.
-            if (!(noKingCapture && (blocksCheck || movesKing))) return false;
-
+            if (!(!capturesKing && (blocksCheck || movesKing))) return false;
             const removesCheck = this.noAutoCheck(turn, [origin, target, piece], []);
             return removesCheck;
         }
@@ -311,6 +310,7 @@ class Board {
     render () {
         let currentPosition = {};
         let legalMoves = this.getMoveList(this.turn);
+        console.log(legalMoves);
         if (!(legalMoves.moves.length || legalMoves.drops.length)) {
             currentPosition.checkMate = true;
             currentPosition.winner = this.changeTurn(this.turn);
@@ -335,9 +335,8 @@ class Board {
         currentPosition.senteHand = this.senteHand.render();
         currentPosition.goteHand = this.goteHand.render();
 
-        console.log(legalMoves, currentPosition);
-        currentPosition[this.turn + "Drops"] = legalMoves.drops.map(this.parseDrop);
-        currentPosition[this.changeTurn(this.turn) + "Drops"] = legalMoves.opponentDrops.map(this.parseDrop);
+        currentPosition[this.turn + "Drops"] = legalMoves.drops ? legalMoves.drops.map(this.parseDrop) : [];
+        currentPosition[this.changeTurn(this.turn) + "Drops"] = legalMoves.opponentDrops ? legalMoves.opponentDrops.map(this.parseDrop) : [];
         let lastMove = this.moves[this.moves.length-1] || null;
         lastMove = lastMove ? lastMove.split(lastMove.search("-") === -1 ? "*" : "-")[1] : null;
         currentPosition.lastMove = lastMove;
