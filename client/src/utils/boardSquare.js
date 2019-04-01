@@ -98,11 +98,9 @@ class Square {
         this.occupant.moves.forEach(e => {
             switch (e) {
                 case "lance":
-                    moveList = moveList.concat(handleRange(e));
-                    break;
+                // falls through
                 case "rook":
-                    moveList = moveList.concat(handleRange(e));
-                    break;
+                // falls through
                 case "bishop":
                     moveList = moveList.concat(handleRange(e));
                     break;
@@ -110,7 +108,7 @@ class Square {
                     const move = e.map(coordinate => coordinate*(this.owner === "sente" ? -1 : 1));
                     moveList.push([this.coordinate[0]+move[0], this.coordinate[1]+move[1]])
                     // filter the moves to remove any that are off the board or that would 'capture' a piece of the same side. Not necessary for ranged pieces as their logic handes it.
-                    moveList=moveList.filter(e => (e[0] < 10
+                    moveList = moveList.filter(e => (e[0] < 10
                         && e[1] < 10 
                         && e[0] > 0 
                         && e[1] > 0 
@@ -119,7 +117,7 @@ class Square {
         });
 
         // then map it into the text format for a move and return.
-        return moveList.map(target => [this.coordinate.join(""), target.join("")]);
+        return moveList.map(target => {return {origin: this.coordinate.join(""), target: target.join("")}});
         
     }
 
