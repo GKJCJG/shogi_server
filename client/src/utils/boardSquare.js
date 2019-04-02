@@ -75,23 +75,21 @@ class Square {
             moveList.push([this.coordinate[0]+move[0], this.coordinate[1]+move[1]])
         });
 
-        moveList = moveList.filter(this.isOnBoard).filter(e => this.noIllegalCaptures.call(this, e));
+        moveList = moveList.filter(Square.isOnBoard).filter(move => this.noIllegalCaptures.call(this, move));
 
         if (this.isRanged(this.occupant)) {
-            moveList = moveList.filter(this.noMovingThrough);
+            moveList = moveList.filter(move => this.noMovingThrough.call(this, move));
         }
 
         // then map it into the text format for a move and return.
         return moveList.map(target => {return {origin: this.coordinate.join(""), target: target.join("")}});
     }
 
-    isOnBoard(square) {
+    static isOnBoard(square) {
         return square[0] < 10 && square[1] < 10 && square[0] > 0 && square[1] > 0;
     }
 
     noIllegalCaptures(square) {
-        console.log(square);
-        console.log(this);
         const targetOccupant = this.checkOwner(square.join(""));
         return !((targetOccupant.owner === this.owner) || targetOccupant.occupant instanceof pieces.King);
     }
@@ -104,7 +102,7 @@ class Square {
         const vector = new Vector(this.coordinate, target);
         for (let i = 1; i < vector.magnitude; i++) {
             let interveningSquare = [this.coordinate[0] + vector.unitVector[0] * i, this.coordinate[1] + vector.unitVector[1] * i];
-            if (this.checkOwner([interveningSquare])) return false;
+            if (this.checkOwner(interveningSquare.join(""))) return false;
         }
         return true;
     }

@@ -63,13 +63,11 @@ class ShogiPosition {
     }
 
     determineCheck() {
-        this.senteIsAttackedBy = this.goteMoves.filter(e => e.target === this.senteKing).map(e => e.origin);
-        this.goteIsAttackedBy = this.senteMoves.filter(e => e.target === this.goteKing).map(e => e.origin);
+        this.senteIsAttackedBy = this.moves.goteMoves.filter(e => e.target === this.senteKing).map(e => e.origin);
+        this.goteIsAttackedBy = this.moves.senteMoves.filter(e => e.target === this.goteKing).map(e => e.origin);
         this.senteInCheck = this.senteIsAttackedBy.length > 0;
         this.goteInCheck = this.goteIsAttackedBy.length > 0;
     }
-
-
 
     handleCheckRules() {
         this.preventMoveIntoCheck();
@@ -90,35 +88,35 @@ class ShogiPosition {
         const vectors = [
             {
                 vector: [0, 1],
-                threat: {both: ["rook", "dragon"], gote: ["lance"], sente: []}
+                threats: {both: ["rook", "dragon"], gote: ["lance"], sente: []}
             },
             {
                 vector: [1, 1],
-                threat: {both: ["bishop", "horse"], gote: [], sente: []}
+                threats: {both: ["bishop", "horse"], gote: [], sente: []}
             },
             {
                 vector: [1, 0],
-                threat: {both: ["rook", "dragon"], gote: [], sente: []}
+                threats: {both: ["rook", "dragon"], gote: [], sente: []}
             },
             {
                 vector: [1, -1],
-                threat: {both: ["bishop", "horse"], gote: [], sente: []}
+                threats: {both: ["bishop", "horse"], gote: [], sente: []}
             },
             {
                 vector: [0, -1],
-                threat: {both: ["rook", "dragon"], gote: [], sente: ["lance"]}
+                threats: {both: ["rook", "dragon"], gote: [], sente: ["lance"]}
             },
             {
                 vector: [-1, -1],
-                threat: {both: ["bishop", "horse"], gote: [], sente: []}
+                threats: {both: ["bishop", "horse"], gote: [], sente: []}
             },
             {
                 vector: [-1, 0],
-                threat: {both: ["rook", "dragon"], gote: [], sente: []}
+                threats: {both: ["rook", "dragon"], gote: [], sente: []}
             },
             {
                 vector: [-1, 1],
-                threat: {both: ["bishop", "horse"], gote: [], sente: []}
+                threats: {both: ["bishop", "horse"], gote: [], sente: []}
             }
         ]
         const kingSquare = Vector.format(this[defender+"King"]);
@@ -129,12 +127,12 @@ class ShogiPosition {
             let threat = null;
             let magnitude = 1;
             let currentCheck = [kingSquare[0] + currentVector.vector[0], kingSquare[1] + currentVector.vector[1]];
-            while (Square.onBoard(currentCheck)) {
+            while (Square.isOnBoard(currentCheck)) {
                 const currentCheckCoord = currentCheck.join("");
                 if (this[currentCheckCoord].owner === defender) blockers.push(currentCheckCoord);
                 if (blockers.length > 1) break;
                 if (this[currentCheckCoord].owner === attacker) {
-                    if (currentVector.threats.both.includes(this[currentCheckCoord].occupant.name) || currentVector.threats[defender].includes(this[currentCheck].occupant.name)) threat = currentCheckCoord;
+                    if (currentVector.threats.both.includes(this[currentCheckCoord].occupant.name) || currentVector.threats[defender].includes(this[currentCheckCoord].occupant.name)) threat = currentCheckCoord;
                     break;
                 }
 
@@ -151,10 +149,10 @@ class ShogiPosition {
     }
 
     enforcePins() {
-        this.goteMoves = this.goteMoves.filter(move => pinFilter.call(this, "gote", move));
-        this.senteMoves = this.senteMoves.filter(move => pinFilter.call(this, "sente", move));
+        this.moves.goteMoves = this.moves.goteMoves.filter(move => pinFilter.call(this, "gote", move));
+        this.moves.senteMoves = this.moves.senteMoves.filter(move => pinFilter.call(this, "sente", move));
 
-        const pinFilter = (side, move) => {
+        function pinFilter (side, move) {
             if (!this[side+"Pins"].includes(move.origin)) return true;
             const kingSquare = Vector.format(this[side+"King"]);
             const origin = Vector.format(move.origin);
@@ -168,21 +166,28 @@ class ShogiPosition {
     mustEscapeCheck(side) {
         const kingSquare = this[side+"King"];
         const kingCoord = Vector.format(kingSquare);
-        if (this[side+"IsAttackedBy"].length > 1) {
-            this[side+"Moves"] = this[side+"Moves"].filter(move => move.origin === kingSquare);
-            this[side+"Drops"] = [];
+        const attackers = this[side+"IsAttackedBy"];
+        let moves = this[side+"Moves"];
+        let drops = this[side+"Drops"];
+        console.log(moves, this.moves);
+        console.log(drops, this.drops);
+        if (attackers.length > 1) {
+            moves = moves.filter(move => move.origin === kingSquare);
+            drops = [];
         } else {
-            const threat = this[side+"IsAttackedBy"][0];
+            const threat = attackers[0];
             if (new Vector(kingCoord, Vector.format(threat).magnitude === 1) || this[threat].occupant.name === "knight") {
-                this[side+"Moves"] = this[side+"Moves"].filter(move => move.origin === kingSquare || move.target === threat);
-                this[side+"Drops"] = [];
+                moves = moves.filter(move => move.origin === kingSquare || move.target === threat);
+                drops = [];
             } else {
-                this[side+"Moves"] = this[side+"Moves"].filter(move => checkFilter.call(this, move, threat));
-                this[side+"Drops"] = this[side+"Drops"].filter(drop => checkFilter.call(this, drop, threat));
+                moves = moves.filter(move => checkFilter.call(this, move, threat));
+                drops = drops.filter(drop => checkFilter.call(this, drop, threat));
             }
         }
+        console.log(moves, this.moves);
+        console.log(drops, this.drops);
 
-        const checkFilter = (move, threat) => {
+        function checkFilter (move, threat) {
             const threatVector = new Vector (kingCoord, Vector.format(threat));
             const newVector = new Vector(kingCoord, Vector.format(move.target));
             const movesKing = (move.origin === kingSquare);
@@ -444,12 +449,12 @@ class Board {
 
         for(let i = 1; i < 10; i++) {
             for (let j = 1; j < 10; j++) {
-                currentPosition[""+i+j] = this[""+i+j].render();
+                currentPosition[""+i+j] = this.position[""+i+j].render();
                 currentPosition[""+i+j].moves = allMoves.filter(e => e.origin === ""+i+j).map(e => e.target);
             }
         }
-        currentPosition.senteHand = this.senteHand.render();
-        currentPosition.goteHand = this.goteHand.render();
+        currentPosition.senteHand = this.position.senteHand.render();
+        currentPosition.goteHand = this.position.goteHand.render();
 
 
 
