@@ -6,7 +6,7 @@ import "./game.css";
 class Game extends Component {
 
     constructor () {
-        super()
+        super();
         this.state = {
             canPlay: false,
             canRespond: false,

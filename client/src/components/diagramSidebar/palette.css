@@ -1,0 +1,59 @@
+#palette {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    clear: both;
+    width: 714px;
+    height: auto;
+    margin: 30px 15px;
+    border: 1px solid black;
+    user-select: none;
+}
+
+.fenholder {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+    height: 102px;
+    width: 51px;
+}
+
+.fenholder:hover, .active {
+    background-color: lightgrey;
+}
+
+.fenholder:active {
+
+    background-color: black;
+    color: white;
+
+}
+
+/* This holds the correspondence tokens */
+.fenLetter, .fenSymbol {
+    box-sizing: border-box;
+    height: 51px;
+    width: 51px;
+    border: 1px solid black;
+    font-size: 35px;
+    text-align: center;
+    vertical-align: middle;
+    padding: 8px 0;
+    line-height: 100%;
+}
+
+#palette {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    height: 357px;
+    width: 210px;
+    clear: none;
+}
+
+.fenholder {
+    flex-direction: row;
+    height: 51px;
+    width: 102px;
+}
