@@ -385,51 +385,6 @@ class Board {
         array.forEach(this.readOneMove.bind(this));
     }
 
-    noAutoCheck (turn, move, threats) {
-        if (!threats.includes(move.origin) && threats.length) return true;
-
-        this.makeMove(move, {shouldRecord: true});
-        let wouldBeCheck = this.isInCheck(turn);
-        this.undoMove(turn);
-
-        return !wouldBeCheck;
-    }
-
-    findKingThreats (turn) {
-        let kingSquare = this.findKing(turn)
-        kingSquare = [parseInt(kingSquare[0]),parseInt(kingSquare[1])]
-        let potentialThreats = [];
-
-        for (let i=1; i < 9; i++) {
-            potentialThreats.push(
-                [kingSquare[0]+i, kingSquare[1]],
-                [kingSquare[0]-i, kingSquare[1]],
-                [kingSquare[0], kingSquare[1]+i],
-                [kingSquare[0], kingSquare[1]-i],
-                [kingSquare[0]+i, kingSquare[1]+i],
-                [kingSquare[0]-i, kingSquare[1]+i],
-                [kingSquare[0]-i, kingSquare[1]-i],
-                [kingSquare[0]+i, kingSquare[1]-i]
-            )
-        }
-        potentialThreats = potentialThreats.filter(e => e[0] > 0 && e[0] < 10 && e[1] > 0 && e[1] < 10).map(e => e.join(""));
-
-        let threats = potentialThreats.filter(e => this.position[e].owner === otherSide(turn));
-        let interposita = potentialThreats.filter(e => this.position[e].owner === turn);
-
-        
-        return {threats, interposita, allRelevant: potentialThreats};
-    }
-
-    isInCheck (turn) {
-        const kingSquare = this.findKing(turn);
-
-        const opponentMoves = this.getMoveList(otherSide(turn), {mustAvoidCheck: false, limitedCandidates: this.findKingThreats(turn).threats});
-
-        if (opponentMoves.moves.filter(e => e.target === kingSquare).length) return true;
-        return false;
-    }
-
     render () {
         let positionAnalyser = new ShogiPosition(this.position);
         const legalMoves = positionAnalyser.getMoveList();
