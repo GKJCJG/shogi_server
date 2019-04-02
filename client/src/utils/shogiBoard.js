@@ -167,16 +167,15 @@ class ShogiPosition {
         const kingSquare = this[side+"King"];
         const kingCoord = Vector.format(kingSquare);
         const attackers = this[side+"IsAttackedBy"];
-        let moves = this[side+"Moves"];
-        let drops = this[side+"Drops"];
-        console.log(moves, this.moves);
-        console.log(drops, this.drops);
+        let moves = this.moves[side+"Moves"];
+        let drops = this.moves[side+"Drops"];
+        
         if (attackers.length > 1) {
             moves = moves.filter(move => move.origin === kingSquare);
             drops = [];
         } else {
             const threat = attackers[0];
-            if (new Vector(kingCoord, Vector.format(threat).magnitude === 1) || this[threat].occupant.name === "knight") {
+            if (new Vector(kingCoord, Vector.format(threat)).magnitude === 1 || this[threat].occupant.name === "knight") {
                 moves = moves.filter(move => move.origin === kingSquare || move.target === threat);
                 drops = [];
             } else {
@@ -184,8 +183,8 @@ class ShogiPosition {
                 drops = drops.filter(drop => checkFilter.call(this, drop, threat));
             }
         }
-        console.log(moves, this.moves);
-        console.log(drops, this.drops);
+        this.moves[side+"Moves"] = moves;
+        this.moves[side+"Drops"] = drops;
 
         function checkFilter (move, threat) {
             const threatVector = new Vector (kingCoord, Vector.format(threat));

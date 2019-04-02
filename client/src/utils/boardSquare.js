@@ -7,7 +7,8 @@ class Vector {
             if (coordinate !== 0) return coordinate / Math.abs(coordinate);
             return 0;
         });
-        this.magnitude = this.vector[1] !== 0 ? Math.abs(this.vector[1]) : Math.abs(this.vector[0]);
+
+        this.magnitude = Math.abs(this.vector[1]) > Math.abs(this.vector[0]) ? Math.abs(this.vector[1]) : Math.abs(this.vector[0]);
     }
 
     static areEqual(vectorA, vectorB) {
@@ -15,7 +16,7 @@ class Vector {
     }
 
     static areSameDirection (vectorA, vectorB) {
-        return vectorA.unitVector[0] === vectorB.unitVector[0] && vectorA.unitVector[1] === vectorB.unitVector[1];
+        return vectorA.vector[0]/vectorA.vector[1] === vectorB.vector[0]/vectorB.vector[1] && Math.sign(vectorA.vector[0]) === Math.sign(vectorB.vector[0]);
     }
 
     static format (string) {
@@ -91,7 +92,7 @@ class Square {
 
     noIllegalCaptures(square) {
         const targetOccupant = this.checkOwner(square.join(""));
-        return !((targetOccupant.owner === this.owner) || targetOccupant.occupant instanceof pieces.King);
+        return !(targetOccupant.owner === this.owner);
     }
 
     isRanged(occupant) {
