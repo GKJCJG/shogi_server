@@ -76,6 +76,8 @@ class ShogiPosition {
         this.enforcePins();
         if (this.senteInCheck) this.mustEscapeCheck("sente");
         if (this.goteInCheck) this.mustEscapeCheck("gote");
+        this.noCheckMateByDroppedPawn("sente");
+        this.noCheckMateByDroppedPawn("gote");
     }
 
     preventMoveIntoCheck() {
@@ -195,6 +197,35 @@ class ShogiPosition {
             return (movesKing || blocksThreat || capturesThreat);
         }
     }
+
+    noCheckMateByDroppedPawn(side) {
+        const opponent = otherSide(side);
+        if ((this[side+"Hand"]).occupants.pawn.length === 0 || this[opponent+"InCheck"]) return;
+        const headFinder = opponent === "gote" ? 1 : -1;
+        const opponentKing = this[opponent+"King"];
+        const opponentKingHead = [opponentKing[0], Vector.format(opponentKing)[1] + headFinder].join("");
+        let index = findDropOnHead.call(this, side);
+
+        if (index === -1) return;
+
+        const isCheckMate = this.moves[opponent+"Moves"].filter(move => move.origin === opponentKing || move.target === opponentKingHead).length === 0;
+
+        if (isCheckMate) this.moves[side+"Drops"].splice(index, 1);
+
+        function findDropOnHead(side) {
+            let index = -1;
+            for (let i = 0; i < this.moves[side+"Drops"].length; i++) {
+                const drop = this.moves[side+"Drops"][i];
+                if (drop.piece === "pawn" && drop.target === opponentKingHead) {
+                    index = i;
+                    break;
+                }
+            }
+            return index;
+        }
+    }
+
+
 }
 
 class Board {
@@ -300,7 +331,6 @@ class Board {
     makeMove (moveInfo, options) {
         const {origin, target, piece} = moveInfo;
         const doesPromote = options.doesPromote || false;
-        const shouldRecord = options.hasOwnProperty("shouldRecord") ? options.shouldRecord : true;
 
         const recordMove = () => {
             this.lastMove = {};
@@ -327,7 +357,7 @@ class Board {
 
         }
 
-        if(shouldRecord) recordMove();
+        recordMove();
         enactMove();
     }
 
