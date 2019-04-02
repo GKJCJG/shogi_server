@@ -32,4 +32,21 @@ const symbolDictionary = {
     "玉": {name:"king", letter:"k"}
 }
 
-export {nameDictionary, symbolDictionary};
+const letterDictionary = {
+    p: {symbol: "歩", name: "pawn"},
+    t:　{symbol: "と", name: "tokin"},
+    l:　{symbol: "香", name: "lance"},
+    x: {symbol: "杏", name: "pLance"},
+    n: {symbol: "桂", name: "knight"},
+    h: {symbol: "圭", name: "pKnight"},
+    s: {symbol: "銀", name: "silver"},
+    q: {symbol: "全", name: "pSilver"},
+    b: {symbol: "角", name: "bishop"},
+    m: {symbol: "馬", name: "horse"},
+    r: {symbol: "飛", name: "rook"},
+    d: {symbol: "竜", name: "dragon"},
+    g: {symbol: "金", name: "gold"},
+    k: {symbol: "玉", name: "king"}
+};
+
+export {nameDictionary, symbolDictionary, letterDictionary};

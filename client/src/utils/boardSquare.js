@@ -2,12 +2,24 @@ import pieces from "./pieces";
 
 class Vector {
     constructor (origin, target) {
-        this.vector = [target[0]-origin[0], target[1]-origin[1]];
+        this.vector = [parseInt(target[0]-origin[0]), parseInt(target[1]-origin[1])];
         this.unitVector = this.vector.map(coordinate => {
             if (coordinate !== 0) return coordinate / Math.abs(coordinate);
             return 0;
         });
         this.magnitude = this.vector[1] !== 0 ? Math.abs(this.vector[1]) : Math.abs(this.vector[0]);
+    }
+
+    static areEqual(vectorA, vectorB) {
+        return vectorA.vector[0] === vectorB.vector[0] && vectorA.vector[1] === vectorB.vector[1];
+    }
+
+    static areSameDirection (vectorA, vectorB) {
+        return vectorA.unitVector[0] === vectorB.unitVector[0] && vectorA.unitVector[1] === vectorB.unitVector[1];
+    }
+
+    static format (string) {
+        return string.split("").map(e => parseInt(e));
     }
 }
 
@@ -63,7 +75,7 @@ class Square {
             moveList.push([this.coordinate[0]+move[0], this.coordinate[1]+move[1]])
         });
 
-        moveList = moveList.filter(this.isOnBoard).filter(this.doesntCaptureSelf);
+        moveList = moveList.filter(this.isOnBoard).filter(e => this.noIllegalCaptures.call(this, e));
 
         if (this.isRanged(this.occupant)) {
             moveList = moveList.filter(this.noMovingThrough);
@@ -78,6 +90,8 @@ class Square {
     }
 
     noIllegalCaptures(square) {
+        console.log(square);
+        console.log(this);
         const targetOccupant = this.checkOwner(square.join(""));
         return !((targetOccupant.owner === this.owner) || targetOccupant.occupant instanceof pieces.King);
     }
@@ -103,4 +117,4 @@ class Square {
     }
 }
 
-export default Square;
+export {Square, Vector};

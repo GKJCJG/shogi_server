@@ -45,8 +45,14 @@ class Tokin extends Promoted {
 };
 
 class Lance extends Promotable {
+    constructor() {
+        super();
+        this.moves = [];
+        for (let i = 1; i < 9; i++) {
+            this.moves.push([0, i]);
+        }
+    }
     name = "lance";
-    moves = ["lance"];
     symbol = "香";
     letter = "l";
     promotion = PLance;

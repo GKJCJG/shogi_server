@@ -1,19 +1,209 @@
 import pieces from "./pieces";
 import PieceStand from "./pieceStand";
-import Square from "./boardSquare";
+import {Square, Vector} from "./boardSquare";
 
+function otherSide(side) {
+    return side === "sente" ? "gote" : "sente";
+}
 
+class ShogiPosition {
+    constructor(object) {
+        Object.assign(this, object);
+        this.senteKing = this.findKing("sente");
+        this.goteKing = this.findKing("gote");
+        this.moves = {
+            senteMoves: [],
+            senteDrops: [],
+            goteMoves: [],
+            goteDrops: []
+        };
+        this.senteTargets = [];
+        this.goteTargets = [];
+        this.sentePins = [];
+        this.gotePins = [];
+        this.senteIsAttackedFromRangeBy = [];
+        this.goteIsAttackedFromRangeBy = [];
+        this.senteIsAttackedBy = [];
+        this.goteIsAttackedBy = []; 
+    }
 
-class Board {
-    constructor (handicap) {
-        for (let i = 1; i<10; i++) {
+    findKing (turn) {
+        for (let i=1; i<10; i++) {
             for (let j=1; j<10; j++) {
-                this[""+i+j] = new Square(i, j, this.checkOwner.bind(this), this.makeMove.bind(this));
+                if (this[""+i+j].owner === turn && this[""+i+j].occupant instanceof pieces.King) return ""+i+j;
+            }
+        }
+    }
+
+    getMoveList () {
+        this.populateMoves();
+        this.filterIllegalMoves();
+        return this.moves;
+    }
+
+    populateMoves () {
+        for (let i=1; i<10; i++) {
+            for (let j=1; j<10; j++) {
+                if (this[""+i+j].occupant) Array.prototype.push.apply(this.moves[this[""+i+j].owner + "Moves"], this[""+i+j].listMoves());
+            }
+        }
+        this.moves.senteDrops = this["senteHand"].listMoves();
+        this.moves.goteDrops = this["goteHand"].listMoves();
+    }
+
+    filterIllegalMoves(moves) {
+        this.establishTargets();
+        this.determineCheck();
+        this.handleCheckRules();
+    }
+
+    establishTargets() {
+        this.senteTargets = this.moves.senteMoves.map(e => e.target);
+        this.goteTargets = this.moves.goteMoves.map(e => e.target);
+    }
+
+    determineCheck() {
+        this.senteIsAttackedBy = this.goteMoves.filter(e => e.target === this.senteKing).map(e => e.origin);
+        this.goteIsAttackedBy = this.senteMoves.filter(e => e.target === this.goteKing).map(e => e.origin);
+        this.senteInCheck = this.senteIsAttackedBy.length > 0;
+        this.goteInCheck = this.goteIsAttackedBy.length > 0;
+    }
+
+
+
+    handleCheckRules() {
+        this.preventMoveIntoCheck();
+        this.identifyRangedThreats("sente");
+        this.identifyRangedThreats("gote");
+        this.enforcePins();
+        if (this.senteInCheck) this.mustEscapeCheck("sente");
+        if (this.goteInCheck) this.mustEscapeCheck("gote");
+    }
+
+    preventMoveIntoCheck() {
+        this.moves.senteMoves = this.moves.senteMoves.filter(e => !(e.origin === this.senteKing && this.goteTargets.includes(e.target)));
+        this.moves.goteMoves = this.moves.goteMoves.filter(e => !(e.origin === this.goteKing && this.senteTargets.includes(e.target)));
+    }
+
+    identifyRangedThreats(defender) {
+        const attacker = otherSide(defender);
+        const vectors = [
+            {
+                vector: [0, 1],
+                threat: {both: ["rook", "dragon"], gote: ["lance"], sente: []}
+            },
+            {
+                vector: [1, 1],
+                threat: {both: ["bishop", "horse"], gote: [], sente: []}
+            },
+            {
+                vector: [1, 0],
+                threat: {both: ["rook", "dragon"], gote: [], sente: []}
+            },
+            {
+                vector: [1, -1],
+                threat: {both: ["bishop", "horse"], gote: [], sente: []}
+            },
+            {
+                vector: [0, -1],
+                threat: {both: ["rook", "dragon"], gote: [], sente: ["lance"]}
+            },
+            {
+                vector: [-1, -1],
+                threat: {both: ["bishop", "horse"], gote: [], sente: []}
+            },
+            {
+                vector: [-1, 0],
+                threat: {both: ["rook", "dragon"], gote: [], sente: []}
+            },
+            {
+                vector: [-1, 1],
+                threat: {both: ["bishop", "horse"], gote: [], sente: []}
+            }
+        ]
+        const kingSquare = Vector.format(this[defender+"King"]);
+
+        for (let i = 0; i < vectors.length; i++) {
+            const currentVector = vectors[i];
+            const blockers = [];
+            let threat = null;
+            let magnitude = 1;
+            let currentCheck = [kingSquare[0] + currentVector.vector[0], kingSquare[1] + currentVector.vector[1]];
+            while (Square.onBoard(currentCheck)) {
+                const currentCheckCoord = currentCheck.join("");
+                if (this[currentCheckCoord].owner === defender) blockers.push(currentCheckCoord);
+                if (blockers.length > 1) break;
+                if (this[currentCheckCoord].owner === attacker) {
+                    if (currentVector.threats.both.includes(this[currentCheckCoord].occupant.name) || currentVector.threats[defender].includes(this[currentCheck].occupant.name)) threat = currentCheckCoord;
+                    break;
+                }
+
+                magnitude++;
+                currentCheck = [kingSquare[0] + currentVector.vector[0] * magnitude, kingSquare[1] + currentVector.vector[1] * magnitude];
+            }
+
+            if (threat && blockers.length) {
+                this[defender+"Pins"].push(blockers[0]);
+            } else if (threat) {
+                this[defender + "IsAttackedFromRangeBy"].push(threat)
+            }
+        }
+    }
+
+    enforcePins() {
+        this.goteMoves = this.goteMoves.filter(move => pinFilter.call(this, "gote", move));
+        this.senteMoves = this.senteMoves.filter(move => pinFilter.call(this, "sente", move));
+
+        const pinFilter = (side, move) => {
+            if (!this[side+"Pins"].includes(move.origin)) return true;
+            const kingSquare = Vector.format(this[side+"King"]);
+            const origin = Vector.format(move.origin);
+            const target = Vector.format(move.target);
+            const currentVector = new Vector(kingSquare, origin);
+            const newVector = new Vector(kingSquare, target);
+            return Vector.areSameDirection(currentVector, newVector);
+        }
+    }
+    
+    mustEscapeCheck(side) {
+        const kingSquare = this[side+"King"];
+        const kingCoord = Vector.format(kingSquare);
+        if (this[side+"IsAttackedBy"].length > 1) {
+            this[side+"Moves"] = this[side+"Moves"].filter(move => move.origin === kingSquare);
+            this[side+"Drops"] = [];
+        } else {
+            const threat = this[side+"IsAttackedBy"][0];
+            if (new Vector(kingCoord, Vector.format(threat).magnitude === 1) || this[threat].occupant.name === "knight") {
+                this[side+"Moves"] = this[side+"Moves"].filter(move => move.origin === kingSquare || move.target === threat);
+                this[side+"Drops"] = [];
+            } else {
+                this[side+"Moves"] = this[side+"Moves"].filter(move => checkFilter.call(this, move, threat));
+                this[side+"Drops"] = this[side+"Drops"].filter(drop => checkFilter.call(this, drop, threat));
             }
         }
 
-        this.senteHand = new PieceStand("sente", this.niFu.bind(this), this.checkOwner.bind(this));
-        this.goteHand = new PieceStand("gote", this.niFu.bind(this), this.checkOwner.bind(this));
+        const checkFilter = (move, threat) => {
+            const threatVector = new Vector (kingCoord, Vector.format(threat));
+            const newVector = new Vector(kingCoord, Vector.format(move.target));
+            const movesKing = (move.origin === kingSquare);
+            const blocksThreat = (Vector.areSameDirection(threatVector, newVector) && newVector.magnitude < threatVector.magnitude);
+            const capturesThreat = (move.target === threat);
+            return (movesKing || blocksThreat || capturesThreat);
+        }
+    }
+}
+
+class Board {
+    constructor (handicap) {
+        this.position = {};
+        for (let i = 1; i<10; i++) {
+            for (let j=1; j<10; j++) {
+                this.position[""+i+j] = new Square(i, j, this.checkOwner.bind(this), this.makeMove.bind(this));
+            }
+        }
+
+        this.position.senteHand = new PieceStand("sente", this.niFu.bind(this), this.checkOwner.bind(this));
+        this.position.goteHand = new PieceStand("gote", this.niFu.bind(this), this.checkOwner.bind(this));
         this.handicap = handicap
         this.turn = handicap ? "gote" : "sente";
         this.lastMove = {origin: null, target: null, piece: null};
@@ -24,16 +214,16 @@ class Board {
         if (clearFirst) {
             for (let i = 1; i<10; i++) {
                 for (let j=1; j<10; j++) {
-                    this[""+i+j].removeOccupant();
+                    this.position[""+i+j].removeOccupant();
                 }
             }
-            this.goteHand.clear();
-            this.senteHand.clear();
+            this.position.goteHand.clear();
+            this.position.senteHand.clear();
         }
 
         const arrayAdd = (array, Piece) => {
             array.forEach((e, i) => {
-                this[e].addOccupant(new Piece(), i < array.length/2 ? "sente" : "gote");
+                this.position[e].addOccupant(new Piece(), i < array.length/2 ? "sente" : "gote");
             }) 
         }
 
@@ -42,7 +232,7 @@ class Board {
         arrayAdd([39, 79, 31, 71], pieces.Silver);
         arrayAdd([49, 69, 41, 61], pieces.Gold);
         arrayAdd([59], pieces.King);
-        this[51].addOccupant(new pieces.GKing(), "gote");
+        this.position[51].addOccupant(new pieces.GKing(), "gote");
         arrayAdd([88, 22], pieces.Bishop);
         arrayAdd([28, 82], pieces.Rook);
         const pawnLoc = [];
@@ -54,55 +244,51 @@ class Board {
 
         switch (this.handicap) {
             case "rook-lance":
-                this["82"].removeOccupant();
+                this.position["82"].removeOccupant();
                 //fallsthrough
             case "lance":
-                this["11"].removeOccupant();
+                this.position["11"].removeOccupant();
                 break;
             case "bishop":
-                this["22"].removeOccupant();
+                this.position["22"].removeOccupant();
                 break;
             // the following cases build on each other
             case "ten-piece":
-                this["61"].removeOccupant();
+                this.position["61"].removeOccupant();
                 //fallsthrough
             case "nine-piece":
-                this["41"].removeOccupant();
+                this.position["41"].removeOccupant();
                 //fallsthrough
             case "eight-piece":
-                this["71"].removeOccupant();
+                this.position["71"].removeOccupant();
                 //fallsthrough
             case "seven-piece":
-                this["31"].removeOccupant();
+                this.position["31"].removeOccupant();
                 //fallsthrough
             case "six-piece":
-                this["81"].removeOccupant();
+                this.position["81"].removeOccupant();
                 //fallsthrough
             case "five-piece":
-                this["21"].removeOccupant();
+                this.position["21"].removeOccupant();
                 //fallsthrough
             case "four-piece":
-                this["11"].removeOccupant();
+                this.position["11"].removeOccupant();
                 //fallsthrough
             case "three-piece":
-                this["91"].removeOccupant();
+                this.position["91"].removeOccupant();
                 //fallsthrough
             case "two-piece":
-                this["22"].removeOccupant();
+                this.position["22"].removeOccupant();
                 //fallsthrough
             case "rook":
-                this["82"].removeOccupant();
+                this.position["82"].removeOccupant();
                 break;
             default: break;
         }
     }
 
-    changeTurn(turn) {
-        return turn === "sente" ? "gote" : "sente";
-    }
-
     checkOwner (coordinate) {
-        if(this[coordinate].occupant) return {owner: this[coordinate].owner, occupant: this[coordinate].occupant};
+        if(this.position[coordinate].occupant) return {owner: this.position[coordinate].owner, occupant: this.position[coordinate].occupant};
         return false;
     }
 
@@ -116,15 +302,15 @@ class Board {
             this.lastMove = {};
             if (origin.search("Hand") !== -1) {
                 this.lastMove = {type:"drop", origin, target, piece};
-            } else if (this[target].occupant) {
-                const originOccupant = this[origin].occupant;
-                const targetOccupant = this[target].occupant;
+            } else if (this.position[target].occupant) {
+                const originOccupant = this.position[origin].occupant;
+                const targetOccupant = this.position[target].occupant;
                 const capturedPiece = targetOccupant instanceof pieces.Promoted ? new targetOccupant.stand().name : targetOccupant.name;
 
                 this.lastMove = {type: "capture", origin, originOccupant, target, targetOccupant, piece: capturedPiece};
             } else {
-                const originOccupant = this[origin].occupant;
-                const targetOccupant = this[target].occupant;
+                const originOccupant = this.position[origin].occupant;
+                const targetOccupant = this.position[target].occupant;
                 
                 this.lastMove = {type: "move", origin, originOccupant, target, targetOccupant};
             }
@@ -132,8 +318,8 @@ class Board {
 
         const enactMove = () => {
 
-            const {occupant, owner} = this[origin].removeOccupant(piece || doesPromote);
-            this[target].addOccupant(occupant, owner, doesPromote);
+            const {occupant, owner} = this.position[origin].removeOccupant(piece || doesPromote);
+            this.position[target].addOccupant(occupant, owner, doesPromote);
 
         }
 
@@ -146,22 +332,22 @@ class Board {
         const {type, origin, target, piece, targetOccupant, originOccupant} = this.lastMove;
 
         if (type === "drop") {
-            const revertedPiece = this[target].removeOccupant().occupant;
-            this[origin].addOccupant(revertedPiece);
+            const revertedPiece = this.position[target].removeOccupant().occupant;
+            this.position[origin].addOccupant(revertedPiece);
         } else if (type === "move") {
-            this[target].removeOccupant();
-            this[origin].addOccupant(originOccupant, turn);
+            this.position[target].removeOccupant();
+            this.position[origin].addOccupant(originOccupant, turn);
         } else if (type === "capture") {
-            this[target].removeOccupant();
-            this[origin].addOccupant(originOccupant, turn);
-            this[target].addOccupant(targetOccupant, this.changeTurn(turn));
-            this[turn+"Hand"].removeOccupant(piece);
+            this.position[target].removeOccupant();
+            this.position[origin].addOccupant(originOccupant, turn);
+            this.position[target].addOccupant(targetOccupant, otherSide(turn));
+            this.position[turn+"Hand"].removeOccupant(piece);
         }
     }
 
     niFu (owner, file) {
         for (let i = 1; i < 10; i++) {
-            if (this[file+i].owner===owner && this[file+i].occupant instanceof pieces.Pawn) return true;
+            if (this.position[file+i].owner===owner && this.position[file+i].occupant instanceof pieces.Pawn) return true;
         }
         return false;
     }
@@ -187,53 +373,11 @@ class Board {
 
         this.moves.push(string);
         this.makeMove({origin, target, piece}, {doesPromote});
-        this.turn = this.changeTurn(this.turn);
+        this.turn = otherSide(this.turn);
     }
 
     readMoves (array) {
         array.forEach(this.readOneMove.bind(this));
-    }
-
-    findKing (turn) {
-        for (let i=1; i<10; i++) {
-            for (let j=1; j<10; j++) {
-                if (this[""+i+j].owner === turn && this[""+i+j].occupant instanceof pieces.King) return ""+i+j;
-            }
-        }
-    }
-
-    getMoveList () {
-        let moves = {
-            senteMoves: [],
-            senteDrops: [],
-            goteMoves: [],
-            goteDrops: []
-        };
-        
-        for (let i=1; i<10; i++) {
-            for (let j=1; j<10; j++) {
-                if (this[""+i+j].occupant) Array.prototype.push.apply(moves[this[""+i+j].owner + "Moves"], this[""+i+j].listMoves());
-            }
-        }
-        moves.senteDrops = this["senteHand"].listMoves();
-        moves.goteDrops = this["goteHand"].listMoves();
-        const moveList = this.filterIllegalMoves(moves);
-        return moveList;
-    }
-
-    filterIllegalMoves(moves) {
-        const senteKing = this.findKing("sente");
-        const goteKing = this.findKing("gote");
-
-        const senteTargets = moves.senteMoves.map(e => e.target);
-        const goteTargets = moves.goteMoves.map(e => e.target);
-
-        moves.senteMoves = moves.senteMoves.filter(e => e.origin === senteKing && goteTargets.includes(e.target));
-        moves.goteMoves = moves.goteMoves.filter(e => e.origin === goteKing && senteTargets.includes(e.target));
-
-        // TODO: write a function that identifies pieces that are pinned.
-        // TODO: write a function that identifies whether the king is in check.
-        // TODO: write a function that identifies ways to block check. (Hint: think about the origin of moves that target the king.)
     }
 
     noAutoCheck (turn, move, threats) {
@@ -265,8 +409,8 @@ class Board {
         }
         potentialThreats = potentialThreats.filter(e => e[0] > 0 && e[0] < 10 && e[1] > 0 && e[1] < 10).map(e => e.join(""));
 
-        let threats = potentialThreats.filter(e => this[e].owner === this.changeTurn(turn));
-        let interposita = potentialThreats.filter(e => this[e].owner === turn);
+        let threats = potentialThreats.filter(e => this.position[e].owner === otherSide(turn));
+        let interposita = potentialThreats.filter(e => this.position[e].owner === turn);
 
         
         return {threats, interposita, allRelevant: potentialThreats};
@@ -275,41 +419,42 @@ class Board {
     isInCheck (turn) {
         const kingSquare = this.findKing(turn);
 
-        const opponentMoves = this.getMoveList(this.changeTurn(turn), {mustAvoidCheck: false, limitedCandidates: this.findKingThreats(turn).threats});
+        const opponentMoves = this.getMoveList(otherSide(turn), {mustAvoidCheck: false, limitedCandidates: this.findKingThreats(turn).threats});
 
         if (opponentMoves.moves.filter(e => e.target === kingSquare).length) return true;
         return false;
     }
 
     render () {
+        let positionAnalyser = new ShogiPosition(this.position);
+        const legalMoves = positionAnalyser.getMoveList();
         let currentPosition = {};
-        let legalMoves = this.getMoveList(this.turn);
-        if (!(legalMoves.moves.length || legalMoves.drops.length)) {
+
+        const playerMoves = legalMoves[this.turn+"Moves"];
+        const playerDrops = legalMoves[this.turn+"Drops"];
+        const opponentMoves = legalMoves[otherSide(this.turn) + "Moves"];
+        const allMoves = playerMoves.concat(opponentMoves);
+
+        if (!(playerMoves.length || playerDrops.length)) {
             currentPosition.checkMate = true;
-            currentPosition.winner = this.changeTurn(this.turn);
-        }
-        if (this.isInCheck(this.turn)) {
-            currentPosition.inCheck = true;
+            currentPosition.winner = otherSide(this.turn);
         }
 
-        if (!currentPosition.checkMate) {
-            const opponentMoves = this.getMoveList(this.changeTurn(this.turn));
-            legalMoves.moves = legalMoves.moves.concat(opponentMoves.moves);
-            legalMoves.opponentDrops = opponentMoves.drops;
-        }
+        currentPosition.inCheck = positionAnalyser[this.turn+"InCheck"];
 
         for(let i = 1; i < 10; i++) {
             for (let j = 1; j < 10; j++) {
                 currentPosition[""+i+j] = this[""+i+j].render();
-                currentPosition[""+i+j].moves = legalMoves.moves.filter(e => e.origin === ""+i+j).map(e => e.target);
+                currentPosition[""+i+j].moves = allMoves.filter(e => e.origin === ""+i+j).map(e => e.target);
             }
         }
-
         currentPosition.senteHand = this.senteHand.render();
         currentPosition.goteHand = this.goteHand.render();
 
-        currentPosition[this.turn + "Drops"] = legalMoves.drops ? legalMoves.drops : [];
-        currentPosition[this.changeTurn(this.turn) + "Drops"] = legalMoves.opponentDrops ? legalMoves.opponentDrops : [];
+
+
+        currentPosition.senteDrops = legalMoves.senteDrops;
+        currentPosition.goteDrops = legalMoves.goteDrops;
         let lastMove = this.moves[this.moves.length-1] || null;
         lastMove = lastMove ? lastMove.split(lastMove.search("-") === -1 ? "*" : "-")[1] : null;
         currentPosition.lastMove = lastMove;

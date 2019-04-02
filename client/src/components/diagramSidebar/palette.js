@@ -1,10 +1,10 @@
 import React from "react";
-import {symbolDictionary} from "./../../utils/diagramClasses";
+import {letterDictionary} from "./../../utils/dictionaries";
 import "./palette.css";
 
 const symbolPairList = [];
-for (let key in symbolDictionary) {
-    if (symbolDictionary.hasOwnProperty(key)) symbolPairList.push({letter: key, symbol:symbolDictionary[key]});
+for (let key in letterDictionary) {
+    if (letterDictionary.hasOwnProperty(key)) symbolPairList.push({letter: key, symbol:letterDictionary[key].symbol});
 }
 
 const Palette = (props) => {

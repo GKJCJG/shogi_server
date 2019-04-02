@@ -1,19 +1,4 @@
-const symbolDictionary = {
-    p: "歩",
-    t:　"と",
-    l:　"香",
-    x: "杏",
-    n: "桂",
-    h: "圭",
-    s: "銀",
-    q: "全",
-    b: "角",
-    m: "馬",
-    r: "飛",
-    d: "竜",
-    g: "金",
-    k: "玉"
-};
+import {letterDictionary} from "./dictionaries";
 
 /* eslint-disable no-use-before-define */
 
@@ -52,12 +37,12 @@ class FenString extends String {
         if (currentFile > 0) handleNumber(currentFile);
         return output;
         
-        function handleSymbol(symbol) {
+        function handleSymbol(letter) {
 
-            let squareClass = /[A-Z]/.test(symbol) ? ["gote"] : ["sente"];
-            let occupant = symbolDictionary[symbol.toLowerCase()];
+            let squareClass = /[A-Z]/.test(letter) ? ["gote"] : ["sente"];
+            let occupant = letterDictionary[letter.toLowerCase()].symbol;
 
-            output["" + currentFile + rowNumber] = {class: squareClass, occupant, symbol};
+            output["" + currentFile + rowNumber] = {class: squareClass, occupant, symbol: letter};
                         
         }
     
@@ -85,7 +70,7 @@ class FenString extends String {
     }
 }
 
-class ShogiPosition {
+class DiagramPosition {
     constructor(object) {
         Object.assign(this, object);
     }
@@ -150,6 +135,6 @@ class ShogiPosition {
     }
 }
 
-export {FenString, ShogiPosition, symbolDictionary};
+export {FenString, DiagramPosition};
 
 /* eslint-enable no-use-before-define */

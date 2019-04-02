@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import Board from "./../../components/board/diagramBoard";
-import {FenString, ShogiPosition} from "./../../utils/diagramClasses";
+import {FenString, DiagramPosition} from "./../../utils/diagramClasses";
 import Palette from "./../../components/diagramSidebar/palette";
 import FenEntry from "./../../components/diagramSidebar/fenEntry";
 import "./diagram.css";
@@ -43,7 +43,7 @@ class ShogiDiagram extends Component {
             position[event.target.id] = {occupant: this.state.onPalette.occupant, class: ["sente"], symbol: this.state.onPalette.symbol};
         }
 
-        this.setState({position, string: new ShogiPosition(position).translateToString()});
+        this.setState({position, string: new DiagramPosition(position).translateToString()});
     }
 
     handleHandClick (event) {
@@ -58,7 +58,7 @@ class ShogiDiagram extends Component {
                 targetArray[index].number++;
             }
 
-            this.setState({position, string: new ShogiPosition(position).translateToString()});
+            this.setState({position, string: new DiagramPosition(position).translateToString()});
     }
 
     handleType (event) {
