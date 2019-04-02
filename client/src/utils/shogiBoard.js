@@ -2,16 +2,18 @@ import pieces from "./pieces";
 import PieceStand from "./pieceStand";
 import Square from "./boardSquare";
 
+
+
 class Board {
     constructor (handicap) {
         for (let i = 1; i<10; i++) {
             for (let j=1; j<10; j++) {
-                this[""+i+j] = new Square(i, j, this.checkSpace.bind(this), this.makeMove.bind(this));
+                this[""+i+j] = new Square(i, j, this.checkOwner.bind(this), this.makeMove.bind(this));
             }
         }
 
-        this.senteHand = new PieceStand("sente", this.niFu.bind(this), this.checkSpace.bind(this));
-        this.goteHand = new PieceStand("gote", this.niFu.bind(this), this.checkSpace.bind(this));
+        this.senteHand = new PieceStand("sente", this.niFu.bind(this), this.checkOwner.bind(this));
+        this.goteHand = new PieceStand("gote", this.niFu.bind(this), this.checkOwner.bind(this));
         this.handicap = handicap
         this.turn = handicap ? "gote" : "sente";
         this.lastMove = {origin: null, target: null, piece: null};
@@ -99,8 +101,8 @@ class Board {
         return turn === "sente" ? "gote" : "sente";
     }
 
-    checkSpace (coordinate) {
-        if(this[coordinate].occupant) return this[coordinate].owner;
+    checkOwner (coordinate) {
+        if(this[coordinate].occupant) return {owner: this[coordinate].owner, occupant: this[coordinate].occupant};
         return false;
     }
 
@@ -200,54 +202,38 @@ class Board {
         }
     }
 
-    getMoveList (turn, userOptions) {
-        let options = {mustAvoidCheck: true, limitedCandidates: [], calculateDrops: true};
-        if (userOptions) Object.assign(options, userOptions);
-
-        let moves = [], drops = [], moveList={};
-        if (options.limitedCandidates.length) {
-            for (let i=0; i < options.limitedCandidates.length; i++) {
-                if (this[options.limitedCandidates[i]].owner === turn) moves = moves.concat(this[options.limitedCandidates[i]].listMoves());
+    getMoveList () {
+        let moves = {
+            senteMoves: [],
+            senteDrops: [],
+            goteMoves: [],
+            goteDrops: []
+        };
+        
+        for (let i=1; i<10; i++) {
+            for (let j=1; j<10; j++) {
+                if (this[""+i+j].occupant) Array.prototype.push.apply(moves[this[""+i+j].owner + "Moves"], this[""+i+j].listMoves());
             }
-        } else {
-            for (let i=1; i<10; i++) {
-                for (let j=1; j<10; j++) {
-                    if (this[""+i+j].owner === turn) moves = moves.concat(this[""+i+j].listMoves());
-                }
-            }
-            if (options.calculateDrops) drops = this[turn+"Hand"].listMoves();
         }
-        moveList = !options.mustAvoidCheck ? {moves, drops} : this.filterIllegalMoves(moves, drops, turn);
+        moves.senteDrops = this["senteHand"].listMoves();
+        moves.goteDrops = this["goteHand"].listMoves();
+        const moveList = this.filterIllegalMoves(moves);
         return moveList;
     }
 
-    filterIllegalMoves(moves, drops, turn) {
-        const kingThreats = this.findKingThreats(turn)
-        const kingSquare = this.findKing(turn);
-        if (this.isInCheck(turn)) {
-            moves = moves.filter(move => isLegalMoveWhileChecked.call(this, move));
-            drops = drops.filter(drop => isLegalMoveWhileChecked.call(this, drop))
-        } else if (kingThreats.threats.length) {
-            moves = moves.filter(move => isLegalMoveWhileNotChecked.call(this, move));
-        }
-        return {moves, drops};
+    filterIllegalMoves(moves) {
+        const senteKing = this.findKing("sente");
+        const goteKing = this.findKing("gote");
 
-        function isLegalMoveWhileChecked(move) {
-            const doesNotCaptureKing = !this[move.target].occupant instanceof pieces.King;
-            const blocksCheck = kingThreats.allRelevant.includes(move.target);
-            const movesKing = (move.origin === kingSquare);
-            // check here and break if fails, since these checks are easy to run. noAutoCheck is more costly.
-            if (!(doesNotCaptureKing && (blocksCheck || movesKing))) return false;
+        const senteTargets = moves.senteMoves.map(e => e.target);
+        const goteTargets = moves.goteMoves.map(e => e.target);
 
-            const removesCheck = this.noAutoCheck(turn, move, []);
-            return removesCheck;
-        }
+        moves.senteMoves = moves.senteMoves.filter(e => e.origin === senteKing && goteTargets.includes(e.target));
+        moves.goteMoves = moves.goteMoves.filter(e => e.origin === goteKing && senteTargets.includes(e.target));
 
-        function isLegalMoveWhileNotChecked(move) {
-            const doesNotCaptureKing = !this[move.target].occupant instanceof pieces.King;
-            const doesNotMoveIntoCheck = this.noAutoCheck(turn, move, kingThreats.interposita);
-            return (doesNotCaptureKing && doesNotMoveIntoCheck);
-        }
+        // TODO: write a function that identifies pieces that are pinned.
+        // TODO: write a function that identifies whether the king is in check.
+        // TODO: write a function that identifies ways to block check. (Hint: think about the origin of moves that target the king.)
     }
 
     noAutoCheck (turn, move, threats) {
