@@ -2,16 +2,18 @@ import pieces from "./pieces";
 import PieceStand from "./pieceStand";
 import Square from "./boardSquare";
 
+
+
 class Board {
     constructor (handicap) {
         for (let i = 1; i<10; i++) {
             for (let j=1; j<10; j++) {
-                this[""+i+j] = new Square(i, j, this.checkSpace.bind(this), this.makeMove.bind(this));
+                this[""+i+j] = new Square(i, j, this.checkOwner.bind(this), this.makeMove.bind(this));
             }
         }
 
-        this.senteHand = new PieceStand("sente", this.niFu.bind(this), this.checkSpace.bind(this));
-        this.goteHand = new PieceStand("gote", this.niFu.bind(this), this.checkSpace.bind(this));
+        this.senteHand = new PieceStand("sente", this.niFu.bind(this), this.checkOwner.bind(this));
+        this.goteHand = new PieceStand("gote", this.niFu.bind(this), this.checkOwner.bind(this));
         this.handicap = handicap
         this.turn = handicap ? "gote" : "sente";
         this.lastMove = {origin: null, target: null, piece: null};
@@ -99,8 +101,8 @@ class Board {
         return turn === "sente" ? "gote" : "sente";
     }
 
-    checkSpace (coordinate) {
-        if(this[coordinate].occupant) return this[coordinate].owner;
+    checkOwner (coordinate) {
+        if(this[coordinate].occupant) return {owner: this[coordinate].owner, occupant: this[coordinate].occupant};
         return false;
     }
 
@@ -200,40 +202,44 @@ class Board {
         }
     }
 
-    getMoveList (turn, mustAvoidCheck=true, limitedCandidates=[]) {
-        let moveList = []
-        if (limitedCandidates.length) {
-            for (let i=0; i < limitedCandidates.length; i++) {
-                if (this[limitedCandidates[i]].owner === turn) moveList = moveList.concat(this[limitedCandidates[i]].listMoves());
-            }
-        } else {
-            for (let i=1; i<10; i++) {
-                for (let j=1; j<10; j++) {
-                    if (this[""+i+j].owner === turn) moveList = moveList.concat(this[""+i+j].listMoves());
-                }
-            }
-            moveList = moveList.concat(this[turn+"Hand"].listMoves());
-
-            const kingThreats = this.findKingThreats(turn)
-            const kingSquare = this.findKing(turn);
-            if (mustAvoidCheck && this.isInCheck(turn)) {
-                moveList = moveList
-                    .filter(move => !(this[move[1]].occupant instanceof pieces.King))
-                    .filter(move => kingThreats.allRelevant.includes(move[1]) || move[0] === kingSquare)
-                    .filter(move => this.noAutoCheck(turn, move, []));
-            } else if (mustAvoidCheck && kingThreats.threats.length) {
-                moveList = moveList
-                    .filter(move => this.noAutoCheck(turn, move, kingThreats.interposita))
+    getMoveList () {
+        let moves = {
+            senteMoves: [],
+            senteDrops: [],
+            goteMoves: [],
+            goteDrops: []
+        };
+        
+        for (let i=1; i<10; i++) {
+            for (let j=1; j<10; j++) {
+                if (this[""+i+j].occupant) Array.prototype.push.apply(moves[this[""+i+j].owner + "Moves"], this[""+i+j].listMoves());
             }
         }
+        moves.senteDrops = this["senteHand"].listMoves();
+        moves.goteDrops = this["goteHand"].listMoves();
+        const moveList = this.filterIllegalMoves(moves);
         return moveList;
     }
 
-    noAutoCheck (turn, move, threats) {
-        const [origin, target, piece] = move;
-        if (!threats.includes(origin) && threats.length) return true;
+    filterIllegalMoves(moves) {
+        const senteKing = this.findKing("sente");
+        const goteKing = this.findKing("gote");
 
-        this.makeMove({origin, target, piece}, {shouldRecord: true});
+        const senteTargets = moves.senteMoves.map(e => e.target);
+        const goteTargets = moves.goteMoves.map(e => e.target);
+
+        moves.senteMoves = moves.senteMoves.filter(e => e.origin === senteKing && goteTargets.includes(e.target));
+        moves.goteMoves = moves.goteMoves.filter(e => e.origin === goteKing && senteTargets.includes(e.target));
+
+        // TODO: write a function that identifies pieces that are pinned.
+        // TODO: write a function that identifies whether the king is in check.
+        // TODO: write a function that identifies ways to block check. (Hint: think about the origin of moves that target the king.)
+    }
+
+    noAutoCheck (turn, move, threats) {
+        if (!threats.includes(move.origin) && threats.length) return true;
+
+        this.makeMove(move, {shouldRecord: true});
         let wouldBeCheck = this.isInCheck(turn);
         this.undoMove(turn);
 
@@ -269,22 +275,16 @@ class Board {
     isInCheck (turn) {
         const kingSquare = this.findKing(turn);
 
-        const opponentMoves = this.getMoveList(this.changeTurn(turn), false, this.findKingThreats(turn).threats);
+        const opponentMoves = this.getMoveList(this.changeTurn(turn), {mustAvoidCheck: false, limitedCandidates: this.findKingThreats(turn).threats});
 
-        if (opponentMoves.filter(e => e[1] === kingSquare).length) return true;
+        if (opponentMoves.moves.filter(e => e.target === kingSquare).length) return true;
         return false;
-    }
-
-    isInCheckMate (turn) {
-        if (!this.isInCheck(turn)) return false;
-
-
     }
 
     render () {
         let currentPosition = {};
         let legalMoves = this.getMoveList(this.turn);
-        if (!legalMoves.length) {
+        if (!(legalMoves.moves.length || legalMoves.drops.length)) {
             currentPosition.checkMate = true;
             currentPosition.winner = this.changeTurn(this.turn);
         }
@@ -292,16 +292,24 @@ class Board {
             currentPosition.inCheck = true;
         }
 
+        if (!currentPosition.checkMate) {
+            const opponentMoves = this.getMoveList(this.changeTurn(this.turn));
+            legalMoves.moves = legalMoves.moves.concat(opponentMoves.moves);
+            legalMoves.opponentDrops = opponentMoves.drops;
+        }
+
         for(let i = 1; i < 10; i++) {
             for (let j = 1; j < 10; j++) {
                 currentPosition[""+i+j] = this[""+i+j].render();
-                currentPosition[""+i+j].moves = legalMoves.filter(e => e[0] === ""+i+j).map(e => e[1]);
+                currentPosition[""+i+j].moves = legalMoves.moves.filter(e => e.origin === ""+i+j).map(e => e.target);
             }
         }
 
-        currentPosition.drops = legalMoves.filter(e => isNaN(e[0])).map(e => {return {origin: e[0], target: e[1], piece: e[2]}});
         currentPosition.senteHand = this.senteHand.render();
         currentPosition.goteHand = this.goteHand.render();
+
+        currentPosition[this.turn + "Drops"] = legalMoves.drops ? legalMoves.drops : [];
+        currentPosition[this.changeTurn(this.turn) + "Drops"] = legalMoves.opponentDrops ? legalMoves.opponentDrops : [];
         let lastMove = this.moves[this.moves.length-1] || null;
         lastMove = lastMove ? lastMove.split(lastMove.search("-") === -1 ? "*" : "-")[1] : null;
         currentPosition.lastMove = lastMove;

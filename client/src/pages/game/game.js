@@ -10,7 +10,6 @@ class Game extends Component {
         this.state = {
             canPlay: false,
             canRespond: false,
-            moveSent: false,
             opponentNick: "",
             playerNick: "",
             checkMate: false,
@@ -34,7 +33,6 @@ class Game extends Component {
         this.setState({
             canPlay: false,
             canRespond: false,
-            moveSent: false,
             opponentNick: "",
             playerNick: "",
             checkMate: false,
@@ -57,7 +55,6 @@ class Game extends Component {
     render () {
         const boardProps = {
             access:this.props.match.params.id,
-            moveSent: this.state.moveSent,
             canPlay: this.state.canPlay,
             setGameState: this.passSetState,
             restoreDefaults: this.restoreDefaults,

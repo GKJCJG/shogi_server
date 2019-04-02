@@ -99,32 +99,58 @@ class Gold extends Piece {
 };
 
 class Bishop extends Promotable {
+    constructor () {
+        super();
+        this.moves = [];
+        for (let i = 1; i < 9; i++) {
+            this.moves.push([i, i], [-i, -i], [i, -i], [-i, i]);
+        }
+    }
     name = "bishop";
-    moves = ["bishop"];
     symbol = "角";
     letter = "b";
     promotion = Horse;
 };
 
 class Horse extends Promoted {
+    constructor () {
+        super();
+        this.moves = [];
+        for (let i = 1; i < 9; i++) {
+            this.moves.push([i, i], [-i, -i], [i, -i], [-i, i]);
+        }
+        this.moves.push([1, 1], [1, -1], [-1, -1], [-1, 1])
+    }
     name = "horse";
-    moves = ["bishop", [1, 0], [0, 1], [-1, 0], [0, -1]];
     symbol = "馬";
     letter = "m";
     stand = Bishop;
 };
 
 class Rook extends Promotable {
+    constructor () {
+        super();
+        this.moves = [];
+        for (let i = 1; i < 9; i++) {
+            this.moves.push([0, i], [i, 0], [0, -i], [-i, 0]);
+        }
+    }
     name = "rook";
-    moves = ["rook"];
     symbol = "飛";
     letter = "r";
     promotion = Dragon;
 };
 
 class Dragon extends Promoted {
+    constructor () {
+        super();
+        this.moves = [];
+        for (let i = 1; i < 9; i++) {
+            this.moves.push([0, i], [i, 0], [0, -i], [-i, 0]);
+        }
+        this.moves.push([1, 0], [0, -1], [-1, 0], [0, 1])
+    }
     name = "dragon";
-    moves = ["rook", [1, 1], [1, -1], [-1, -1], [-1, 1]];
     symbol = "竜";
     letter = "d";
     stand = Rook;

@@ -89,7 +89,7 @@ class PieceStand {
                 candidates = candidates.filter(square => !(this.owner === "sente" ? [8, 9] : [1, 2]).includes(square[1]));
             }
 
-            candidates.forEach(square => moveList.push([this.owner+"Hand", square.join(""), piece]));
+            candidates.forEach(square => moveList.push({origin: this.owner+"Hand", target: square.join(""), piece}));
         })
 
         return moveList;
