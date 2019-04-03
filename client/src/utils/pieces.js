@@ -154,7 +154,7 @@ class Dragon extends Promoted {
         for (let i = 1; i < 9; i++) {
             this.moves.push([0, i], [i, 0], [0, -i], [-i, 0]);
         }
-        this.moves.push([1, 0], [0, -1], [-1, 0], [0, 1])
+        this.moves.push([1, 1], [-1, -1], [-1, 1], [1, -1])
     }
     name = "dragon";
     symbol = "竜";
