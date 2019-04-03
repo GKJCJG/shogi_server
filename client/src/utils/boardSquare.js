@@ -76,7 +76,7 @@ class Square {
             moveList.push([this.coordinate[0]+move[0], this.coordinate[1]+move[1]])
         });
 
-        moveList = moveList.filter(Square.isOnBoard).filter(move => this.noIllegalCaptures.call(this, move));
+        moveList = moveList.filter(Square.isOnBoard);
 
         if (this.isRanged(this.occupant)) {
             moveList = moveList.filter(move => this.noMovingThrough.call(this, move));
@@ -88,11 +88,6 @@ class Square {
 
     static isOnBoard(square) {
         return square[0] < 10 && square[1] < 10 && square[0] > 0 && square[1] > 0;
-    }
-
-    noIllegalCaptures(square) {
-        const targetOccupant = this.checkOwner(square.join(""));
-        return !(targetOccupant.owner === this.owner);
     }
 
     isRanged(occupant) {

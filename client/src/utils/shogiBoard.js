@@ -21,8 +21,6 @@ class ShogiPosition {
         this.goteTargets = [];
         this.sentePins = [];
         this.gotePins = [];
-        this.senteIsAttackedFromRangeBy = [];
-        this.goteIsAttackedFromRangeBy = [];
         this.senteIsAttackedBy = [];
         this.goteIsAttackedBy = []; 
     }
@@ -71,6 +69,7 @@ class ShogiPosition {
 
     handleCheckRules() {
         this.preventMoveIntoCheck();
+        this.preventAutoCapture(); // This must follow preventing move into check, because otherwise the king could capture a piece that is protected.
         this.identifyRangedThreats("sente");
         this.identifyRangedThreats("gote");
         this.enforcePins();
@@ -83,6 +82,11 @@ class ShogiPosition {
     preventMoveIntoCheck() {
         this.moves.senteMoves = this.moves.senteMoves.filter(e => !(e.origin === this.senteKing && this.goteTargets.includes(e.target)));
         this.moves.goteMoves = this.moves.goteMoves.filter(e => !(e.origin === this.goteKing && this.senteTargets.includes(e.target)));
+    }
+
+    preventAutoCapture() {
+        this.moves.senteMoves = this.moves.senteMoves.filter(move => this[move.target].owner !== "sente");
+        this.moves.goteMoves = this.moves.goteMoves.filter(move => this[move.target].owner !== "gote");
     }
 
     identifyRangedThreats(defender) {
@@ -142,11 +146,7 @@ class ShogiPosition {
                 currentCheck = [kingSquare[0] + currentVector.vector[0] * magnitude, kingSquare[1] + currentVector.vector[1] * magnitude];
             }
 
-            if (threat && blockers.length) {
-                this[defender+"Pins"].push(blockers[0]);
-            } else if (threat) {
-                this[defender + "IsAttackedFromRangeBy"].push(threat)
-            }
+            if (threat && blockers.length) this[defender+"Pins"].push(blockers[0]);
         }
     }
 
