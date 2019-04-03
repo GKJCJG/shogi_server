@@ -83,10 +83,10 @@ class PieceStand {
                 // this statement eliminates the ninth rank and obviates the specification of a limit in pawn class definition, at least as far as drops are concerned
                 candidates = candidates.filter(square => candidateFiles.includes(square[0]) && square[1] !== (this.owner === "sente" ? 1 : 9));
             } else if (piece==="lance") {
-                candidates = candidates.filter(square => !(this.owner === "sente" ? [9] : [1]).includes(square[1]));
+                candidates = candidates.filter(square => !(this.owner === "sente" ? [1] : [9]).includes(square[1]));
             } else if (piece==="knight") {
                 // The last part of this is a bit elaborate but means "if it's sente, don't let it be the 8th or 9th rank; if gote, not the 1st or 2nd." 
-                candidates = candidates.filter(square => !(this.owner === "sente" ? [8, 9] : [1, 2]).includes(square[1]));
+                candidates = candidates.filter(square => !(this.owner === "sente" ? [1, 2] : [8, 9]).includes(square[1]));
             }
 
             candidates.forEach(square => moveList.push({origin: this.owner+"Hand", target: square.join(""), piece}));
