@@ -84,6 +84,10 @@ class ShogiPosition {
         this.moves.goteMoves = this.moves.goteMoves.filter(e => !(e.origin === this.goteKing && this.senteTargets.includes(e.target)));
     }
 
+    preventMoveThatMaintainsCheck() {
+
+    }
+
     preventAutoCapture() {
         this.moves.senteMoves = this.moves.senteMoves.filter(move => this[move.target].owner !== "sente");
         this.moves.goteMoves = this.moves.goteMoves.filter(move => this[move.target].owner !== "gote");
@@ -171,6 +175,19 @@ class ShogiPosition {
         const attackers = this[side+"IsAttackedBy"];
         let moves = this.moves[side+"Moves"];
         let drops = this.moves[side+"Drops"];
+
+        const rangedAttackers = attackers.filter(attacker => ["lance", "bishop", "horse", "rook", "dragon"].includes(this[attacker].occupant.name));
+        if (rangedAttackers.length) {
+            for (let i = 0; i < rangedAttackers.length; i++) {
+                const attacker = Vector.format(rangedAttackers[i]);
+                const attackVector = new Vector(kingCoord, attacker);
+                moves = moves.filter(move => {
+                    if (move.origin !== kingSquare) return true;
+                    const newVector = new Vector(Vector.format(move.target), attacker);
+                    return !Vector.areSameDirection(attackVector, newVector);
+                });
+            }
+        }
         
         if (attackers.length > 1) {
             moves = moves.filter(move => move.origin === kingSquare);
