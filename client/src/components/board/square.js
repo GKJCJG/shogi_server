@@ -6,7 +6,7 @@ const Square = (props) => {
     const thisSquare = position[horCoord+vertCoord];
     let className, occupant, id, superPosition;
 
-    let classes = ["square"], occupantClass;
+    let classes = ["square"], occupantClass = "";
     classes = classes.concat(thisSquare.class);
     if (showPrevious && (horCoord + vertCoord) === position.lastMove) classes.push("previous");
     if ((horCoord + vertCoord) === move.origin) classes.push("origin");
