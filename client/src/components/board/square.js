@@ -2,7 +2,8 @@ import React from "react";
 import {nameDictionary} from "../../utils/dictionaries"
 
 const Square = (props) => {
-    const {position, vertCoord, horCoord, move, showPrevious} = props;
+    const {position, vertCoord, horCoord, showPrevious} = props;
+    const move = props.move || {}; // Necessary to separate it from rest of declarations because following statements look inside it, so cannot be undefined.
     const thisSquare = position[horCoord+vertCoord];
     let className, occupant, id, superPosition;
 
