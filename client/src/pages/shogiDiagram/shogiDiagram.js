@@ -35,12 +35,13 @@ class ShogiDiagram extends Component {
 
     handleSquareClick (event) {
         let position = this.state.position;
+        let id = event.target.id || event.target.parentElement.id;
         if (event.altKey) {
-            position[event.target.id] = {occupant: null, class: [null], symbol: null};
+            position[id] = {occupant: null, class: [null], symbol: null};
         } else if (event.ctrlKey) {
-            position[event.target.id] = {occupant: this.state.onPalette.occupant, class: ["gote"], symbol: this.state.onPalette.symbol};
+            position[id] = {occupant: this.state.onPalette.occupant, class: ["gote"], symbol: this.state.onPalette.symbol};
         } else {
-            position[event.target.id] = {occupant: this.state.onPalette.occupant, class: ["sente"], symbol: this.state.onPalette.symbol};
+            position[id] = {occupant: this.state.onPalette.occupant, class: ["sente"], symbol: this.state.onPalette.symbol};
         }
 
         this.setState({position, string: new DiagramPosition(position).translateToString()});
@@ -79,7 +80,6 @@ class ShogiDiagram extends Component {
     passSetActive = this.setActive.bind(this);
 
     render () {
-        console.log(this.state.onPalette);
         return (
             <div className="gameContainer">
                 <Board position={this.state.position} handleBoardClick={this.passHandleBoardClick}/>
