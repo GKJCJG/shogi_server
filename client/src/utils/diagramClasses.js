@@ -1,4 +1,4 @@
-import {letterDictionary} from "./dictionaries";
+import {letterDictionary, symbolDictionary} from "./dictionaries";
 
 /* eslint-disable no-use-before-define */
 
@@ -64,7 +64,7 @@ class FenString extends String {
         let handOccupants = [];
         const pieceOrder = ["歩", "香", "桂", "銀", "金", "角", "飛"];
         for (let i = 0; i < pieceOrder.length; i++) {
-            handOccupants.push({symbol: pieceOrder[i], number: parseInt(handString[i]) || 0});
+            handOccupants.push({symbol: pieceOrder[i], number: parseInt(handString[i]) || 0, name: symbolDictionary[pieceOrder[i]].name});
         }
         return {occupants: handOccupants};
     }

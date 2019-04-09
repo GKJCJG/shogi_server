@@ -31,7 +31,7 @@ class SelectionEvent {
         } else if (classList.contains("piece")) {
             return {origin: this.event.target.parentElement.id, motum: this.event.target.textContent};
         } else {
-            return false;
+            return false; // Clean Code says this is a bad practice. TODO: fix it.
         }
     }
 

@@ -24,7 +24,7 @@ class ShogiDiagram extends Component {
     }
 
     handleBoardClick (event) {
-        if (event.target.id === "sente" || event.target.id === "gote") {
+        if (event.target.id.search("sente") !== -1 || event.target.id.search("gote") !== -1) {
             this.handleHandClick(event);
         } else if (!isNaN(event.target.id)) {
             this.handleSquareClick(event);
@@ -50,14 +50,17 @@ class ShogiDiagram extends Component {
     handleHandClick (event) {
             const pieceOrder = ["歩", "香", "桂", "銀", "金", "角", "飛"];
             let position = this.state.position;
-            let targetArray = position[event.target.id + "Hand"].occupants;
+            const owner = event.target.id.search("-") === -1 ? event.target.id : event.target.id.substring(0, event.target.id.search("-"));
+            let targetArray = position[owner + "Hand"].occupants;
             const index = pieceOrder.indexOf(this.state.onPalette.occupant);
-            if (event.altKey) {
-                targetArray[index].number--;
-                if (targetArray[index].number < 0) targetArray[index].number = 0;
-            } else {
-                targetArray[index].number++;
-            }
+            if (index !== -1) {
+                if (event.altKey) {
+                    targetArray[index].number--;
+                    if (targetArray[index].number < 0) targetArray[index].number = 0;
+                } else {
+                    targetArray[index].number++;
+                }
+            }    
 
             this.setState({position, string: new DiagramPosition(position).translateToString()});
     }
