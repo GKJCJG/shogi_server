@@ -31,7 +31,7 @@ class SelectionEvent {
         } else if (classList.contains("piece")) {
             return {origin: this.event.target.parentElement.id, motum: this.event.target.textContent};
         } else {
-            return false; // Clean Code says this is a bad practice. TODO: fix it.
+            throw new Error("No move available at present.");
         }
     }
 
@@ -115,10 +115,14 @@ class Board extends Component {
     }
 
     localSetCandidates (event) {
+        let move;
         const candidateSelection = new SelectionEvent(event, this.state.position, this.state.candidates);
         let clearedPosition = candidateSelection.clearOldCandidates();
-        const move = candidateSelection.determineMoveOrigin(event);
-        if (!move) return this.reportCandidates(clearedPosition);
+        try { // This is probably not great practice, but it's my first error catching unit. TODO: Clean this up.
+            move = candidateSelection.determineMoveOrigin(event);
+        } catch {
+            return this.reportCandidates(clearedPosition);
+        }
         const status = this.playerOwnsThis(event.target) ? "friendly" : "hostile";
         const newPosition = candidateSelection.getNewSquares(move, status);
 
