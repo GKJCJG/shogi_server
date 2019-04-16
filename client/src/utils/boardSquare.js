@@ -1,54 +1,22 @@
 import pieces from "./pieces";
-
-class Vector {
-    constructor (origin, target) {
-        this.vector = [parseInt(target[0]-origin[0]), parseInt(target[1]-origin[1])];
-        this.unitVector = this.vector.map(coordinate => {
-            if (coordinate !== 0) return coordinate / Math.abs(coordinate);
-            return 0;
-        });
-
-        this.magnitude = Math.abs(this.vector[1]) > Math.abs(this.vector[0]) ? Math.abs(this.vector[1]) : Math.abs(this.vector[0]);
-    }
-
-    static areEqual(vectorA, vectorB) {
-        return vectorA.vector[0] === vectorB.vector[0] && vectorA.vector[1] === vectorB.vector[1];
-    }
-
-    static areSameDirection (vectorA, vectorB) {
-        return vectorA.vector[0]/vectorA.vector[1] === vectorB.vector[0]/vectorB.vector[1] && Math.sign(vectorA.vector[0]) === Math.sign(vectorB.vector[0]);
-    }
-
-    static format (string) {
-        return string.split("").map(e => parseInt(e));
-    }
-}
+import {Vector, isOnBoard} from "./smallClasses";
 
 class Square {
-    constructor (i, j, checkOwner, makeMove) {
+    constructor (i, j, checkOwner) {
         Object.defineProperty(this, "coordinate", {
             configurable: true,
             writable: false,
             value: [i, j]
         });
 
+        // TODO: I'm trying to eliminate all methods that require a child to know about the parent.
+        // I removed makeMove from boardSquare, but allowing the square to determine the basic move vector is very convenient, so it's proving hard to give up.
         this.checkOwner = checkOwner;
-        this.makeMove = makeMove;
         this.owner = null;
         this.occupant = null;
     }
       
-    capture() {
-        const origin = this.coordinate.join("");
-        const target = this.owner === "sente" ? "goteHand" : "senteHand";
-        this.makeMove({origin, target}, {shouldRecord: false});
-    }
-
     addOccupant(piece, owner, doesPromote) {
-        if (this.occupant) {
-            this.capture();
-        }
-
         this.occupant = piece;
         this.owner = owner;
 
@@ -57,12 +25,8 @@ class Square {
         }
     }
 
-    removeOccupant(doesPromote) {
-        if (doesPromote) {
-            this.occupant = new this.occupant.promotion()
-        }
-
-        const previousTenant = {occupant: this.occupant, owner: this.owner};
+    removeOccupant() {
+        const previousTenant = this.occupant;
 
         this.occupant = null;
         this.owner = null;
@@ -76,7 +40,7 @@ class Square {
             moveList.push([this.coordinate[0]+move[0], this.coordinate[1]+move[1]])
         });
 
-        moveList = moveList.filter(Square.isOnBoard);
+        moveList = moveList.filter(isOnBoard);
 
         if (this.isRanged(this.occupant)) {
             moveList = moveList.filter(move => this.noMovingThrough.call(this, move));
@@ -84,10 +48,6 @@ class Square {
 
         // then map it into the text format for a move and return.
         return moveList.map(target => {return {origin: this.coordinate.join(""), target: target.join("")}});
-    }
-
-    static isOnBoard(square) {
-        return square[0] < 10 && square[1] < 10 && square[0] > 0 && square[1] > 0;
     }
 
     isRanged(occupant) {
@@ -111,4 +71,4 @@ class Square {
     }
 }
 
-export {Square, Vector};
+export {Square};

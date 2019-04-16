@@ -1,9 +1,5 @@
-import {Vector, Square} from "./boardSquare";
+import {Vector, isOnBoard, otherSide} from "./smallClasses";
 import pieces from "./pieces";
-
-function otherSide(side) {
-    return side === "sente" ? "gote" : "sente";
-}
 
 class MoveFinder {
     constructor(position) {
@@ -52,16 +48,19 @@ class MoveFinder {
         this.establishTargets();
         this.determineCheck();
         this.handleCheckRules();
+        this.handleDropRules();
     }
 
+
+
     establishTargets() {
-        this.senteTargets = this.moves.senteMoves.map(e => e.target);
-        this.goteTargets = this.moves.goteMoves.map(e => e.target);
+        this.senteTargets = this.moves.senteMoves.map(move => move.target);
+        this.goteTargets = this.moves.goteMoves.map(move => move.target);
     }
 
     determineCheck() {
-        this.senteIsAttackedBy = this.moves.goteMoves.filter(e => e.target === this.senteKing).map(e => e.origin);
-        this.goteIsAttackedBy = this.moves.senteMoves.filter(e => e.target === this.goteKing).map(e => e.origin);
+        this.senteIsAttackedBy = this.moves.goteMoves.filter(move => move.target === this.senteKing).map(move => move.origin);
+        this.goteIsAttackedBy = this.moves.senteMoves.filter(move => move.target === this.goteKing).map(move => move.origin);
         this.senteInCheck = this.senteIsAttackedBy.length > 0;
         this.goteInCheck = this.goteIsAttackedBy.length > 0;
     }
@@ -74,13 +73,11 @@ class MoveFinder {
         this.enforcePins();
         if (this.senteInCheck) this.mustEscapeCheck("sente");
         if (this.goteInCheck) this.mustEscapeCheck("gote");
-        this.noCheckMateByDroppedPawn("sente");
-        this.noCheckMateByDroppedPawn("gote");
     }
 
     preventMoveIntoCheck() {
-        this.moves.senteMoves = this.moves.senteMoves.filter(e => !(e.origin === this.senteKing && this.goteTargets.includes(e.target)));
-        this.moves.goteMoves = this.moves.goteMoves.filter(e => !(e.origin === this.goteKing && this.senteTargets.includes(e.target)));
+        this.moves.senteMoves = this.moves.senteMoves.filter(move => !(move.origin === this.senteKing && this.goteTargets.includes(move.target)));
+        this.moves.goteMoves = this.moves.goteMoves.filter(move => !(move.origin === this.goteKing && this.senteTargets.includes(move.target)));
     }
 
     preventAutoCapture() {
@@ -132,7 +129,7 @@ class MoveFinder {
             let threat = null;
             let magnitude = 1;
             let currentCheck = [kingSquare[0] + currentVector.vector[0], kingSquare[1] + currentVector.vector[1]];
-            while (Square.isOnBoard(currentCheck)) {
+            while (isOnBoard(currentCheck)) {
                 const currentCheckCoord = currentCheck.join("");
                 if (this.position[currentCheckCoord].owner === defender) blockers.push(currentCheckCoord);
                 if (blockers.length > 1) break;
@@ -208,6 +205,41 @@ class MoveFinder {
             const capturesThreat = (move.target === threat);
             return (movesKing || blocksThreat || capturesThreat);
         }
+    }
+
+    handleDropRules() {
+        this.noDropOnOccupiedSquare();
+        this.niFu("sente");
+        this.niFu("gote");
+        this.noCheckMateByDroppedPawn("sente");
+        this.noCheckMateByDroppedPawn("gote");
+    }
+
+    noDropOnOccupiedSquare() {
+        this.moves.senteDrops = this.moves.senteDrops.filter(drop => this.position[drop.target].occupant === null);
+        this.moves.goteDrops = this.moves.goteDrops.filter(drop => this.position[drop.target].occupant === null);
+    }
+
+    niFu (side) {
+        const blockedFiles = this.determineBlockedFiles(side);
+        this.eliminateNiFuDrops(side, blockedFiles);
+    }
+
+    determineBlockedFiles(side) {
+        const blockedFiles = [];
+        for (let i = 1; i < 10; i++) {
+            for (let j = 1; j < 10; j++) {
+                if (this.position[""+i+j].owner===side && this.position[""+i+j].occupant instanceof pieces.Pawn) {
+                    blockedFiles.push(i.toString());
+                    break;
+                }
+            }
+        }
+        return blockedFiles;
+    }
+
+    eliminateNiFuDrops(side, blockedFiles) {
+        this.moves[side + "Drops"] = this.moves[side + "Drops"].filter(drop => !(drop.piece === "pawn" && blockedFiles.includes(drop.target[0])));
     }
 
     noCheckMateByDroppedPawn(side) {
