@@ -1,13 +1,10 @@
 class PieceStand {
-    constructor(owner, niFu, checkSpace) {
+    constructor(owner) {
         Object.defineProperty(this, "owner", {
             configurable: true,
             writable: false,
             value: owner
         });
-
-        this.niFu = niFu;
-        this.checkSpace = checkSpace;
 
         this.occupants = {
             pawn: [],
@@ -44,7 +41,6 @@ class PieceStand {
     listMoves() {
         const candidatePieces = [],
             candidateSquares = [],
-            candidateFiles = [],
             moveList = [];
 
         // find out what pieces there are to drop.
@@ -56,35 +52,22 @@ class PieceStand {
             }
         }
 
-        // if there are any, find out which squares are eligible.
+        // if there are any, set all squares eligible.
         if (candidatePieces.length) {
             for (let i = 1; i<10; i++) {
                 for (let j=1; j<10; j++) {
-                    if (!this.checkSpace(""+i+j)) {
-                        candidateSquares.push([i, j]);
-                    }
+                    candidateSquares.push([i, j]);
                 }
             }    
-        }
-
-        // if there are any dropable pawns, identify the eligible files
-        if (this.occupants.pawn.length) {
-            for (let i=1; i<10; i++) {
-                if (!this.niFu(this.owner, i.toString())) {
-                    candidateFiles.push(i);
-                }
-            }
         }
 
         // now we know all the possibilities. Permute over them.
         candidatePieces.forEach(piece => {
             let candidates = candidateSquares.slice();
-            if (piece === "pawn") {
-                candidates = candidates.filter(square => candidateFiles.includes(square[0]) && square[1] !== (this.owner === "sente" ? 1 : 9));
-            } else if (piece==="lance") {
-                candidates = candidates.filter(square => !(this.owner === "sente" ? [1] : [9]).includes(square[1]));
+            if (piece === "pawn" || piece === "lance") {
+                candidates = candidates.filter(square => square[1] !== (this.owner === "sente" ? 1 : 9));
             } else if (piece==="knight") {
-                candidates = candidates.filter(square => !(this.owner === "sente" ? [1, 2] : [8, 9]).includes(square[1]));
+                candidates = candidates.filter(square => !((this.owner === "sente" ? [1, 2] : [8, 9]).includes(square[1])));
             }
 
             candidates.forEach(square => moveList.push({origin: this.owner+"Hand", target: square.join(""), piece}));

@@ -125,7 +125,7 @@ class Horse extends Promoted {
         for (let i = 1; i < 9; i++) {
             this.moves.push([i, i], [-i, -i], [i, -i], [-i, i]);
         }
-        this.moves.push([1, 1], [1, -1], [-1, -1], [-1, 1])
+        this.moves.push([0, 1], [1, 0], [0, -1], [-1, 0])
     }
     name = "horse";
     symbol = "馬";

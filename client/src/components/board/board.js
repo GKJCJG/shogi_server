@@ -1,10 +1,11 @@
 import React, {Component} from "react";
 import "./board.css";
 import API from "../../utils/api";
-import gameLogic from "../../utils/shogiBoard";
+import ShogiBoard from "../../utils/shogiBoard";
 import {symbolDictionary} from "../../utils/dictionaries";
 import PieceStand from "./pieceStand";
 import BoardDisplay from "./boardDisplay";
+import { MoveReader } from "../../utils/moveReader";
 
 class SelectionEvent {
     constructor (event, position, candidates) {
@@ -78,18 +79,25 @@ class Board extends Component {
         API.getGame(this.props.access)
         .then(response => {
             const position = this.readGame(response.data.handicap, response.data.moves);
-
+            position.lastMove = this.identifyLastMove(response.data.moves);
             this.setPosition(position);
             this.reportToGame(response.data, position);
-
         });
     }
 
     readGame (handicap, moves) {
-        this.gameBoard = new gameLogic(handicap);
-        this.gameBoard.initialize();
-        this.gameBoard.readMoves(moves);
+        const gameBoard = new ShogiBoard();
+        gameBoard.initialize(handicap);
+        const moveReader = new MoveReader(gameBoard, moves);
+        this.gameBoard = moveReader.getNewPosition();
         return this.gameBoard.render();
+    }
+
+    identifyLastMove(moves) {
+        let lastMove = moves[moves.length-1] || null;
+        lastMove = lastMove ? lastMove.split(lastMove.search("-") === -1 ? "*" : "-")[1] : null;
+        if (lastMove.length > 2) lastMove = lastMove.slice(0, -1);
+        return lastMove;
     }
 
     setPosition (position) {
