@@ -5,9 +5,9 @@ function otherSide(side) {
     return side === "sente" ? "gote" : "sente";
 }
 
-class ShogiPosition {
-    constructor(object) {
-        Object.assign(this, object);
+class MoveFinder {
+    constructor(position) {
+        this.position = position;
         this.senteKing = this.findKing("sente");
         this.goteKing = this.findKing("gote");
         this.moves = {
@@ -27,7 +27,7 @@ class ShogiPosition {
     findKing (turn) {
         for (let i=1; i<10; i++) {
             for (let j=1; j<10; j++) {
-                if (this[""+i+j].owner === turn && this[""+i+j].occupant instanceof pieces.King) return ""+i+j;
+                if (this.position[""+i+j].owner === turn && this.position[""+i+j].occupant instanceof pieces.King) return ""+i+j;
             }
         }
     }
@@ -41,11 +41,11 @@ class ShogiPosition {
     populateMoves () {
         for (let i=1; i<10; i++) {
             for (let j=1; j<10; j++) {
-                if (this[""+i+j].occupant) Array.prototype.push.apply(this.moves[this[""+i+j].owner + "Moves"], this[""+i+j].listMoves());
+                if (this.position[""+i+j].occupant) Array.prototype.push.apply(this.moves[this.position[""+i+j].owner + "Moves"], this.position[""+i+j].listMoves());
             }
         }
-        this.moves.senteDrops = this["senteHand"].listMoves();
-        this.moves.goteDrops = this["goteHand"].listMoves();
+        this.moves.senteDrops = this.position.senteHand.listMoves();
+        this.moves.goteDrops = this.position.goteHand.listMoves();
     }
 
     filterIllegalMoves() {
@@ -84,8 +84,8 @@ class ShogiPosition {
     }
 
     preventAutoCapture() {
-        this.moves.senteMoves = this.moves.senteMoves.filter(move => this[move.target].owner !== "sente");
-        this.moves.goteMoves = this.moves.goteMoves.filter(move => this[move.target].owner !== "gote");
+        this.moves.senteMoves = this.moves.senteMoves.filter(move => this.position[move.target].owner !== "sente");
+        this.moves.goteMoves = this.moves.goteMoves.filter(move => this.position[move.target].owner !== "gote");
     }
 
     identifyRangedThreats(defender) {
@@ -134,10 +134,10 @@ class ShogiPosition {
             let currentCheck = [kingSquare[0] + currentVector.vector[0], kingSquare[1] + currentVector.vector[1]];
             while (Square.isOnBoard(currentCheck)) {
                 const currentCheckCoord = currentCheck.join("");
-                if (this[currentCheckCoord].owner === defender) blockers.push(currentCheckCoord);
+                if (this.position[currentCheckCoord].owner === defender) blockers.push(currentCheckCoord);
                 if (blockers.length > 1) break;
-                if (this[currentCheckCoord].owner === attacker) {
-                    if (currentVector.threats.both.includes(this[currentCheckCoord].occupant.name) || currentVector.threats[defender].includes(this[currentCheckCoord].occupant.name)) threat = currentCheckCoord;
+                if (this.position[currentCheckCoord].owner === attacker) {
+                    if (currentVector.threats.both.includes(this.position[currentCheckCoord].occupant.name) || currentVector.threats[defender].includes(this.position[currentCheckCoord].occupant.name)) threat = currentCheckCoord;
                     break;
                 }
 
@@ -171,7 +171,7 @@ class ShogiPosition {
         let moves = this.moves[side+"Moves"];
         let drops = this.moves[side+"Drops"];
 
-        const rangedAttackers = attackers.filter(attacker => ["lance", "bishop", "horse", "rook", "dragon"].includes(this[attacker].occupant.name));
+        const rangedAttackers = attackers.filter(attacker => ["lance", "bishop", "horse", "rook", "dragon"].includes(this.position[attacker].occupant.name));
         if (rangedAttackers.length) {
             for (let i = 0; i < rangedAttackers.length; i++) {
                 const attacker = Vector.format(rangedAttackers[i]);
@@ -189,7 +189,7 @@ class ShogiPosition {
             drops = [];
         } else {
             const threat = attackers[0];
-            if (new Vector(kingCoord, Vector.format(threat)).magnitude === 1 || this[threat].occupant.name === "knight") {
+            if (new Vector(kingCoord, Vector.format(threat)).magnitude === 1 || this.position[threat].occupant.name === "knight") {
                 moves = moves.filter(move => move.origin === kingSquare || move.target === threat);
                 drops = [];
             } else {
@@ -212,7 +212,7 @@ class ShogiPosition {
 
     noCheckMateByDroppedPawn(side) {
         const opponent = otherSide(side);
-        if ((this[side+"Hand"]).occupants.pawn.length === 0 || this[opponent+"InCheck"]) return;
+        if ((this.position[side+"Hand"]).occupants.pawn.length === 0 || this[opponent+"InCheck"]) return;
         const headFinder = opponent === "gote" ? 1 : -1;
         const opponentKing = this[opponent+"King"];
         const opponentKingHead = [opponentKing[0], Vector.format(opponentKing)[1] + headFinder].join("");
@@ -238,4 +238,4 @@ class ShogiPosition {
     }
 }
 
-export {ShogiPosition};
+export {MoveFinder};

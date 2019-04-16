@@ -1,7 +1,7 @@
 import pieces from "./pieces";
 import PieceStand from "./pieceStand";
 import {Square} from "./boardSquare";
-import {ShogiPosition} from "./shogiPosition";
+import {MoveFinder} from "./moveFinder";
 
 function otherSide(side) {
     return side === "sente" ? "gote" : "sente";
@@ -194,8 +194,8 @@ class Board {
     }
 
     render () {
-        let positionAnalyser = new ShogiPosition(this.position);
-        const legalMoves = positionAnalyser.getMoveList();
+        let moveFinder = new MoveFinder(this.position);
+        const legalMoves = moveFinder.getMoveList();
         let currentPosition = {};
 
         const playerMoves = legalMoves[this.turn+"Moves"];
@@ -208,7 +208,7 @@ class Board {
             currentPosition.winner = otherSide(this.turn);
         }
 
-        currentPosition.inCheck = positionAnalyser[this.turn+"InCheck"];
+        currentPosition.inCheck = moveFinder[this.turn+"InCheck"];
 
         for(let i = 1; i < 10; i++) {
             for (let j = 1; j < 10; j++) {
