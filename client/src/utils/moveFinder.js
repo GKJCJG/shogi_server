@@ -215,14 +215,14 @@ class MoveFinder {
         if ((this.position[side+"Hand"]).occupants.pawn.length === 0 || this[opponent+"InCheck"]) return;
         const headFinder = opponent === "gote" ? 1 : -1;
         const opponentKing = this[opponent+"King"];
-        const opponentKingHead = [opponentKing[0], Vector.format(opponentKing)[1] + headFinder].join("");
-        let index = this.moves[side+"Drops"].findIndex(drop => drop.piece === "pawn" && drop.target === opponentKingHead);
+        const opponentKingHead = [opponentKing[0], parseInt(opponentKing[1]) + headFinder].join("");
+        let dropIndex = this.moves[side+"Drops"].findIndex(drop => drop.piece === "pawn" && drop.target === opponentKingHead);
 
-        if (index === -1) return;
+        if (dropIndex === -1) return;
 
         const isCheckMate = this.moves[opponent+"Moves"].filter(move => move.origin === opponentKing || move.target === opponentKingHead).length === 0;
 
-        if (isCheckMate) this.moves[side+"Drops"].splice(index, 1);
+        if (isCheckMate) this.moves[side+"Drops"].splice(dropIndex, 1);
     }
 }
 
