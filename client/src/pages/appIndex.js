@@ -5,4 +5,5 @@ export {Home} from "./home/home";
 export {Dashboard} from "./dashboard/dashboard";
 export {Login} from "./login/login";
 export {Register} from "./register/register";
-export {ShogiDiagram} from "./shogiDiagram/shogiDiagram"
+export {ShogiDiagram} from "./shogiDiagram/shogiDiagram";
+export {ChessDiagram} from "./chessDiagram/chessDiagram";

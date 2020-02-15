@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import './App.css';
-import {Navbar, Game, Setup, Home, Dashboard, Login, Register, ShogiDiagram} from "./pages/appIndex";
+import {Navbar, Game, Setup, Home, Dashboard, Login, Register, ShogiDiagram, ChessDiagram} from "./pages/appIndex";
 
 class App extends Component {
 
@@ -15,6 +15,7 @@ class App extends Component {
           <Route exact path="/" component={Home} />
           <Route exact path="/home" component={Home} />
           <Route exact path="/diagram/shogi" component={ShogiDiagram}/>
+          <Route exact path="/diagram/chess" component={ChessDiagram}/>
           <Route path="/dashboard" component={Dashboard} />
           <Route exact path="/login" render={() => <Login getStatus={this.passGetStatus}/>} />
           <Route exact path="/register" component={Register} />

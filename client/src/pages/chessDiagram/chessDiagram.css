@@ -1,0 +1,72 @@
+.card {
+    font-family: "Arial Unicode MS", Times, sans-serif;
+    font-size: 24px;
+    color: #444;
+    background-color: white;
+    text-align: center
+}
+
+
+.chessdiagram {
+    border-collapse: collapse;
+    width: 228px;
+    height: 226px;
+    margin: 0 auto;
+}
+
+#diagramcontainer, #solutioncontainer {
+    font-size: 20px;
+    padding: 0;
+    margin: 0 auto;
+   width: 100%;
+}
+
+#solution {
+    color: red;
+}
+
+th, td {
+    padding: 0;
+    vertical-align: middle;
+}
+
+th {
+    font-size: 8px;
+    font-weight: bold;
+}
+
+.left {
+    vertical-align: middle;
+    text-align: right;
+}
+
+.bottom {
+    vertical-align: top;
+    text-align: center;
+}
+
+td {
+    height: 27px;
+    width: 27px;
+    text-align: center;
+}
+
+#HiddenText, #HiddenSolution {
+    display: none;
+}
+
+tr:nth-child(odd) td:nth-child(odd) {
+    background-color:  #e2af80;
+}
+
+tr:nth-child(odd) td:nth-child(even) {
+    background-color:  #fdf5e6;
+}
+
+tr:nth-child(even) td:nth-child(even) {
+    background-color:  #e2af80;
+}
+
+tr:nth-child(even) td:nth-child(odd) {
+    background-color:  #fdf5e6;
+}

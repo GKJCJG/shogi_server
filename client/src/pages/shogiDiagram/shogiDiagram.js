@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import Board from "./../../components/board/diagramBoard";
-import {FenString, DiagramPosition} from "./../../utils/diagramClasses";
+import {FenString, DiagramPosition} from "./../../utils/shogiTranslators";
 import Palette from "./../../components/diagramSidebar/palette";
 import FenEntry from "./../../components/diagramSidebar/fenEntry";
 import "./diagram.css";
@@ -11,14 +11,17 @@ const Directions = () => (
     </div>
 )
 
+const emptyBoard = "9/9/9/9/9/9/9/9/9/0000000/0000000";
+const initialPosition = "LNSGKGSNL/1R5B1/PPPPPPPPP/9/9/9/ppppppppp/1b5r1/lnsgkgsnl/0000000/0000000";
+
 class ShogiDiagram extends Component {
 
     constructor () {
         super();
 
         this.state = {
-            string: "9/9/9/9/9/9/9/9/9/0000000/0000000",
-            position: new FenString("9/9/9/9/9/9/9/9/9/0000000/0000000").translateToObject(),
+            string: emptyBoard,
+            position: new FenString(emptyBoard).translateToObject(),
             onPalette: {occupant: "", symbol: ""}
         };
     }
@@ -82,13 +85,27 @@ class ShogiDiagram extends Component {
 
     passSetActive = this.setActive.bind(this);
 
+    emptyBoard(event) {
+        event.preventDefault();
+        this.setState({string: emptyBoard, position: new FenString(emptyBoard).translateToObject()});
+    }
+
+    passEmptyBoard = this.emptyBoard.bind(this);
+
+    initialPosition(event) {
+        event.preventDefault();
+        this.setState({string: initialPosition, position: new FenString(initialPosition).translateToObject()});
+    }
+
+    passInitialPosition = this.initialPosition.bind(this);
+
     render () {
         return (
             <div className="gameContainer">
                 <Board position={this.state.position} handleBoardClick={this.passHandleBoardClick}/>
                 <div className = "nonBoard">
                     <Directions />
-                    <FenEntry onChange = {this.passHandleType} value = {this.state.string}/>
+                    <FenEntry onChange = {this.passHandleType} emptyBoard = {this.passEmptyBoard} initialPosition = {this.passInitialPosition} value = {this.state.string}/>
                     <Palette setActive={this.passSetActive} onPalette = {this.state.onPalette}/>
                 </div>
             </div>
