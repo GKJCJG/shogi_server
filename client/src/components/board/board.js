@@ -94,9 +94,9 @@ class Board extends Component {
     }
 
     identifyLastMove(moves) {
-        let lastMove = moves[moves.length-1] || null;
-        lastMove = lastMove ? lastMove.split(lastMove.search("-") === -1 ? "*" : "-")[1] : null;
-        if (lastMove.length > 2) lastMove = lastMove.slice(0, -1);
+        let lastMove = moves[moves.length-1] || "";
+        lastMove = lastMove.split(lastMove.search("-") === -1 ? "*" : "-")[1];
+        if (lastMove && lastMove.length > 2) lastMove = lastMove.slice(0, -1);
         return lastMove;
     }
 

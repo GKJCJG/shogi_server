@@ -17,7 +17,10 @@ module.exports = {
             mailer.alertCreated(dbGame, "gote");
             res.json(dbGame)
         })
-        .catch(err => res.status(422).json(err));
+        .catch(err => {
+            console.log("Failed to create came game because:", err);
+            res.status(422).json(err)
+        });
     },
     addArrayItem: (req, res) => {
         const parseNewItem = (req) => {

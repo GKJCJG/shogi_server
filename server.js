@@ -34,7 +34,7 @@ app.use(passport.session());
 // Connect to the Mongo DB
 mongoose.set("useCreateIndex", true);
 mongoose.connect(
-  process.env.MONGODB_URI || "mongodb://localhost/shogiserver", {useNewUrlParser: true}
+  process.env.MONGODB_URI || "mongodb://localhost/shogiserver", {useNewUrlParser: true, useUnifiedTopology: true}
 );
 
 // Start the API server
