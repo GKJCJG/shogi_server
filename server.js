@@ -40,11 +40,11 @@ app.use(passport.session());
 
 // Start the API server
 mongooseConnectionPromise
-  .then(
+  .then(() => {
     app.listen(PORT, function () {
       console.log(`🌎  ==> API Server now listening on PORT ${PORT}!`);
-    })
-  )
+    });
+  })
   .catch(err => {
     console.log(err);
     process.exit(1);
