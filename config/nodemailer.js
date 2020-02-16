@@ -1,4 +1,4 @@
-const mailerAuth = require("../server");
+const mailerAuth = require("../keys");
 const nodemailer = require("nodemailer");
 const transporter = nodemailer.createTransport({
     service: "gmail",

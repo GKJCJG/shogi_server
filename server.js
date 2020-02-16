@@ -1,18 +1,19 @@
-// TODO struggling with .env, so having to put it here...
-const envKey = require("dotenv").config();
-module.exports = {
-  user: process.env.EMAIL_USERNAME,
-  pass: process.env.EMAIL_PASSWORD
-};
-
 const express = require("express");
 const mongoose = require("mongoose");
 const routes = require("./routes/routeIndex");
 const passport = require("passport");
 const expressSession = require("express-session");
+const MongoStore = require("connect-mongo")(expressSession);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Connect to the Mongo DB
+mongoose.set("useCreateIndex", true);
+console.log(process.env.MONGODB_URI || "There doesn't seem to be such an env variable.");
+const mongooseConnectionPromise = mongoose.connect(
+  process.env.MONGODB_URI || "mongodb://localhost/shogiserver", { useNewUrlParser: true, useUnifiedTopology: true }
+);
 
 // Define middleware here
 app.use(express.urlencoded({ extended: true }));
@@ -23,7 +24,12 @@ if (process.env.NODE_ENV === "production") {
 }
 app.use(routes);
 
-app.use(expressSession({secret: "afhamon", resave: true, saveUninitialized: false }))
+app.use(expressSession({
+  secret: "afhamon",
+  resave: true,
+  saveUninitialized: false,
+  store: new MongoStore({ mongooseConnection: mongoose.connection })
+}));
 //passport
 app.use(passport.initialize());
 app.use(passport.session());
@@ -31,13 +37,15 @@ app.use(passport.session());
 
 
 
-// Connect to the Mongo DB
-mongoose.set("useCreateIndex", true);
-mongoose.connect(
-  process.env.MONGODB_URI || "mongodb://localhost/shogiserver", {useNewUrlParser: true, useUnifiedTopology: true}
-);
 
 // Start the API server
-app.listen(PORT, function() {
-  console.log(`🌎  ==> API Server now listening on PORT ${PORT}!`);
-});
+mongooseConnectionPromise
+  .then(
+    app.listen(PORT, function () {
+      console.log(`🌎  ==> API Server now listening on PORT ${PORT}!`);
+    })
+  )
+  .catch(err => {
+    console.log(err);
+    process.exit(1);
+  })

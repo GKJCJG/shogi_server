@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import './App.css';
-import {Navbar, Game, Setup, Home, Dashboard, Login, Register, ShogiDiagram} from "./pages/appIndex";
+import {Game, Setup, Home, Dashboard, Login, Register, ShogiDiagram} from "./pages/appIndex";
 
 class App extends Component {
 
