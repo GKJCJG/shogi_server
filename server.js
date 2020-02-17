@@ -10,7 +10,6 @@ const PORT = process.env.PORT || 3001;
 
 // Connect to the Mongo DB
 mongoose.set("useCreateIndex", true);
-console.log(process.env.MONGODB_URI || "There doesn't seem to be such an env variable.");
 const mongooseConnectionPromise = mongoose.connect(
   process.env.MONGODB_URI || "mongodb://localhost/shogiserver", { useNewUrlParser: true, useUnifiedTopology: true }
 );
