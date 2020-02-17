@@ -48,7 +48,7 @@ Colin Grant's Shogi Server</div>
 const alertCreated = (gameInfo, recipient) => {
     const opponent = recipient === "sente" ? "gote" : "sente";
     const mailOptions = {
-        from: "Colin's Shogi Server <" + mailerAuth.user +">",
+        from: "Colin's Shogi Server <" + process.env.EMAIL_USERNAME +">",
         to: gameInfo[recipient + "Contact"],
         subject: "A new game has been started against " + gameInfo[opponent + "Nick"],
         html:
