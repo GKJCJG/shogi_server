@@ -18,7 +18,7 @@ module.exports = {
             res.json(dbGame)
         })
         .catch(err => {
-            console.log("Failed to create came game because:", err);
+            console.log("Failed to create game because:", err);
             res.status(422).json(err)
         });
     },

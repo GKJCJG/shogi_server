@@ -26,7 +26,7 @@ const sendMessage = (mailOptions) => {
 const alertMover = (gameInfo, recipient) => {
     const opponent = recipient === "sente" ? "gote" : "sente";
     const mailOptions = {
-        from: "Colin's Shogi Server <" + mailerAuth.user +">",
+        from: "Colin's Shogi Server <" + process.env.EMAIL_USERNAME +">",
         to: gameInfo[recipient + "Contact"],
         subject: "It's your turn to play against " + gameInfo[opponent + "Nick"],
         html:
