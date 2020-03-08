@@ -41,6 +41,9 @@ class ShogiDiagram extends Component {
     handleBoardClick(event) {
         event.preventDefault();
         event.stopPropagation();
+        if (!this.state.onPalette.symbol || !(this.state.onPalette.symbol in letterDictionary)) {
+            return;
+        }
         const owner = this.getOwnerFromEvent(event);
         const location = this.getLocationFromEvent(event, owner);
         const remove = event.altKey;
@@ -79,7 +82,10 @@ class ShogiDiagram extends Component {
     passHandleBoardClick = this.handleBoardClick.bind(this);
 
     handleType(event) {
-        this.setState({ string: event.target.value, position: new FenString(event.target.value).translateToObject() });
+        const impermissibleCharacters = /[^\dptlxnhsqbmrdgk/]/i
+        if (!impermissibleCharacters.test(event.target.value)) {
+            this.setState({ string: event.target.value, position: new FenString(event.target.value).translateToObject() });
+        }
     }
 
     passHandleType = this.handleType.bind(this);
@@ -97,7 +103,9 @@ class ShogiDiagram extends Component {
 
     handleKeyPress(event) {
         const intendedKey = event.key.toLowerCase();
-        if (intendedKey in letterDictionary && event.target.tagName !== "TEXTAREA") {
+        if (event.target.tagName === "TEXTAREA") {
+            return;
+        } else if (intendedKey in letterDictionary) {
             this.setActive(intendedKey, letterDictionary[intendedKey].symbol);
         } else if (intendedKey === "`") {
             this.setState(generateInitialState());

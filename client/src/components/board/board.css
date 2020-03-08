@@ -77,21 +77,22 @@
     padding: 0 2px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
     box-sizing: border-box;
     align-items: center;
     grid-row-start: 4;
     grid-row-end: 5;
 }
 
-#gote {
+#gote-hand {
     grid-column-start: 2;
     grid-column-end: 3;
+    justify-content: flex-start;
 }
 
-#sente {
+#sente-hand {
     grid-column-start: 4;
     grid-column-end: 5;
+    justify-content: flex-end;
 }
 
 .superPose {

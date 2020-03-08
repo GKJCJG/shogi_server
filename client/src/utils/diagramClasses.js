@@ -181,7 +181,7 @@ class DiagramPosition {
 
     addPieceToHand(location, piece) {
         const pieceToIncrement = this.findHandOccupant(location, piece);
-        pieceToIncrement.number++;
+        pieceToIncrement && pieceToIncrement.number++;
     }
 
     findHandOccupant(location, piece) {
@@ -204,7 +204,9 @@ class DiagramPosition {
 
     removePieceFromHand(location, piece) {
         const pieceToIncrement = this.findHandOccupant(location, piece);
-        pieceToIncrement.number = pieceToIncrement.number && pieceToIncrement.number - 1;
+        if (pieceToIncrement) {
+            pieceToIncrement.number = pieceToIncrement.number && pieceToIncrement.number - 1;
+        }
     }
 }
 
