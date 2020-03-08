@@ -6,7 +6,7 @@ const PieceStand = (props) => {
     <div id={owner} className={owner + " hand"}>
         {occupants
             .map((piece, index) => piece.number > 0 ?
-            (<div key={owner+"piece"+index} className="pieceIcon" id={owner+"-"+piece.name}>
+            (<div key={owner+"piece"+index} className="pieceIcon" id={owner+"-"+piece.name} draggable>
                 {piece.symbol}{piece.number > 1 ? <span className="handMult" id={owner+"-"+piece.name+"-multiplier"}>{piece.number}</span> : null}
             </div>)
             :
