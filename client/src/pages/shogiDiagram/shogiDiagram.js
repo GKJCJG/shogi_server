@@ -12,9 +12,12 @@ const Directions = () => (
     </div>
 )
 
-const generateInitialState = () => ({
-    string: "9/9/9/9/9/9/9/9/9/0000000/0000000",
-    position: new FenString("9/9/9/9/9/9/9/9/9/0000000/0000000").translateToObject(),
+const STARTING_POSITION = "LNSGKGSNL/1R5B1/PPPPPPPPP/9/9/9/ppppppppp/1b5r1/lnsgkgsnl/0000000/0000000";
+const EMPTY_BOARD = "9/9/9/9/9/9/9/9/9/0000000/0000000";
+
+const generateInitialState = (fenString = EMPTY_BOARD) => ({
+    string: fenString,
+    position: new FenString(fenString).translateToObject(),
     onPalette: { occupant: "", symbol: "" },
     dragee: { id: "", owner: "" },
 });
@@ -22,7 +25,6 @@ const generateInitialState = () => ({
 class ShogiDiagram extends Component {
 
     constructor() {
-        console.log("constructing....");
         super();
 
         this.state = generateInitialState();
@@ -39,49 +41,42 @@ class ShogiDiagram extends Component {
     handleBoardClick(event) {
         event.preventDefault();
         event.stopPropagation();
-        if (event.target.id.search("sente") !== -1 || event.target.id.search("gote") !== -1) {
-            this.handleHandClick(event);
-        } else if (!isNaN(event.target.id)) {
-            const square = event.target.id || event.target.parentElement.id;
-            const owner = event.altKey ? null : event.button === 0 ? "sente" : "gote";
-            this.handleSquareClick(square, owner);
+        const owner = this.getOwnerFromEvent(event);
+        const location = this.getLocationFromEvent(event, owner);
+        const remove = event.altKey;
+        this.setState(prevState => {
+            const piece = prevState.onPalette.occupant;
+            const position = new DiagramPosition(prevState.position);
+            if (remove) {
+                position.removePiece(location, piece);
+            } else {
+                position.addPiece(location, piece, owner);
+            }
+
+            return {
+                position: position.translateToPlainObject(),
+                string: position.translateToString()
+            }
+        });
+    }
+
+    getOwnerFromEvent(event) {
+        if (/te/.test(event.target.id)) {
+            return event.target.id.includes("sente") ? "sente" : "gote";
+        } else {
+            return event.button === 0 ? "sente" : "gote";
+        }
+    }
+
+    getLocationFromEvent(event, owner) {
+        if (parseInt(event.target.id)) {
+            return event.target.id;
+        } else {
+            return `${owner}Hand`;
         }
     }
 
     passHandleBoardClick = this.handleBoardClick.bind(this);
-
-    handleSquareClick(square, owner) {
-        this.setState(prevState => {
-            const position = new DiagramPosition(prevState.position);
-            if (!owner) {
-                position.removePiece(square);
-            } else {
-                position.addPiece(square, prevState.onPalette.occupant, owner);
-            }
-
-            return {
-                position: position.translateToPlainObject(),
-                string: position.translateToString()
-            };
-        });
-    }
-
-    handleHandClick(event) {
-        this.setState(prevState => {
-            const position = new DiagramPosition(prevState.position);
-            const owner = event.target.id.includes("-") ? event.target.id : event.target.id.substring(0, event.target.id.search("-"));
-            const location = `${owner}Hand`;
-            if (event.altKey) {
-                position.removePieceFromHand(location, prevState.onPalette.occupant);
-            } else {
-                position.addPiece(location, prevState.onPalette.occupant);
-            }
-            return {
-                position: position.translateToPlainObject(),
-                string: position.translateToString()
-            }
-        })
-    }
 
     handleType(event) {
         this.setState({ string: event.target.value, position: new FenString(event.target.value).translateToObject() });
@@ -108,6 +103,8 @@ class ShogiDiagram extends Component {
             this.setState(generateInitialState());
         } else if (intendedKey === "c") {
             navigator.clipboard.writeText(this.state.string);
+        } else if (intendedKey === "i") {
+            this.setState(generateInitialState(STARTING_POSITION));
         }
     }
 
@@ -163,7 +160,6 @@ class ShogiDiagram extends Component {
     passHandleDrop = this.handleDrop.bind(this);
 
     render() {
-        console.log("rendering...");
         return (
             <div className="gameContainer">
                 <Board position={this.state.position} handleBoardClick={this.passHandleBoardClick} handleDragStart={this.passHandleDragStart} handleDrop={this.passHandleDrop} />
