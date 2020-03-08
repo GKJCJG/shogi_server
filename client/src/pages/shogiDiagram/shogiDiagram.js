@@ -44,8 +44,10 @@ class ShogiDiagram extends Component {
         if (!this.state.onPalette.symbol || !(this.state.onPalette.symbol in letterDictionary)) {
             return;
         }
-        const owner = this.getOwnerFromEvent(event);
-        const location = this.getLocationFromEvent(event, owner);
+        const id = event.target.id || event.target.parentElement.id;
+        const button = event.button;
+        const owner = this.getOwnerFromID({id, button});
+        const location = this.getLocationFromID(id, owner);
         const remove = event.altKey;
         this.setState(prevState => {
             const piece = prevState.onPalette.occupant;
@@ -63,17 +65,19 @@ class ShogiDiagram extends Component {
         });
     }
 
-    getOwnerFromEvent(event) {
-        if (/te/.test(event.target.id)) {
-            return event.target.id.includes("sente") ? "sente" : "gote";
+    getOwnerFromID({id, button}) {
+        console.log(id, button);
+        if (/te/.test(id)) {
+            return id.includes("sente") ? "sente" : "gote";
         } else {
-            return event.button === 0 ? "sente" : "gote";
+            return button === 0 ? "sente" : "gote";
         }
     }
 
-    getLocationFromEvent(event, owner) {
-        if (parseInt(event.target.id)) {
-            return event.target.id;
+    getLocationFromID(id, owner) {
+        console.log(id, owner);
+        if (parseInt(id)) {
+            return id;
         } else {
             return `${owner}Hand`;
         }
@@ -148,10 +152,10 @@ class ShogiDiagram extends Component {
 
     handleDrop(event) {
         const id = event.target.id;
-        if ((isNaN(parseInt(id)) && id !== "gote" && id !== "sente") || !this.state.dragee.id) {
+        if ((isNaN(parseInt(id)) && /te/.test(id) === false) || !this.state.dragee.id) {
             return;
         }
-        const location = isNaN(id) ? `${id}Hand` : id;
+        const location = isNaN(id) ? `${id.substring(0, id.indexOf("-"))}Hand` : id;
         this.setState(prevState => {
             const position = new DiagramPosition(prevState.position);
             position.removePiece(prevState.dragee.id, prevState.onPalette.occupant);
