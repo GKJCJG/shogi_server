@@ -6,6 +6,7 @@ import {Game, Setup, Home, Dashboard, Login, Register, ShogiDiagram} from "./pag
 class App extends Component {
 
   render() {
+    console.log("rendering something...")
     return (
       <Router>
       <div>

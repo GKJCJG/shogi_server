@@ -22,6 +22,7 @@ const generateInitialState = () => ({
 class ShogiDiagram extends Component {
 
     constructor() {
+        console.log("constructing....");
         super();
 
         this.state = generateInitialState();
@@ -50,32 +51,36 @@ class ShogiDiagram extends Component {
     passHandleBoardClick = this.handleBoardClick.bind(this);
 
     handleSquareClick(square, owner) {
-        let position = this.state.position;
-        if (!owner) {
-            position[square] = { occupant: null, class: [null], symbol: null };
-        } else {
-            position[square] = { occupant: this.state.onPalette.occupant, class: [owner], symbol: this.state.onPalette.symbol };
-        }
+        this.setState(prevState => {
+            const position = new DiagramPosition(prevState.position);
+            if (!owner) {
+                position.removePiece(square);
+            } else {
+                position.addPiece(square, prevState.onPalette.occupant, owner);
+            }
 
-        this.setState({ position, string: new DiagramPosition(position).translateToString() });
+            return {
+                position: position.translateToPlainObject(),
+                string: position.translateToString()
+            };
+        });
     }
 
     handleHandClick(event) {
-        const pieceOrder = ["歩", "香", "桂", "銀", "金", "角", "飛"];
-        let position = this.state.position;
-        const owner = event.target.id.search("-") === -1 ? event.target.id : event.target.id.substring(0, event.target.id.search("-"));
-        let targetArray = position[owner + "Hand"].occupants;
-        const index = pieceOrder.indexOf(this.state.onPalette.occupant);
-        if (index !== -1) {
+        this.setState(prevState => {
+            const position = new DiagramPosition(prevState.position);
+            const owner = event.target.id.includes("-") ? event.target.id : event.target.id.substring(0, event.target.id.search("-"));
+            const location = `${owner}Hand`;
             if (event.altKey) {
-                targetArray[index].number--;
-                if (targetArray[index].number < 0) targetArray[index].number = 0;
+                position.removePieceFromHand(location, prevState.onPalette.occupant);
             } else {
-                targetArray[index].number++;
+                position.addPiece(location, prevState.onPalette.occupant);
             }
-        }
-
-        this.setState({ position, string: new DiagramPosition(position).translateToString() });
+            return {
+                position: position.translateToPlainObject(),
+                string: position.translateToString()
+            }
+        })
     }
 
     handleType(event) {
@@ -85,12 +90,12 @@ class ShogiDiagram extends Component {
     passHandleType = this.handleType.bind(this);
 
     setActive(symbol, occupant) {
-        const newPalette = {
+        const onPalette = {
             symbol,
             occupant
         };
 
-        this.setState({ onPalette: newPalette });
+        this.setState({ onPalette });
     }
 
     passSetActive = this.setActive.bind(this);
@@ -112,9 +117,7 @@ class ShogiDiagram extends Component {
         if (!event.target.textContent) {
             return;
         }
-        // console.log("Start");
-        // console.log(event.target);
-        // console.log(this.state.position);
+
         if (!isNaN(event.target.id)) {
             const occupant = event.target.textContent.trim();
             const owner = event.target.classList.contains("sente") ? "sente" : "gote";
@@ -139,60 +142,28 @@ class ShogiDiagram extends Component {
     passHandleDragStart = this.handleDragStart.bind(this);
 
     handleDrop(event) {
-        // console.log("End");
-        // console.log(event.target);
-        // console.log(this.state.dragee);
-        // console.log(this.state.onPalette);
-
         const id = event.target.id;
-        // console.log(id);
         if ((isNaN(parseInt(id)) && id !== "gote" && id !== "sente") || !this.state.dragee.id) {
             return;
         }
-        if (!isNaN(this.state.dragee.id)) {
+        const location = isNaN(id) ? `${id}Hand` : id;
+        this.setState(prevState => {
+            const position = new DiagramPosition(prevState.position);
+            position.removePiece(prevState.dragee.id, prevState.onPalette.occupant);
+            position.addPiece(location, this.state.onPalette.occupant, this.state.dragee.owner);
 
-            if (!isNaN(id)) {
-
-                this.setState(prevState => {
-                    const { position } = prevState;
-                    // console.log(this.state.dragee.id, id);
-                    position[this.state.dragee.id] = { occupant: null, class: [null], symbol: null };
-                    position[id] = { occupant: this.state.onPalette.occupant, class: [this.state.dragee.owner], symbol: this.state.onPalette.symbol };
-                    const string = new DiagramPosition(position).translateToString();
-                    const onPalette = generateInitialState().onPalette;
-
-                    return { position, string, onPalette };
-                });
-            } else {
-                // console.log("trying to drop in the hand!");
-                this.setState(prevState => {
-                    const { position } = prevState;
-                    const pieceHolder = position[`${id}Hand`].occupants.find(occupant => occupant.symbol === this.state.onPalette.occupant);
-                    position[this.state.dragee.id] = { occupant: null, class: [null], symbol: null };
-                    pieceHolder.number++;
-                    const string = new DiagramPosition(position).translateToString();
-                    const onPalette = generateInitialState().onPalette;
-                    return { position, string, onPalette }
-                })
-            }
-        } else {
-            this.setState(prevState => {
-                const { position } = prevState;
-                position[id] = { occupant: this.state.onPalette.occupant, class: [this.state.dragee.owner], symbol: this.state.onPalette.symbol };
-                // console.log(this.state.dragee);
-                const pieceHolder = position[this.state.dragee.id].occupants.find(occupant => occupant.symbol === this.state.onPalette.occupant);
-                pieceHolder.number--;
-                const string = new DiagramPosition(position).translateToString();
-                const onPalette = generateInitialState().onPalette;
-
-                return { position, string, onPalette };
-            });
-        }
+            return {
+                position: position.translateToPlainObject(),
+                string: position.translateToString(),
+                onPalette: generateInitialState().onPalette
+            };
+        });
     }
 
     passHandleDrop = this.handleDrop.bind(this);
 
     render() {
+        console.log("rendering...");
         return (
             <div className="gameContainer">
                 <Board position={this.state.position} handleBoardClick={this.passHandleBoardClick} handleDragStart={this.passHandleDragStart} handleDrop={this.passHandleDrop} />
