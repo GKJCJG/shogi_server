@@ -1,4 +1,4 @@
-import {letterDictionary, symbolDictionary} from "./dictionaries";
+import { letterDictionary, symbolDictionary, nameDictionary } from "./dictionaries";
 
 /* eslint-disable no-use-before-define */
 
@@ -13,7 +13,7 @@ class FenString extends String {
 
     translateRows() {
         let rows = {}
-        for (let i=9; i>0; i--) {
+        for (let i = 9; i > 0; i--) {
             const singleRow = this.translateRow(i);
             Object.assign(rows, singleRow);
         }
@@ -21,7 +21,7 @@ class FenString extends String {
     }
 
     translateRow(rowNumber) {
-        let output = {}, currentFile = 9, rowString = this.split("/")[9-rowNumber];
+        let output = {}, currentFile = 9, rowString = this.split("/")[9 - rowNumber];
         rowNumber = 9 - rowNumber + 1;
         for (let i = 0; i < rowString.length; i++) {
             if (currentFile < 1) break;
@@ -36,37 +36,37 @@ class FenString extends String {
 
         if (currentFile > 0) handleNumber(currentFile);
         return output;
-        
+
         function handleSymbol(letter) {
 
             let squareClass = /[A-Z]/.test(letter) ? ["gote"] : ["sente"];
             let occupant = letterDictionary[letter.toLowerCase()].symbol;
 
-            output["" + currentFile + rowNumber] = {class: squareClass, occupant, symbol: letter};
-                        
+            output["" + currentFile + rowNumber] = { class: squareClass, occupant, symbol: letter };
+
         }
-    
+
         function handleNumber(emptySquareCount) {
-            for (let i=0; i<emptySquareCount; i++) {
-                let currentSquare = "" + (currentFile-i) + rowNumber;
-                output[currentSquare] = {class: [null], occupant: null, symbol: null};
+            for (let i = 0; i < emptySquareCount; i++) {
+                let currentSquare = "" + (currentFile - i) + rowNumber;
+                output[currentSquare] = { class: [null], occupant: null, symbol: null };
             }
         }
     }
 
     translateHands() {
-        const senteHand = Object.assign(this.translateHand(this.split("/")[9] || "0000000"), {class: "sente"});
-        const goteHand = Object.assign(this.translateHand(this.split("/")[10] || "0000000"), {class: "gote"});
-        return {senteHand, goteHand};
+        const senteHand = Object.assign(this.translateHand(this.split("/")[9] || "0000000"), { class: "sente" });
+        const goteHand = Object.assign(this.translateHand(this.split("/")[10] || "0000000"), { class: "gote" });
+        return { senteHand, goteHand };
     }
 
     translateHand(handString) {
         let handOccupants = [];
         const pieceOrder = ["歩", "香", "桂", "銀", "金", "角", "飛"];
         for (let i = 0; i < pieceOrder.length; i++) {
-            handOccupants.push({symbol: pieceOrder[i], number: parseInt(handString[i]) || 0, name: symbolDictionary[pieceOrder[i]].name});
+            handOccupants.push({ symbol: pieceOrder[i], number: parseInt(handString[i]) || 0, name: symbolDictionary[pieceOrder[i]].name });
         }
-        return {occupants: handOccupants};
+        return { occupants: handOccupants };
     }
 }
 
@@ -75,11 +75,23 @@ class DiagramPosition {
         Object.assign(this, object);
     }
 
-    translateToString () {
+    translateToString() {
         let rawString = "";
         rawString += this.translateSquares();
         rawString += this.translateHands();
         return rawString;
+    }
+
+    translateToPlainObject() {
+        let output = {};
+        for (let i = 1; i < 10; i++) {
+            for (let j = 1; j < 10; j++) {
+                output[`${i}${j}`] = this[`${i}${j}`];
+            }
+        }
+        output.senteHand = this.senteHand;
+        output.goteHand = this.goteHand;
+        return output;
     }
 
     translateSquares() {
@@ -127,14 +139,77 @@ class DiagramPosition {
 
     translateHand(whichHand) {
         let output = "";
-        const currentHand = this[whichHand+"Hand"].occupants;
+        const currentHand = this[whichHand + "Hand"].occupants;
         for (let i = 0; i < currentHand.length; i++) {
             output += currentHand[i].number;
         }
         return output;
     }
+
+    addPiece(location, piece, owner) {
+        const boardPiece = this.getPiece(piece);
+        if (isNaN(location)) {
+            this.addPieceToHand(location, boardPiece);
+        } else {
+            this.addPieceToBoard(location, boardPiece, owner);
+        }
+    }
+
+    getPiece(piece) {
+        const pieceRepresentation = piece.trim().toLowerCase();
+        if (pieceRepresentation in letterDictionary) {
+            return {
+                symbol: pieceRepresentation,
+                occupant: letterDictionary[pieceRepresentation].symbol,
+                name: letterDictionary[pieceRepresentation].name
+            };
+        } else if (pieceRepresentation in symbolDictionary) {
+            return {
+                symbol: symbolDictionary[pieceRepresentation].letter,
+                occupant: pieceRepresentation,
+                name: symbolDictionary[pieceRepresentation].name
+            };
+        } else if (pieceRepresentation in nameDictionary) {
+            return {
+                symbol: nameDictionary[pieceRepresentation].letter,
+                occupant: nameDictionary[pieceRepresentation].symbol,
+                name: pieceRepresentation
+            }
+        }
+        throw new Error(`Unable to find piece matcthing ${pieceRepresentation}`);
+    }
+
+    addPieceToHand(location, piece) {
+        const pieceToIncrement = this.findHandOccupant(location, piece);
+        pieceToIncrement && pieceToIncrement.number++;
+    }
+
+    findHandOccupant(location, piece) {
+        return this[location].occupants.find(occupant => occupant.name === piece.name);
+    }
+
+    addPieceToBoard(location, piece, owner) {
+        const { occupant, symbol } = piece;
+        this[location] = { occupant, class: [owner], symbol };
+    }
+
+    removePiece(location, piece) {
+        if (isNaN(location)) {
+            const boardPiece = this.getPiece(piece);
+            this.removePieceFromHand(location, boardPiece);
+        } else {
+            this[location] = { occupant: null, class: [null], symbol: null };
+        }
+    }
+
+    removePieceFromHand(location, piece) {
+        const pieceToIncrement = this.findHandOccupant(location, piece);
+        if (pieceToIncrement) {
+            pieceToIncrement.number = pieceToIncrement.number && pieceToIncrement.number - 1;
+        }
+    }
 }
 
-export {FenString, DiagramPosition};
+export { FenString, DiagramPosition };
 
 /* eslint-enable no-use-before-define */
